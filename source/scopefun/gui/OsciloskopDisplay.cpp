@@ -36,9 +36,6 @@ void OsciloskopDisplay::DisplayOnInitDialog(wxInitDialogEvent& event)
     m_checkBoxFFTUnit->SetValue(pOsciloscope->window.display.fftUnits);
     m_checkBoxFFTAxis->SetValue(pOsciloscope->window.display.fftAxis);
     m_checkBoxFFTGrid->SetValue(pOsciloscope->window.display.fftGrid);
-    m_checkBoxDigitalUnit->SetValue(pOsciloscope->window.display.digitalUnits);
-    m_checkBoxDigitalAxis->SetValue(pOsciloscope->window.display.digitalAxis);
-    m_checkBoxDigitalGrid->SetValue(pOsciloscope->window.display.digitalGrid);
     m_choiceSignal->SetSelection(pOsciloscope->window.display.signalType);
     m_choiceFFT->SetSelection(pOsciloscope->window.display.fftType);
     m_textCtrlSignal->SetValue(wxString::FromAscii(pFormat->floatToString(pOsciloscope->window.display.signalWidth)));
@@ -96,24 +93,6 @@ void OsciloskopDisplay::m_checkBoxFFTGridOnCheckBox(wxCommandEvent& event)
 {
     // TODO: Implement m_checkBoxFFTGridOnCheckBox
     pOsciloscope->window.display.fftGrid = m_checkBoxFFTGrid->GetValue();
-}
-
-void OsciloskopDisplay::m_checkBoxDigitalUnitOnCheckBox(wxCommandEvent& event)
-{
-    // TODO: Implement m_checkBoxDigitalUnitOnCheckBox
-    pOsciloscope->window.display.digitalUnits = m_checkBoxDigitalUnit->GetValue();
-}
-
-void OsciloskopDisplay::m_checkBoxDigitalAxisOnCheckBox(wxCommandEvent& event)
-{
-    // TODO: Implement m_checkBoxDigitalAxisOnCheckBox
-    pOsciloscope->window.display.digitalAxis = m_checkBoxDigitalAxis->GetValue();
-}
-
-void OsciloskopDisplay::m_checkBoxDigitalGridOnCheckBox(wxCommandEvent& event)
-{
-    // TODO: Implement m_checkBoxDigitalGridOnCheckBox
-    pOsciloscope->window.display.digitalGrid = m_checkBoxDigitalGrid->GetValue();
 }
 
 void OsciloskopDisplay::m_choiceSignalOnChoice(wxCommandEvent& event)

@@ -38,16 +38,12 @@ void WndDisplay::Default()
     fftGrid  = 1;
     fftAxis  = 0;
     fftUnits = 1;
-    digitalGrid    = 1;
-    digitalAxis    = 0;
-    digitalUnits   = 1;
     signalWidth    = MAX_TRIANGLE_SIZE / 2.f;
     signalType     = SIGNAL_TYPE_LINE;
     fftWidth       = MAX_TRIANGLE_SIZE / 2.f;
     fftType        = SIGNAL_TYPE_LINE;
     fftDecibel     = 10;
     fftLogFreq     = 1;
-    digitalBits    = DIGITAL_BITS_32;
     solid3d        = 1;
     light3d        = 1;
     depthTest3d    = 1;

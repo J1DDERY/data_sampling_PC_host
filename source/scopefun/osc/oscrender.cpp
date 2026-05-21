@@ -432,7 +432,6 @@ void OsciloscopeThreadRenderer::renderAnalogUnits(uint threadid, OsciloscopeThre
     char bufferVolt0[1024]   = { 0 };
     char bufferVolt1[1024]   = { 0 };
     char bufferTrigger[1024] = { 0 };
-    char bufferDigitalPatternCompleteCnt[1024] = { 0 };
     // sigPos, sigZoom
     double   cx = render.cameraOsc.View.Pos().x;
     if(wndMain.fftDigital.is(VIEW_SELECT_FFT_3D))
@@ -451,7 +450,6 @@ void OsciloscopeThreadRenderer::renderAnalogUnits(uint threadid, OsciloscopeThre
     ToolText::Time(bufferTime, 1024, gridTime, 0);
     ToolText::Volt(bufferVolt0, 1024, wndMain.channel01.Capture);
     ToolText::Volt(bufferVolt1, 1024, wndMain.channel02.Capture);
-    ToolText::DigitalPatternCompleteCnt(bufferDigitalPatternCompleteCnt, 1024, display.digitalPatternCompleteCnt);
     pFont->setSize(threadid, 0.5f);
     FORMAT_BUFFER();
     FORMAT("Time [ %s / div ]", bufferTime);
@@ -461,8 +459,6 @@ void OsciloscopeThreadRenderer::renderAnalogUnits(uint threadid, OsciloscopeThre
     pFont->writeText(threadid, 160, 15, formatBuffer, render.colorChannel0);
     FORMAT("Ch1 [ %s / div ]", bufferVolt1);
     pFont->writeText(threadid, 310, 15, formatBuffer, render.colorChannel1);
-    FORMAT("DigCnt: %s", bufferDigitalPatternCompleteCnt);
-    pFont->writeText(threadid, 460, 15, formatBuffer, render.colorTime);
     ////////////////////////////////////////////////////////////////////////////////
     // size
     ////////////////////////////////////////////////////////////////////////////////
@@ -1187,45 +1183,6 @@ void OsciloscopeThreadRenderer::measureSignal(uint threadId, OsciloscopeThreadDa
         {
             current.row[i] = 0;
         }
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // digital
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    int digitalCount = 0;
-    int indicesArray[16] = { 0 };
-    for(int i = 0; i < 16; i++)
-    {
-        if(wndMain.digital.digital[i])
-        {
-            indicesArray[i] = 1; // display ON indicator
-            digitalCount++;
-        }
-    }
-    if(digitalCount)
-    {
-        uint    iCount = display.samples;
-        double  xScale = 1.0;
-        uint relPosDig = wndMain.measure.data.pickX0.position.x * iCount;
-            for(uint j = 0; j < 12; j++)
-            {
-                if(!indicesArray[j])
-                {
-                    current.row[X0Bit0 + j] = 0;
-                    current.row[X1Bit0 + j] = 0;
-                    continue;
-                }
-                int    idx = clamp(relPosDig, 0U, iCount - 1);
-                ushort bits = display.digital.bytes[relPosDig];
-                ishort bit  = (bits >> j) & 0x0001;
-                if(wndMain.measure.data.pickX0.position.x >= 0.0 && wndMain.measure.data.pickX0.position.x <= 1.0)
-                {
-                    current.row[X0Bit0 + j] = (bool)bit;
-                }
-                if(wndMain.measure.data.pickX1.position.x >= 0.0 && wndMain.measure.data.pickX1.position.x <= 1.0)
-                {
-                    current.row[X1Bit0 + j] = (bool)bit;
-                }
-            }
     }
     ////////////////////////////////////////////////////////////////////////////////
     // FFT
@@ -2781,161 +2738,6 @@ void OsciloscopeThreadRenderer::renderFFT(uint threadId, OsciloscopeThreadData& 
             }
         }
         pCanvas3d->endBatch(threadId,  render.cameraFFT.Final, color, 0, BLEND_MODE_ALPHA, CANVAS3D_SHADER_DEFAULT);
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// renderDigitalAxis
-//
-////////////////////////////////////////////////////////////////////////////////
-void OsciloscopeThreadRenderer::renderDigitalAxis(uint threadid, OsciloscopeThreadData& threadData, uint xdivisions, uint ydivisions)
-{
-    OsciloscopeRenderData&  render = threadData.m_render;
-    if(!threadData.m_window.display.digitalAxis)
-    {
-        return;
-    }
-    pCanvas3d->beginBatch(threadid, CANVAS3D_BATCH_LINE, 1);
-    pCanvas3d->bLine(threadid, Vector4(xMin, 0.f, 0.f, 1.f), Vector4(xMax,  0.f, 0.f, 1.f));
-    pCanvas3d->endBatch(threadid, render.cameraFFT.Final, COLOR_ARGB(255, 255, 0, 0));
-    pCanvas3d->beginBatch(threadid, CANVAS3D_BATCH_LINE, 1);
-    pCanvas3d->bLine(threadid, Vector4(xMin, 0.5f, 0.f, 1.f),  Vector4(xMin, -0.5f, 0.f, 1.f));
-    pCanvas3d->endBatch(threadid, render.cameraFFT.Final, COLOR_ARGB(255, 0, 255, 0));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// renderDigitalGrid
-//
-////////////////////////////////////////////////////////////////////////////////
-void OsciloscopeThreadRenderer::renderDigitalGrid(uint threadId, OsciloscopeThreadData& threadData, uint xdivisions, uint ydivisions)
-{
-    SDisplay&                frame = threadData.m_frame;
-    WndMain&               wndMain = threadData.m_window;
-    OsciloscopeRenderData&  render = threadData.m_render;
-    if(!threadData.m_window.display.digitalGrid)
-    {
-        return;
-    }
-    pCanvas3d->beginBatch(threadId,  CANVAS3D_BATCH_LINE, 12 + 3);
-    for(int i = 0; i <= 12; i++)
-    {
-        float y = float(i) / float(12.f) - 0.5f;
-        pCanvas3d->bLine(threadId,  Vector4(xMin, y, 0.f, 1.f), Vector4(xMax, y, 0.f, 1.f));
-    }
-    pCanvas3d->bLine(threadId,  Vector4(xMax, -0.5f, 0.f, 1.f),  Vector4(xMax, 0.5f, 0.f, 1.f));
-    pCanvas3d->bLine(threadId,  Vector4(xMin, -0.5f, 0.f, 1.f),  Vector4(xMin, 0.5f, 0.f, 1.f));
-    pCanvas3d->endBatch(threadId, render.cameraFFT.Final, render.colorGrid);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// renderDigitalUnit
-//
-////////////////////////////////////////////////////////////////////////////////
-void OsciloscopeThreadRenderer::renderDigitalUnit(uint threadid, OsciloscopeThreadData& threadData, uint xdivisions, uint ydivisions)
-{
-    OsciloscopeRenderData&  render = threadData.m_render;
-    if(!threadData.m_window.display.digitalUnits)
-    {
-        return;
-    }
-    pFont->setSize(threadid, 0.25f);
-    float charHeight = pFont->getLineHeight(threadid) / 2.0;
-    uint       count = (xdivisions / 8) + 1;
-    float       xPos = xMin - charHeight - charHeight / 2;
-    float   invYdivs = 1.f / float(ydivisions);
-    FORMAT_BUFFER();
-    for(uint i = 0; i < ydivisions; i++)
-    {
-        float y = float(i) / float(ydivisions) - yMax + invYdivs;
-        FORMAT("%2d", i);
-        pFont->writeText3d(threadid, render.cameraFFT.Final, xPos, y, 0, Vector4(1.f, 0.f, 0.f, 1.f), Vector4(0.f, 1.f, 0.f, 1.f), formatBuffer, 0xffffffff, render.fftScaleX, render.fftScaleY);
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// renderDigital
-//
-////////////////////////////////////////////////////////////////////////////////
-void OsciloscopeThreadRenderer::renderDigital(uint threadId, OsciloscopeThreadData& threadData, MeasureData& measure, uint xdivisions, uint ydivisions)
-{
-    SDisplay&              display = threadData.m_frame;
-    MeasureData&              data = measure;
-    WndMain&               wndMain = threadData.m_window;
-    OsciloscopeRenderData&  render = threadData.m_render;
-    int realCnt = 0;
-    if(wndMain.digital.digital.getCount() == 0)
-    {
-        return;
-    }
-    int digitalCount     = 0;
-    int indicesArray[12] = {0};
-    for(int i = 0; i < 12; i++)
-    {
-        if(i < wndMain.digital.digital.getCount() && wndMain.digital.digital[i])
-        {
-            indicesArray[i] = 1;
-            digitalCount++;
-        }
-    }
-    if(digitalCount)
-    {
-        int count = display.samples - 1;
-        double xScale = 1.0;
-        pCanvas3d->beginBatch(threadId, CANVAS3D_BATCH_LINE, digitalCount * count * 2);
-        for(int i = 0; i < 12; i++)
-        {
-            if(!indicesArray[i])
-            {
-                continue;
-            }
-            double     ymin = (float(i + 0.12) / 12.f) - 0.5f;
-            double     ymax = (float(i + 1.12) / 12.f) - 0.5f - (1.f / 12.f) * 0.25f;
-            for(int j = 0; j < count; j++)
-            {
-                int    idx  = clamp(j, 0, count);
-                ushort bits = display.digital.bytes[idx];
-                ishort bit  = (bits >> i) & 0x0001;
-                double delta =  1.f / double(count);
-                double  xmin = (double(j) / double(count)) * xScale;
-                double  xmax = (double(j) / double(count)) * xScale + delta;
-                if(bit)
-                {
-                    pCanvas3d->bLine(threadId, Vector4(xmin, ymax, 0.f, 1.f), Vector4(xmax, ymax, 0.f, 1.f));
-                }
-                else
-                {
-                    pCanvas3d->bLine(threadId, Vector4(xmin, ymin, 0.f, 1.f), Vector4(xmax, ymin, 0.f, 1.f));
-                }
-                realCnt++;
-            }
-            ushort pbits = display.digital.bytes[0];
-            ishort previus = (pbits >> i) & 0x0001;
-            for(int j = 0; j < count; j++)
-            {
-                int    idx  = clamp(j, 0, count);
-                ushort bits = display.digital.bytes[idx];
-                ishort bit  = (bits >> i) & 0x0001;
-                double delta =  1.f / double(count);
-                double  xmin = (double(j) / double(count)) * xScale;
-                double  xmax = (double(j) / double(count)) * xScale + delta;
-                // draw
-                if(previus == bit)
-                {
-                    pCanvas3d->bLine(threadId,  Vector4(0, 0, 0.f, 1.f), Vector4(0, 0, 0.f, 1.f));
-                }
-                else
-                {
-                    pCanvas3d->bLine(threadId,  Vector4(xmin, ymin, 0.f, 1.f), Vector4(xmin, ymax, 0.f, 1.f));
-                }
-                previus = bit;
-                realCnt++;
-            }
-        }
-        pCanvas3d->endBatch(threadId, render.cameraFFT.Final, render.colorDigital, 0, BLEND_MODE_COPY);
     }
 }
 

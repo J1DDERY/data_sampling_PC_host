@@ -469,10 +469,6 @@ OsciloskopOsciloskop::~OsciloskopOsciloskop()
     m_dynamicEvents->clear();
 }
 
-void OsciloskopOsciloskop::SetDigital13To16(bool enable)
-{
-}
-
 void OsciloskopOsciloskop::SaveOldSlotLoadNewSlot(int newSlot)
 {
     int oldSlot = pOsciloscope->windowSlot;
@@ -575,97 +571,6 @@ void OsciloskopOsciloskop::setupUI(WndMain window)
     // AcDc
     m_choiceCh1ACDC->SetSelection(window.channel02.AcDc);
     ////////////////////////////////////////////////////////////////////////////////////////
-    // digital
-    ////////////////////////////////////////////////////////////////////////////////////////
-    /*
-    // on/off
-    m_checkBox1->SetValue(window.digital.digital[0]);
-    m_checkBox2->SetValue(window.digital.digital[1]);
-    m_checkBox3->SetValue(window.digital.digital[2]);
-    m_checkBox4->SetValue(window.digital.digital[3]);
-    m_checkBox5->SetValue(window.digital.digital[4]);
-    m_checkBox6->SetValue(window.digital.digital[5]);
-    m_checkBox7->SetValue(window.digital.digital[6]);
-    m_checkBox8->SetValue(window.digital.digital[7]);
-    m_checkBox9->SetValue(window.digital.digital[8]);
-    m_checkBox10->SetValue(window.digital.digital[9]);
-    m_checkBox11->SetValue(window.digital.digital[10]);
-    m_checkBox12->SetValue(window.digital.digital[11]);
-    // output
-    m_choiceBit0->SetSelection(window.digital.output[0]);
-    m_choiceBit1->SetSelection(window.digital.output[1]);
-    m_choiceBit2->SetSelection(window.digital.output[2]);
-    m_choiceBit3->SetSelection(window.digital.output[3]);
-    m_choiceBit4->SetSelection(window.digital.output[4]);
-    m_choiceBit5->SetSelection(window.digital.output[5]);
-    m_choiceBit6->SetSelection(window.digital.output[6]);
-    m_choiceBit7->SetSelection(window.digital.output[7]);
-    m_choiceBit8->SetSelection(window.digital.output[8]);
-    m_choiceBit9->SetSelection(window.digital.output[9]);
-    m_choiceBit10->SetSelection(window.digital.output[10]);
-    m_choiceBit11->SetSelection(window.digital.output[11]);
-    */
-    ////////////////////////////////////////////////////////////////////////////////////////
-    // digital setup
-    ////////////////////////////////////////////////////////////////////////////////////////
-    // voltage
-    m_textCtrlDigitalVoltage->SetValue(wxString::FromAscii(pFormat->floatToString(window.digitalSetup.voltage)));
-    // divider
-    m_textCtrlFreqDivider->SetValue(wxString::FromAscii(pFormat->integerToString(window.digitalSetup.divider)));
-    double freq = 250000000.0 / (double(window.digitalSetup.divider) + 1.0);
-    m_staticTextMhz->SetLabel(wxString::FromAscii(pFormat->doubleToString(freq)).append(wxT(" Hz")));
-    //digital pattern output enable
-    if (pOsciloscope->window.digitalSetup.digitalPatternOutEn) {
-        m_toggleBtnDigitalPatternOutputEnable->SetValue(1);
-    }
-    else {
-        m_toggleBtnDigitalPatternOutputEnable->SetValue(0);
-    }
-    // inputOutput11
-    m_choiceInputOutput->SetSelection(window.digitalSetup.inputOutput11to6);
-    if (m_choiceInputOutput->GetSelection() == 1)
-    {
-        m_choiceDS815->Disable();
-        m_choiceBit6->Disable();
-        m_choiceBit7->Disable();
-        m_choiceBit8->Disable();
-        m_choiceBit9->Disable();
-        m_choiceBit10->Disable();
-        m_choiceBit11->Disable();
-    }
-    else
-    {
-        m_choiceDS815->Enable();
-        m_choiceBit6->Enable();
-        m_choiceBit7->Enable();
-        m_choiceBit8->Enable();
-        m_choiceBit9->Enable();
-        m_choiceBit10->Enable();
-        m_choiceBit11->Enable();
-    }
-    // inputOutput5to0
-    m_choiceInputOutput1->SetSelection(window.digitalSetup.inputOutput5to0);
-    if (m_choiceInputOutput1->GetSelection() == 1)
-    {
-        m_choiceDS70->Disable();
-        m_choiceBit0->Disable();
-        m_choiceBit1->Disable();
-        m_choiceBit2->Disable();
-        m_choiceBit3->Disable();
-        m_choiceBit4->Disable();
-        m_choiceBit5->Disable();
-    }
-    else
-    {
-        m_choiceDS70->Enable();
-        m_choiceBit0->Enable();
-        m_choiceBit1->Enable();
-        m_choiceBit2->Enable();
-        m_choiceBit3->Enable();
-        m_choiceBit4->Enable();
-        m_choiceBit5->Enable();
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////
     // function
     ////////////////////////////////////////////////////////////////////////////////////////
     // xyGraph
@@ -694,105 +599,6 @@ void OsciloskopOsciloskop::setupUI(WndMain window)
     // Percent
     m_textCtrlTriggerPre->SetValue(wxString::FromAscii(pFormat->floatToString(window.trigger.Percent)));
     m_sliderTriggerPre->SetValue(window.trigger.Percent);
-    // Holdoff
-    m_textCtrlTriggerHoldoff->SetValue(wxString::FromAscii(pFormat->floatToString(window.trigger.Holdoff)));
-    m_sliderTriggerHoldoff->SetValue(window.trigger.Holdoff);
-    // stage
-    m_comboBoxDigitalStage->SetSelection(window.trigger.stage);
-    // stageStart
-    m_comboBoxDigitalStageStart->SetSelection(window.trigger.stageStart);
-    // stageMode
-    m_comboBoxDigitalMode->SetSelection(window.trigger.stageMode);
-    if (pOsciloscope->window.trigger.stageMode == 0) {
-        m_staticText68->Disable();
-        m_comboBoxDigitalSerialChannel->Disable();
-    }
-    else {
-        m_staticText68->Enable();
-        m_comboBoxDigitalSerialChannel->Enable();
-    }
-    // stageChannel
-    m_comboBoxDigitalSerialChannel->SetSelection(window.trigger.stageChannel);
-    // stage
-    int istage = window.trigger.stage;
-    // delay[4]
-    ushort delay = window.trigger.delay[istage];
-    m_textCtrDigitallDelay->SetValue(wxString::FromAscii(pFormat->integerToString(delay)));
-    // pattern[4]
-    m_comboBoxBit0->SetSelection(window.trigger.pattern[istage][0]);
-    m_comboBoxBit1->SetSelection(window.trigger.pattern[istage][1]);
-    m_comboBoxBit2->SetSelection(window.trigger.pattern[istage][2]);
-    m_comboBoxBit3->SetSelection(window.trigger.pattern[istage][3]);
-    m_comboBoxBit4->SetSelection(window.trigger.pattern[istage][4]);
-    m_comboBoxBit5->SetSelection(window.trigger.pattern[istage][5]);
-    m_comboBoxBit6->SetSelection(window.trigger.pattern[istage][6]);
-    m_comboBoxBit7->SetSelection(window.trigger.pattern[istage][7]);
-    m_comboBoxBit8->SetSelection(window.trigger.pattern[istage][8]);
-    m_comboBoxBit9->SetSelection(window.trigger.pattern[istage][9]);
-    m_comboBoxBit10->SetSelection(window.trigger.pattern[istage][10]);
-    m_comboBoxBit11->SetSelection(window.trigger.pattern[istage][11]);
-    // mask[4]
-    if (!window.trigger.mask[istage][0])
-    {
-    m_comboBoxBit0->SetSelection(4);
-    }
-    if (!window.trigger.mask[istage][1])
-    {
-    m_comboBoxBit1->SetSelection(4);
-    }
-    if (!window.trigger.mask[istage][2])
-    {
-    m_comboBoxBit2->SetSelection(4);
-    }
-    if (!window.trigger.mask[istage][3])
-    {
-    m_comboBoxBit3->SetSelection(4);
-    }
-    if (!window.trigger.mask[istage][4])
-    {
-    m_comboBoxBit4->SetSelection(4);
-    }
-    if (!window.trigger.mask[istage][5])
-    {
-    m_comboBoxBit5->SetSelection(4);
-    }
-    if (!window.trigger.mask[istage][6])
-    {
-    m_comboBoxBit6->SetSelection(4);
-    }
-    if (!window.trigger.mask[istage][7])
-    {
-    m_comboBoxBit7->SetSelection(4);
-    }
-    if (!window.trigger.mask[istage][8])
-    {
-    m_comboBoxBit8->SetSelection(4);
-    }
-    if (!window.trigger.mask[istage][9])
-    {
-    m_comboBoxBit9->SetSelection(4);
-    }
-    if (!window.trigger.mask[istage][10])
-    {
-    m_comboBoxBit10->SetSelection(4);
-    }
-    if (!window.trigger.mask[istage][11])
-    {
-    m_comboBoxBit11->SetSelection(4);
-    }
-
-    if (pHardwareGenerator)
-    {
-    pHardwareGenerator->SetupUI();
-    }
-
-    DigitalMiddlePinMaxVoltText(pOsciloscope->window.digitalSetup.voltage);
-}
-
-void OsciloskopHardwareGenerator::SetupUI()
-{
-    wxInitDialogEvent evt;
-    HardwareGeneratorOnInitDialog(evt);
 }
 
 int OsciloskopOsciloskop::getCurrentSlot()
@@ -886,8 +692,6 @@ void OsciloskopOsciloskop::OnInit()
     pInfo = new OsciloskopInfo(this);
     pDisplay = new OsciloskopDisplay(this);
     pThermal = new OsciloskopThermal(this);
-    pSoftwareGenerator = new OsciloskopSoftwareGenerator(this);
-    pHardwareGenerator = new OsciloskopHardwareGenerator(this);
     once = 1;
     pulse = 0;
     timer = 0.0;
@@ -911,14 +715,7 @@ void OsciloskopOsciloskop::MenuScriptSelection(wxCommandEvent& event)
     */
 }
 
-void OsciloskopOsciloskop::DigitalMiddlePinMaxVoltText(float voltageMax)
-{
-   FORMAT_BUFFER();
-   FORMAT("[+%.2f]", voltageMax);
-   //m_staticText109->SetLabelText(formatBuffer);
-   //m_staticText126->SetLabelText(formatBuffer);
-   m_staticText123->SetLabelText(formatBuffer);
-}
+
 
 //
 //void OsciloskopOsciloskop::m_menuItemAutoCalibrateOnMenuSelection(wxCommandEvent& event)

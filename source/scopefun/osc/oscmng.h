@@ -770,7 +770,6 @@ class OscContext
 public:
     SDL_SpinLock lock;
     SFContext    sf;
-    SSimulate    simulate;
     SDisplay     display;
     // SFrameInfo   frameInfo;
 public:
@@ -778,8 +777,6 @@ public:
 public:
     void setCaptureFlag(int  mode, int  wait);
     void getCaptureFlag(int* mode, int* wait);
-    void setSimulate(SSimulate* sim);
-    void getSimulate(SSimulate* sim);
     void setDisplay(SDisplay* sim);
     void getDisplay(SDisplay* sim);
 };
@@ -798,9 +795,6 @@ enum EThreadApiFunction
     afEEPROMWrite,
     afEEPROMErase,
     afHardwareConfig,
-    afSetSimulateData,
-    afSetSimulateOnOff,
-    afUploadGenerator,
     afReadFpgaStatus,
     afLast,
 };
@@ -843,11 +837,7 @@ public:
     uint         timeout;
 public:
     double            simulateTimeValue;
-    SSimulate         simulateData;
-    SDL_atomic_t      simulateOnOff;
     SDisplay          displayData;
-    SGeneratorConfig  generatorConfig;
-    SGeneratorData    generatorData;
     SHardware         config;
 public:
     ThreadApi();
@@ -866,7 +856,6 @@ public:
     int  isOpen();
     int  isFpga();
     int  isCalibrated();
-    int  isSimulate();
     void setInit(int memory, int thread, int active, int timeout);
     void setFrame(int  version, int  header, int  data, int  packet);
     void getFrame(int* version, int* header, int* data, int* packet);
@@ -876,12 +865,6 @@ public:
     void getConfig(SHardware* config);
     void setEEPROM(SEeprom* data, int  size, int  offset);
     void getEEPROM(SEeprom* data, int* size, int* offset);
-    void setSimulateData(SSimulate* sim);
-    void getSimulateData(SSimulate* sim);
-    void setGeneratorData(SGeneratorData* genData);
-    void getGeneratorData(SGeneratorData* genData);
-    void setSimulateOnOff(int  onoff);
-    void getSimulateOnOff(int* onoff);
     void setDisplay(SDisplay* display);
     void getDisplay(SDisplay* display);
     void setIpPort(const char* ip, uint port);
@@ -1106,8 +1089,6 @@ public:
     SDL_atomic_t  bandWidth;
     SDL_atomic_t  oscExit;
 public:
-    SSimulate      sim;
-public:
     OscContext*    ctx;
 public:
     SDL_atomic_t   syncUI;
@@ -1285,14 +1266,9 @@ public:
     void startUserInterface();
     void stopUserInterface();
 public:
-    //void clientUploadGenerator(SGenerator& generator);
     void clientUploadDisplay(SDisplay& display);
 public:
     void setupControl(WndMain window);
-public:
-    SSimulate GetServerSim();
-    void      transmitSim(SSimulate& sim);
-    void      simOnOff(int value);
 public:
     void clearEts(int value);
 public:

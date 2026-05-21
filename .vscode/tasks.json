@@ -1,36 +1,66 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "configure scopefun release",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "-S",
-                "${workspaceFolder}",
-                "-B",
-                "${workspaceFolder}/build",
-                "-G",
-                "MinGW Makefiles",
-                "-D",
-                "CMAKE_POLICY_VERSION_MINIMUM=3.5",
-                "-D",
-                "SCOPEFUN_BUILD_TYPE=Release"
-            ],
-            "problemMatcher": []
-        },
-        {
-            "label": "build scopefun release",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "${workspaceFolder}/build",
-                "--target",
-                "ScopeFun"
-            ],
-            "dependsOn": "configure scopefun release",
-            "problemMatcher": []
-        }
-    ]
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "configure scopefun release",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"-S",
+				"${workspaceFolder}",
+				"-B",
+				"${workspaceFolder}/build",
+				"-G",
+				"MinGW Makefiles",
+				"-D",
+				"CMAKE_POLICY_VERSION_MINIMUM=3.5",
+				"-D",
+				"SCOPEFUN_BUILD_TYPE=Release"
+			],
+			"problemMatcher": []
+		},
+		{
+			"label": "build scopefun release",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"--build",
+				"${workspaceFolder}/build",
+				"--target",
+				"ScopeFun"
+			],
+			"dependsOn": "configure scopefun release",
+			"problemMatcher": []
+		},
+		{
+			"label": "build scopefun release",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"--build",
+				"build",
+				"--target",
+				"ScopeFun"
+			],
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "build scopefun final",
+			"type": "shell",
+			"command": "cmake",
+			"args": [
+				"--build",
+				"build",
+				"--target",
+				"ScopeFun"
+			],
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		}
+	]
 }

@@ -776,11 +776,6 @@ void ToolText::Volt(char* buffer, int size, float value)
     pFormat->formatString(buffer, size, "%.2f V", value);
 }
 
-void ToolText::DigitalPatternCompleteCnt(char* buffer, int size, uint value)
-{
-    pFormat->formatString(buffer, size, "%i", value);
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //

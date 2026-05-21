@@ -167,7 +167,6 @@ public:
     static void Hertz(char* buffer, int size, float value);
     static void Decibels(char* buffer, int size, float value);
     static void Volt(char* buffer, int size, float value);
-    static void DigitalPatternCompleteCnt(char* buffer, int size, uint value);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

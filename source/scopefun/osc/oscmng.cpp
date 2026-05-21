@@ -89,18 +89,6 @@ OscContext::OscContext()
     lock = 0;
 }
 
-void OscContext::setSimulate(SSimulate* sim)
-{
-    SDL_AtomicLock(&lock);
-    simulate = *sim;
-    SDL_AtomicUnlock(&lock);
-}
-void OscContext::getSimulate(SSimulate* sim)
-{
-    SDL_AtomicLock(&lock);
-    *sim = simulate;
-    SDL_AtomicUnlock(&lock);
-}
 void OscContext::setDisplay(SDisplay* dis)
 {
     SDL_AtomicLock(&lock);
@@ -157,8 +145,6 @@ ThreadApi::ThreadApi()
     eepromSize   = 0;
     eepromOffset = 0;
     simulateTimeValue = 0.0;
-    SDL_memset(&simulateData, 0, sizeof(SSimulate));
-    SDL_AtomicSet(&simulateOnOff, 0);
     wait();
     SDL_memset(&displayData, 0, sizeof(SDisplay));
     SDL_memset(&config, 0, sizeof(SHardware));
@@ -219,11 +205,11 @@ void ThreadApi::update()
     SInt iopened = {0};
     int isimulate = 0;
     int iversion = SDL_AtomicGet(&version);
-    isimulate = sfIsSimulate(getCtx());
     /*
     sfHardwareIsOpened(getCtx(), &iopened);
     SDL_AtomicSet(&open, iopened.value);
     */
+    isimulate = sfIsSimulate(getCtx());
     SDL_AtomicSet(&simulate, isimulate);
     while(true)
     {
@@ -297,19 +283,6 @@ void ThreadApi::update()
                     //SDL_AtomicSet(&fpga, iopened.value);
                 }
                 break;
-            case afSetSimulateData:
-                SDL_AtomicLock(&lock);
-                iret += sfSetSimulateData(getCtx(), &simulateData);
-                SDL_AtomicUnlock(&lock);
-                break;
-            case afSetSimulateOnOff:
-                iret += sfSetSimulateOnOff(getCtx(), SDL_AtomicGet(&simulateOnOff));
-                break;
-            case afUploadGenerator:
-                SDL_AtomicLock(&lock);
-                iret += sfHardwareUploadGenerator(getCtx(), &generatorConfig, &generatorData);
-                SDL_AtomicUnlock(&lock);
-                break;
             case afReadFpgaStatus:
                {
                   SDL_AtomicLock(&lock);
@@ -348,10 +321,6 @@ int  ThreadApi::isCalibrated()
    return SDL_AtomicGet(&calibrated);
 }
 
-int ThreadApi::isSimulate()
-{
-    return SDL_AtomicGet(&simulate);
-}
 void ThreadApi::setInit(int mem, int ithread, int iactive, int tt)
 {
     SDL_AtomicLock(&lock);
@@ -417,40 +386,6 @@ void ThreadApi::getEEPROM(SEeprom* data, int* size, int* offset)
     *size   = eepromSize;
     *offset = eepromOffset;
     SDL_AtomicUnlock(&lock);
-}
-void ThreadApi::setSimulateData(SSimulate* sim)
-{
-    SDL_AtomicLock(&lock);
-    simulateData = *sim;
-    SDL_AtomicUnlock(&lock);
-}
-void ThreadApi::getSimulateData(SSimulate* sim)
-{
-    SDL_AtomicLock(&lock);
-    *sim = simulateData;
-    SDL_AtomicUnlock(&lock);
-}
-
-void ThreadApi::setGeneratorData(SGeneratorData* genData)
-{
-    SDL_AtomicLock(&lock);
-    generatorData   = *genData;
-    SDL_AtomicUnlock(&lock);
-}
-void ThreadApi::getGeneratorData(SGeneratorData* genData)
-{
-    SDL_AtomicLock(&lock);
-    *genData   = generatorData;
-    SDL_AtomicUnlock(&lock);
-}
-
-void ThreadApi::setSimulateOnOff(int onoff)
-{
-    SDL_AtomicSet(&simulateOnOff, onoff);
-}
-void ThreadApi::getSimulateOnOff(int* onoff)
-{
-    *onoff = SDL_AtomicGet(&simulateOnOff);
 }
 void ThreadApi::setDisplay(SDisplay* dis)
 {
@@ -932,8 +867,6 @@ int OsciloscopeManager::start()
     ////////////////////////////////////////////////
     pOsciloscope->thread.setInit(settings.getSettings()->memoryFrame * MEGABYTE, 0, 1, 1000);
     pOsciloscope->thread.function(afInit);
-    sim = pOsciloscope->GetServerSim();
-    pOsciloscope->transmitSim(sim);
     ////////////////////////////////////////////////
     // script
     ////////////////////////////////////////////////
@@ -958,33 +891,6 @@ int OsciloscopeManager::start()
     sfSetDefault(getHw());
     sfSetYRangeScaleA(getHw(), getAttr(vc2Volt), getGain(0, vc2Volt));
     sfSetYRangeScaleB(getHw(), getAttr(vc2Volt), getGain(1, vc2Volt));
-    sfSetDigitalInputOutput(getHw(), 1, 1);
-    window.digitalSetup.inputOutput11to6 = 1;
-    window.digitalSetup.inputOutput5to0  = 1;
-    sfSetDigitalVoltage(getHw(), pOsciloscope->window.digitalSetup.voltage, pOsciloscope->settings.getHardware()->digitalVoltageCoeficient);
-    pOsciloscope->window.digitalSetup.digitalPatternOutEn = sfGetDigitalPatternOutputEn(getHw());
-    ////////////////////////////////////////////////
-    // default generator settings
-    ////////////////////////////////////////////////
-    sfSetGeneratorFrequency0(getHw(), 100000.0, settings.getHardware()->generatorFs);
-    sfSetGeneratorFrequency1(getHw(), 100000.0, settings.getHardware()->generatorFs);
-    sfSetGeneratorVoltage0(getHw(), 1000);
-    sfSetGeneratorVoltage1(getHw(), 1000);
-    double freq0 = sfGetGeneratorFrequency0(getHw(), settings.getHardware()->generatorFs);
-    double freq1 = sfGetGeneratorFrequency1(getHw(), settings.getHardware()->generatorFs);
-    sfSetGeneratorSquareDuty0(getHw(), 1024);
-    sfSetGeneratorSquareDuty1(getHw(), 1024);
-    sfSetGeneratorOffset0(getHw(), pOsciloscope->settings.getHardware()->getGeneratorOffset(pOsciloscope->window.horizontal.Capture, 0));
-    sfSetGeneratorOffset1(getHw(), pOsciloscope->settings.getHardware()->getGeneratorOffset(pOsciloscope->window.horizontal.Capture, 1));
-    ////////////////////////////////////////////////
-    // custom signal
-    ////////////////////////////////////////////////
-    FORMAT_BUFFER();
-    /*
-    FORMAT_PATH("data/signal/custom.signal");
-    window.hardwareGenerator.loadCustomAwg(0, formatBuffer);
-    window.hardwareGenerator.loadCustomAwg(1, formatBuffer);
-    */
     //////////////////////////////////////////////////////////
     // thread count
     //////////////////////////////////////////////////////////
@@ -1091,6 +997,7 @@ int OsciloscopeManager::start()
     // icon
     ////////////////////////////////////////////////
     #ifndef MAC
+    FORMAT_BUFFER();
     FORMAT_PATH("data/icon/icon64.bmp")
     SDL_Surface* icon = SDL_LoadBMP(formatBuffer);
     SDL_SetWindowIcon(pOsciloscope->sdlWindow, icon);
@@ -1930,101 +1837,82 @@ void OsciloscopeManager::renderThread(uint threadId, OsciloscopeThreadData& thre
     // preFftRender
     ////////////////////////////////////////////////////////////////////////////////
     renderer.preFftRender(threadId, threadData);
-    if(wndMain.fftDigital.is(VIEW_SELECT_DIGITAL))
+    ////////////////////////////////////////////////////////////////////////////////
+    // Mode
+    ////////////////////////////////////////////////////////////////////////////////
+    pCanvas3d->setMode(threadId, RENDER_MODE_COLOR_FFT3D);
+    pCanvas2d->setMode(threadId, RENDER_MODE_COLOR_FFT3D);
+    renderer.renderMeasureFFT(threadId, threadData);
+    ////////////////////////////////////////////////////////////////////////////////
+    // FFT 3d
+    ////////////////////////////////////////////////////////////////////////////////
+    if(wndMain.fftDigital.is(VIEW_SELECT_FFT_3D))
     {
-        ////////////////////////////////////////////////////////////////////////////////
-        // Mode
-        ////////////////////////////////////////////////////////////////////////////////
-        pCanvas3d->setMode(threadId, RENDER_MODE_COLOR_DIGITAL);
-        pCanvas2d->setMode(threadId, RENDER_MODE_COLOR_DIGITAL);
-        ////////////////////////////////////////////////////////////////////////////////
-        // digital
-        ////////////////////////////////////////////////////////////////////////////////
-        int bits = (int)pow(float(2), float(wndMain.display.digitalBits + 3));
-        renderer.renderDigitalGrid(threadId, threadData, bits, 12);
-        renderer.renderDigitalAxis(threadId, threadData, bits, 12);
-        renderer.renderDigitalUnit(threadId, threadData, bits, 12);
-        renderer.renderDigital(threadId, threadData, measure, bits, 12);
-    }
-    else
-    {
-        ////////////////////////////////////////////////////////////////////////////////
-        // Mode
-        ////////////////////////////////////////////////////////////////////////////////
-        pCanvas3d->setMode(threadId, RENDER_MODE_COLOR_FFT3D);
-        pCanvas2d->setMode(threadId, RENDER_MODE_COLOR_FFT3D);
-        renderer.renderMeasureFFT(threadId, threadData);
-        ////////////////////////////////////////////////////////////////////////////////
-        // FFT 3d
-        ////////////////////////////////////////////////////////////////////////////////
-        if(wndMain.fftDigital.is(VIEW_SELECT_FFT_3D))
+        if(threadData.m_historyCount > 0)
         {
-            if(threadData.m_historyCount > 0)
+            int framesCount = threadData.m_historyCount;
+            float    zDelta = 1.f / framesCount;
+            float         z = 1.f;
+            for(uint i = 0; i < (uint)framesCount; i++)
             {
-                int framesCount = threadData.m_historyCount;
-                float    zDelta = 1.f / framesCount;
-                float         z = 1.f;
-                for(uint i = 0; i < (uint)framesCount; i++)
+                if(wndMain.channel01.FFTOnOff)
                 {
-                    if(wndMain.channel01.FFTOnOff)
-                    {
-                        uint r = COLOR_R(render.colorChannel0);
-                        uint g = COLOR_G(render.colorChannel0);
-                        uint b = COLOR_B(render.colorChannel0);
-                        renderer.renderFFT(threadId, threadData, measure, fft, threadData.m_history[i], false, z, 0, COLOR_ARGB(25, r, g, b));
-                    }
-                    if(wndMain.channel02.FFTOnOff)
-                    {
-                        uint r = COLOR_R(render.colorChannel1);
-                        uint g = COLOR_G(render.colorChannel1);
-                        uint b = COLOR_B(render.colorChannel1);
-                        renderer.renderFFT(threadId, threadData, measure, fft, threadData.m_history[i], false, z, 1, COLOR_ARGB(25, r, g, b));
-                    }
-                    if(wndMain.function.FFTOnOff)
-                    {
-                        uint r = COLOR_R(render.colorFunction);
-                        uint g = COLOR_G(render.colorFunction);
-                        uint b = COLOR_B(render.colorFunction);
-                        renderer.renderFFT(threadId, threadData, measure, fft, threadData.m_history[i], true, z, 0, COLOR_ARGB(25, r, g, b));
-                    }
-                    z -= zDelta;
+                    uint r = COLOR_R(render.colorChannel0);
+                    uint g = COLOR_G(render.colorChannel0);
+                    uint b = COLOR_B(render.colorChannel0);
+                    renderer.renderFFT(threadId, threadData, measure, fft, threadData.m_history[i], false, z, 0, COLOR_ARGB(25, r, g, b));
                 }
+                if(wndMain.channel02.FFTOnOff)
+                {
+                    uint r = COLOR_R(render.colorChannel1);
+                    uint g = COLOR_G(render.colorChannel1);
+                    uint b = COLOR_B(render.colorChannel1);
+                    renderer.renderFFT(threadId, threadData, measure, fft, threadData.m_history[i], false, z, 1, COLOR_ARGB(25, r, g, b));
+                }
+                if(wndMain.function.FFTOnOff)
+                {
+                    uint r = COLOR_R(render.colorFunction);
+                    uint g = COLOR_G(render.colorFunction);
+                    uint b = COLOR_B(render.colorFunction);
+                    renderer.renderFFT(threadId, threadData, measure, fft, threadData.m_history[i], true, z, 0, COLOR_ARGB(25, r, g, b));
+                }
+                z -= zDelta;
             }
         }
-        ////////////////////////////////////////////////////////////////////////////////
-        // Mode
-        ////////////////////////////////////////////////////////////////////////////////
-        pCanvas3d->setMode(threadId, RENDER_MODE_COLOR_FFT2D);
-        pCanvas2d->setMode(threadId, RENDER_MODE_COLOR_FFT2D);
-        ////////////////////////////////////////////////////////////////////////////////
-        // FFT Grid
-        ////////////////////////////////////////////////////////////////////////////////
-        renderer.renderFFTGrid(threadId, threadData);
-        ////////////////////////////////////////////////////////////////////////////////
-        // FFT Units
-        ////////////////////////////////////////////////////////////////////////////////
-        renderer.renderFFTUnits(threadId, threadData);
-        ////////////////////////////////////////////////////////////////////////////////
-        // FFT Axis
-        ////////////////////////////////////////////////////////////////////////////////
-        renderer.renderFFTAxis(threadId, threadData);
-        ////////////////////////////////////////////////////////////////////////////////
-        // FFT
-        ////////////////////////////////////////////////////////////////////////////////
-        if(wndMain.fftDigital.is(VIEW_SELECT_FFT_2D))
+    }
+    ////////////////////////////////////////////////////////////////////////////////
+    // Mode
+    ////////////////////////////////////////////////////////////////////////////////
+    pCanvas3d->setMode(threadId, RENDER_MODE_COLOR_FFT2D);
+    pCanvas2d->setMode(threadId, RENDER_MODE_COLOR_FFT2D);
+    ////////////////////////////////////////////////////////////////////////////////
+    // FFT Grid
+    ////////////////////////////////////////////////////////////////////////////////
+    renderer.renderFFTGrid(threadId, threadData);
+    ////////////////////////////////////////////////////////////////////////////////
+    // FFT Units
+    ////////////////////////////////////////////////////////////////////////////////
+    renderer.renderFFTUnits(threadId, threadData);
+    ////////////////////////////////////////////////////////////////////////////////
+    // FFT Axis
+    ////////////////////////////////////////////////////////////////////////////////
+    renderer.renderFFTAxis(threadId, threadData);
+    ////////////////////////////////////////////////////////////////////////////////
+    // FFT
+    ////////////////////////////////////////////////////////////////////////////////
+    if(wndMain.fftDigital.is(VIEW_SELECT_FFT_2D))
+    {
+        if(wndMain.channel01.FFTOnOff)
         {
-            if(wndMain.channel01.FFTOnOff)
-            {
-                renderer.renderFFT(threadId, threadData, measure, fft, threadData.m_frame, false, 0.f, 0, render.colorChannel0);
-            }
-            if(wndMain.channel02.FFTOnOff)
-            {
-                renderer.renderFFT(threadId, threadData, measure, fft, threadData.m_frame, false, 0.f, 1, render.colorChannel1);
-            }
-            if(wndMain.function.FFTOnOff)
-            {
-                renderer.renderFFT(threadId, threadData, measure, fft, threadData.m_frame, true, 0.f, 1, render.colorFunction);
-            }
+            renderer.renderFFT(threadId, threadData, measure, fft, threadData.m_frame, false, 0.f, 0, render.colorChannel0);
+        }
+        if(wndMain.channel02.FFTOnOff)
+        {
+            renderer.renderFFT(threadId, threadData, measure, fft, threadData.m_frame, false, 0.f, 1, render.colorChannel1);
+        }
+        if(wndMain.function.FFTOnOff)
+        {
+            renderer.renderFFT(threadId, threadData, measure, fft, threadData.m_frame, true, 0.f, 1, render.colorFunction);
         }
     }
     ////////////////////////////////////////////////////////////////////////////////
@@ -3139,10 +3027,6 @@ void OsciloscopeManager::onCalibrateFrameCaptured(SDisplay& display, int version
                         window.channel02.AcDc = 0;
                         sfSetAnalogSwitchBit(getHw(), CHANNEL_A_ACDC, 0);
                         sfSetAnalogSwitchBit(getHw(), CHANNEL_B_ACDC, 0);
-                        window.hardwareGenerator.type0 = GENERATOR_SIN;
-                        window.hardwareGenerator.type1 = GENERATOR_SIN;
-                        sfSetGeneratorType0(getHw(), GENERATOR_SIN);
-                        sfSetGeneratorType1(getHw(), GENERATOR_SIN);
                         sfSetXRange(getHw(), 1);
                         sfSetYPositionA(getHw(), settings.getHardware()->calibratedOffsets[calibrate.type][0][calibrate.voltage]);
                         sfSetYRangeScaleA(getHw(), getAttr(calibrate.voltage), (uint)settings.getHardware()->calibratedGainValue[calibrate.type][0][calibrate.voltage]);
@@ -3187,8 +3071,6 @@ void OsciloscopeManager::AutoCalibrate()
     calibrate.generator   = 0;
     calibrate.messageBox  = acmbStart;
     SDL_AtomicSet(&signalMode, SIGNAL_MODE_CAPTURE);
-    SSimulate sim = GetServerSim();
-    pOsciloscope->transmitSim(sim);
 }
 
 double OsciloscopeManager::getTriggerVoltagePerStep()
@@ -3302,55 +3184,8 @@ void OsciloscopeManager::setThreadPriority(ThreadID id)
     };
 }
 
-/*
-void OsciloscopeManager::clientUploadGenerator(SGenerator& generator)
-{
-    SDL_memcpy(&window.hardwareGenerator.custom.awg1.bytes[0],     &generator.awg1.bytes[0],    sizeof(window.hardwareGenerator.custom.awg1));
-    SDL_memcpy(&window.hardwareGenerator.custom.awg2.bytes[0],     &generator.awg2.bytes[0],    sizeof(window.hardwareGenerator.custom.awg2));
-    SDL_memcpy(&window.hardwareGenerator.custom.digital.bytes[0],  &generator.digital.bytes[0], sizeof(window.hardwareGenerator.custom.digital));
-    //   int ret = usbTransferDataOut( 4, (byte*)&window.hardwareGenerator.custom, sizeof(window.hardwareGenerator.custom), 0, pOsciloscope->settings.usbEp4TimeOut );
-}
-*/
-
 void OsciloscopeManager::clientUploadDisplay(SDisplay& display)
 {
-}
-
-SSimulate OsciloscopeManager::GetServerSim()
-{
-    // ch0
-    sim.active0     = window.softwareGenerator.channel[0].onOff;
-    sim.peakToPeak0 = window.softwareGenerator.channel[0].peakToPeak;
-    sim.period0     = window.softwareGenerator.channel[0].period;
-    sim.speed0      = window.softwareGenerator.channel[0].speed;
-    sim.avery0      = window.softwareGenerator.channel[0].every;
-    sim.type0       = (ESimulateType)window.softwareGenerator.channel[0].type;
-    // ch1
-    sim.active1     = window.softwareGenerator.channel[1].onOff;
-    sim.peakToPeak1 = window.softwareGenerator.channel[1].peakToPeak;
-    sim.period1     = window.softwareGenerator.channel[1].period;
-    sim.speed1      = window.softwareGenerator.channel[1].speed;
-    sim.avery1      = window.softwareGenerator.channel[1].every;
-    sim.type1       = (ESimulateType)window.softwareGenerator.channel[1].type;
-    // other stuff
-    sim.time       = window.horizontal.Capture;
-    sim.voltage0   = window.channel01.Capture;
-    sim.voltage1   = window.channel02.Capture;
-    sim.etsActive  = window.horizontal.ETS;
-    sim.etsIndex   = settings.getHardware()->fpgaEtsIndex;
-    sim.etsMax     = settings.getHardware()->fpgaEtsCount;
-    return sim;
-}
-void OsciloscopeManager::transmitSim(SSimulate& sim)
-{
-    pOsciloscope->thread.setSimulateData(&sim);
-    pOsciloscope->thread.function(afSetSimulateData);
-}
-
-void OsciloscopeManager::simOnOff(int value)
-{
-    pOsciloscope->thread.setSimulateOnOff(value);
-    pOsciloscope->thread.function(afSetSimulateOnOff);
 }
 
 void OsciloscopeManager::clearEts(int value)
@@ -3462,60 +3297,6 @@ void OsciloscopeManager::transferUI()
     // time
     window.horizontal.Capture   = captureTimeFromEnum(sfGetXRange(&m_hw));
     window.horizontal.FrameSize = sfGetSampleSize(&m_hw);
-    // digital
-    window.trigger.stageStart = sfGetDigitalStart(&m_hw);
-    window.trigger.stageMode = sfGetDigitalMode(&m_hw);
-    window.trigger.stageChannel = sfGetDigitalChannel(&m_hw);
-    // digital: delay, mask, pattern
-    for(int stage = 0; stage < 4; stage++)
-    {
-        window.trigger.delay[stage] = sfGetDigitalDelay(&m_hw, (DigitalStage)stage);
-    }
-    for(int stage = 0; stage < 4; stage++)
-    {
-        for(int bit = 0; bit < 16; bit++)
-        {
-            window.trigger.mask[stage][bit] = sfGetDigitalMask(&m_hw, (DigitalStage)stage, (DigitalBit)bit);
-        }
-    }
-    for(int stage = 0; stage < 4; stage++)
-    {
-        for(int bit = 0; bit < 16; bit++)
-        {
-            window.trigger.pattern[stage][bit] = sfGetDigitalPattern(&m_hw, (DigitalStage)stage, (DigitalBit)bit);
-        }
-    }
-    double kDigital = pOsciloscope->settings.getHardware()->digitalVoltageCoeficient;
-    // digital: voltage, inputoutput, clock
-    window.digitalSetup.voltage = sfGetDigitalVoltage(&m_hw, kDigital);
-    window.digitalSetup.inputOutput11to6 = sfGetDigitalInputOutput11to6(&m_hw);
-    window.digitalSetup.inputOutput5to0 = sfGetDigitalInputOutput5to0(&m_hw);
-    window.digitalSetup.divider = sfGetDigitalClockDivide(&m_hw);
-    // digital pattern output enable
-    //SFrameHeader header = { 0 };
-    //uint digitalPatternCompleteCnt = { 0 };
-    //sfGetHeaderHardware((SFrameHeader*)&header, &m_hw);
-    window.digitalSetup.digitalPatternOutEn = sfGetDigitalPatternOutputEn(&m_hw);
-    // digital: output
-    for(int i = 0; i < 16; i++)
-    {
-        window.digital.output[i] = sfGetDigitalOutputBit(&m_hw, i);
-    }
-    // generator A
-    window.hardwareGenerator.type0 = sfGetGeneratorType0(&m_hw);
-    window.hardwareGenerator.onOff0 = sfGetGeneratorOn0(&m_hw);
-    window.hardwareGenerator.voltage0 = sfGetGeneratorVoltage0(&m_hw);
-    window.hardwareGenerator.offset0 = sfGetGeneratorOffset0(&m_hw) - pOsciloscope->settings.getHardware()->getGeneratorOffset(window.horizontal.Capture, 0);
-    window.hardwareGenerator.frequency0 = sfGetGeneratorFrequency0(&m_hw, pOsciloscope->settings.getHardware()->generatorFs);
-    window.hardwareGenerator.squareDuty0 = sfGetGeneratorSquareDuty0(&m_hw);
-    // generator B
-    window.hardwareGenerator.type1 = sfGetGeneratorType1(&m_hw);
-    window.hardwareGenerator.onOff1 = sfGetGeneratorOn1(&m_hw);
-    window.hardwareGenerator.voltage1 = sfGetGeneratorVoltage1(&m_hw);
-    window.hardwareGenerator.offset1 = sfGetGeneratorOffset1(&m_hw) - pOsciloscope->settings.getHardware()->getGeneratorOffset(window.horizontal.Capture, 1);
-    window.hardwareGenerator.frequency1 = sfGetGeneratorFrequency1(&m_hw, pOsciloscope->settings.getHardware()->generatorFs);
-    window.hardwareGenerator.squareDuty1 = sfGetGeneratorSquareDuty1(&m_hw);
-
     // ui
     SetupUI(window);
 }

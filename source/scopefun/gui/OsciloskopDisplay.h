@@ -42,9 +42,6 @@ protected:
     void m_checkBoxFFTUnitOnCheckBox(wxCommandEvent& event);
     void m_checkBoxFFTAxisOnCheckBox(wxCommandEvent& event);
     void m_checkBoxFFTGridOnCheckBox(wxCommandEvent& event);
-    void m_checkBoxDigitalUnitOnCheckBox(wxCommandEvent& event);
-    void m_checkBoxDigitalAxisOnCheckBox(wxCommandEvent& event);
-    void m_checkBoxDigitalGridOnCheckBox(wxCommandEvent& event);
     void m_choiceSignalOnChoice(wxCommandEvent& event);
     void m_textCtrlSignalOnTextEnter(wxCommandEvent& event);
     void m_sliderSignalOnScroll(wxScrollEvent& event);

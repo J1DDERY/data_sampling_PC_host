@@ -182,44 +182,7 @@ void MWTrigger::Default()
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// MWDigital
-//
-////////////////////////////////////////////////////////////////////////////////
-MWDigital::MWDigital()
-{
-    Default();
-}
 
-void MWDigital::Default()
-{
-    digital.setCount(16);
-    output.setCount(16);
-    for(int i = 0; i < 16; i++)
-    {
-        digital[i] = 0;
-        output[i]  = 0;
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// MWDigitalSetup
-//
-////////////////////////////////////////////////////////////////////////////////
-MWDigitalSetup::MWDigitalSetup()
-{
-    Default();
-}
-
-void MWDigitalSetup::Default()
-{
-    divider = 0;
-    voltage = 1.238;
-    inputOutput11to6 = 0;
-    inputOutput5to0  = 0;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -484,8 +447,6 @@ void WndMain::Default()
     speed = USB_SPEED_AUTOMATIC;
     display.Default();
     thermal.Default();
-    softwareGenerator.Default();
-    hardwareGenerator.Default();
     storage.Default();
     measure.Default();
     channel01.Default();
@@ -493,8 +454,6 @@ void WndMain::Default()
     function.Default();
     horizontal.Default();
     trigger.Default();
-    digital.Default();
-    digitalSetup.Default();
     fftDigital.raise(VIEW_SELECT_DIGITAL);
 }
 

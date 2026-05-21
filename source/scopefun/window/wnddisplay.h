@@ -23,14 +23,6 @@
 
 #define MAX_TRIANGLE_SIZE 0.01f
 
-enum DigitalBits
-{
-    DIGITAL_BITS_8,
-    DIGITAL_BITS_16,
-    DIGITAL_BITS_32,
-    DIGITAL_BITS_64,
-};
-
 enum SignalType
 {
     SIGNAL_TYPE_LINE,
@@ -52,12 +44,6 @@ public:
     int           fftGrid;
     int           fftAxis;
     int           fftUnits;
-public:
-    int           digitalGrid;
-    int           digitalAxis;
-    int           digitalUnits;
-public:
-    DigitalBits   digitalBits;
 public:
     SignalType    signalType;
     float         signalWidth;

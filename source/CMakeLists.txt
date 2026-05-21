@@ -37,11 +37,9 @@ set(SOURCE_SCOPEFUN ${CMAKE_SOURCE_DIR}/source/scopefun/app/app.cpp
                     ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopConnection.cpp
                     ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopDebug.cpp
                     ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopDisplay.cpp
-                    ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopHardwareGenerator.cpp
                     ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopInfo.cpp
                     ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopMeasure.cpp
                     ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopOsciloskop.cpp
-                    ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopSoftwareGenerator.cpp
                     ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopStorage.cpp
                     ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopThermal.cpp
                     ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopTools.cpp
@@ -54,7 +52,6 @@ set(SOURCE_SCOPEFUN ${CMAKE_SOURCE_DIR}/source/scopefun/app/app.cpp
                     ${CMAKE_SOURCE_DIR}/source/scopefun/osc/oscsignal.cpp
                     ${CMAKE_SOURCE_DIR}/source/scopefun/window/tool.cpp
                     ${CMAKE_SOURCE_DIR}/source/scopefun/window/wnddisplay.cpp
-                    ${CMAKE_SOURCE_DIR}/source/scopefun/window/wndgenerate.cpp
                     ${CMAKE_SOURCE_DIR}/source/scopefun/window/wndmain.cpp
                     ${CMAKE_SOURCE_DIR}/source/scopefun/window/wndshadow.cpp
                     ${CMAKE_SOURCE_DIR}/source/scopefun/xpm/xpm128.c
@@ -124,7 +121,6 @@ set( HEADER_SCOPEFUN ${CMAKE_SOURCE_DIR}/source/scopefun/ScopeFun.h
                      ${CMAKE_SOURCE_DIR}/source/scopefun/osc/oscfile.h
                      ${CMAKE_SOURCE_DIR}/source/scopefun/window/tool.h
                      ${CMAKE_SOURCE_DIR}/source/scopefun/window/wnddisplay.h
-                     ${CMAKE_SOURCE_DIR}/source/scopefun/window/wndgenerate.h
                      ${CMAKE_SOURCE_DIR}/source/scopefun/window/wndmain.h
                      ${CMAKE_SOURCE_DIR}/source/scopefun/window/wndshadow.h )
 

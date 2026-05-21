@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Oct 26 2018)
+// C++ code generated with wxFormBuilder (version 4.2.1-0-g80c4cb6)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO *NOT* EDIT THIS FILE!
@@ -29,8 +29,6 @@
 #include <wx/spinbutt.h>
 #include <wx/slider.h>
 #include <wx/notebook.h>
-#include <wx/filepicker.h>
-#include <wx/tglbtn.h>
 #include <wx/radiobut.h>
 #include <wx/statline.h>
 #include <wx/frame.h>
@@ -42,7 +40,6 @@
 #include "scopefun/gui/guiheader.h"
 
 ///////////////////////////////////////////////////////////////////////////
-
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class Osciloskop
@@ -130,91 +127,6 @@ class Osciloskop : public wxFrame
 		wxCheckBox* m_checkBoxXYVoltageGraph;
 		wxCheckBox* m_checkBoxSignalF;
 		wxCheckBox* m_checkBoxFFTF;
-		wxPanel* m_panel9;
-		wxStaticText* m_staticText1232;
-		wxChoice* m_choiceDOnOff815;
-		wxChoice* m_choiceDOnOff70;
-		wxStaticText* m_staticText1242;
-		wxStaticText* m_staticTextBit111;
-		wxCheckBox* m_checkBox12;
-		wxStaticText* m_staticTextBit1111;
-		wxCheckBox* m_checkBox10;
-		wxStaticText* m_staticTextBit11111;
-		wxCheckBox* m_checkBox8;
-		wxStaticText* m_staticTextBit111111;
-		wxCheckBox* m_checkBox81;
-		wxStaticText* m_staticTextBit111141;
-		wxCheckBox* m_checkBox6;
-		wxStaticText* m_staticTextBit111142;
-		wxCheckBox* m_checkBox4;
-		wxStaticText* m_staticTextBit111143;
-		wxCheckBox* m_checkBox2;
-		wxCheckBox* m_checkBox11;
-		wxStaticText* m_staticTextBit11112;
-		wxCheckBox* m_checkBox9;
-		wxStaticText* m_staticTextBit11113;
-		wxCheckBox* m_checkBox7;
-		wxStaticText* m_staticTextBit11114;
-		wxCheckBox* m_checkBox811;
-		wxStaticText* m_staticTextBit1111111;
-		wxCheckBox* m_checkBox5;
-		wxStaticText* m_staticTextBit111144;
-		wxCheckBox* m_checkBox3;
-		wxStaticText* m_staticTextBit111145;
-		wxCheckBox* m_checkBox1;
-		wxStaticText* m_staticTextBit111146;
-		wxPanel* m_panel91;
-		wxStaticText* m_staticText1251;
-		wxChoice* m_choiceDS815;
-		wxChoice* m_choiceInputOutput;
-		wxChoice* m_choiceInputOutput1;
-		wxChoice* m_choiceDS70;
-		wxStaticText* m_staticText135;
-		wxStaticText* m_staticText91;
-		wxChoice* m_choiceBit11;
-		wxStaticText* m_staticText92;
-		wxChoice* m_choiceBit9;
-		wxStaticText* m_staticText971;
-		wxChoice* m_choiceBit7;
-		wxStaticText* m_staticText126;
-		wxChoice* m_choice102;
-		wxStaticText* m_staticText98;
-		wxChoice* m_choiceBit5;
-		wxStaticText* m_staticText99;
-		wxChoice* m_choiceBit3;
-		wxStaticText* m_staticText100;
-		wxChoice* m_choiceBit1;
-		wxChoice* m_choiceBit10;
-		wxStaticText* m_staticText95;
-		wxChoice* m_choiceBit8;
-		wxStaticText* m_staticText96;
-		wxChoice* m_choiceBit6;
-		wxStaticText* m_staticText101;
-		wxChoice* m_choice103;
-		wxStaticText* m_staticText125;
-		wxChoice* m_choiceBit4;
-		wxStaticText* m_staticText102;
-		wxChoice* m_choiceBit2;
-		wxStaticText* m_staticText103;
-		wxChoice* m_choiceBit0;
-		wxStaticText* m_staticText104;
-		wxPanel* m_panel25;
-		wxStaticText* m_staticText821;
-		wxFilePickerCtrl* m_filePicker1;
-		wxButton* m_buttonCustomFile;
-		wxStaticText* m_staticText471;
-		wxChoice* m_comboBoxDigitalPatternMode;
-		wxStaticText* m_staticText4711;
-		wxToggleButton* m_toggleBtnDigitalPatternOutputEnable;
-		wxButton* m_buttonDigitalPatternRestart;
-		wxCheckBox* m_checkBoxDigitalPatternRestartOnUpload;
-		wxStaticText* m_staticText80;
-		wxTextCtrl* m_textCtrlDigitalVoltage;
-		wxSpinButton* m_spinBtnDigVoltage;
-		wxStaticText* m_staticText108;
-		wxTextCtrl* m_textCtrlFreqDivider;
-		wxStaticText* m_staticText97;
-		wxStaticText* m_staticTextMhz;
 		wxNotebook* m_notebook3;
 		wxPanel* m_panel3;
 		wxRadioButton* m_radioBtnTriggered;
@@ -242,52 +154,8 @@ class Osciloskop : public wxFrame
 		wxTextCtrl* m_textCtrlTriggerHoldoff;
 		wxSpinButton* m_spinBtnTrigHoldoff;
 		wxSlider* m_sliderTriggerHoldoff;
-		wxPanel* m_panel13;
-		wxStaticText* m_staticText63;
-		wxChoice* m_comboBoxDigitalStage;
-		wxStaticText* m_staticText64;
-		wxTextCtrl* m_textCtrDigitallDelay;
-		wxStaticText* m_staticText65;
-		wxChoice* m_comboBoxDigitalStageStart;
-		wxStaticText* m_staticText66;
-		wxChoice* m_comboBoxDigitalMode;
-		wxStaticText* m_staticText68;
-		wxChoice* m_comboBoxDigitalSerialChannel;
-		wxStaticLine* m_staticline111;
-		wxStaticText* m_staticText1231;
-		wxChoice* m_choiceBit158;
-		wxChoice* m_choiceBit70;
-		wxStaticText* m_staticText1241;
-		wxStaticText* m_staticTextBit11;
-		wxChoice* m_comboBoxBit11;
-		wxStaticText* m_staticTextBit9;
-		wxChoice* m_comboBoxBit9;
-		wxStaticText* m_staticTextBit7;
-		wxChoice* m_comboBoxBit7;
-		wxStaticText* m_staticText123;
-		wxChoice* m_choice69;
-		wxStaticText* m_staticTextBit5;
-		wxChoice* m_comboBoxBit5;
-		wxStaticText* m_staticTextBit3;
-		wxChoice* m_comboBoxBit3;
-		wxStaticText* m_staticTextBit1;
-		wxChoice* m_comboBoxBit1;
-		wxChoice* m_comboBoxBit10;
-		wxStaticText* m_staticTextBit10;
-		wxChoice* m_comboBoxBit8;
-		wxStaticText* m_staticTextBit8;
-		wxChoice* m_comboBoxBit6;
-		wxStaticText* m_staticTextBit6;
-		wxChoice* m_choice70;
-		wxStaticText* m_staticText124;
-		wxChoice* m_comboBoxBit4;
-		wxStaticText* m_staticTextBit4;
-		wxChoice* m_comboBoxBit2;
-		wxStaticText* m_staticTextBit2;
-		wxChoice* m_comboBoxBit0;
-		wxStaticText* m_staticTextBit0;
 
-		// Virtual event handlers, overide them in your derived class
+		// Virtual event handlers, override them in your derived class
 		virtual void onActivate( wxActivateEvent& event ) { event.Skip(); }
 		virtual void onActivateApp( wxActivateEvent& event ) { event.Skip(); }
 		virtual void onClose( wxCloseEvent& event ) { event.Skip(); }
@@ -373,46 +241,6 @@ class Osciloskop : public wxFrame
 		virtual void m_checkBoxXYVoltageGraphOnCheckBox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_checkBoxSignalFOnCheckBox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_checkBoxFFTFOnCheckBox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceDOnOff815OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceDOnOff70OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_checkBox12OnCheckBox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_checkBox10OnCheckBox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_checkBox8OnCheckBox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_checkBox6OnCheckBox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_checkBox4OnCheckBox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_checkBox2OnCheckBox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_checkBox11OnCheckBox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_checkBox9OnCheckBox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_checkBox7OnCheckBox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_checkBox5OnCheckBox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_checkBox3OnCheckBox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_checkBox1OnCheckBox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceDS815OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceInputOutputOnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceInputOutput1OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceDS70OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceBit11OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceBit9OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceBit7OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceBit5OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceBit3OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceBit1OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceBit10OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceBit8OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceBit6OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceBit4OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceBit2OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceBit0OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_filePicker1OnFileChanged( wxFileDirPickerEvent& event ) { event.Skip(); }
-		virtual void m_buttonCustomFileOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxDigitalPatternModeOnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_toggleBtnDigitalPatternOutputEnableOnToggle( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_buttonDigitalPatternRestartOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_checkBoxDigitalPatternRestartOnUploadOnCheckBox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlDigitalVoltageOnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnDigVoltageOnSpinDown( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnDigVoltageOnSpinUp( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlFreqDividerOnTextEnter( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_buttonReArmOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_comboBoxTriggerOnCombobox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_comboBoxTriggerSourceOnCombobox( wxCommandEvent& event ) { event.Skip(); }
@@ -433,25 +261,6 @@ class Osciloskop : public wxFrame
 		virtual void m_spinBtnTrigHoldoffOnSpinDown( wxSpinEvent& event ) { event.Skip(); }
 		virtual void m_spinBtnTrigHoldoffOnSpinUp( wxSpinEvent& event ) { event.Skip(); }
 		virtual void m_sliderTriggerHoldoffOnScroll( wxScrollEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxDigitalStageOnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_textCtrDigitallDelayOnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxDigitalStageStartOnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxDigitalModeOnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxDigitalSerialChannelOnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceBit158OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_choiceBit70OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxBit11OnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxBit9OnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxBit7OnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxBit5OnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxBit3OnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxBit1OnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxBit10OnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxBit8OnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxBit6OnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxBit4OnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxBit2OnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxBit0OnCombobox( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
@@ -468,208 +277,6 @@ class Osciloskop : public wxFrame
 		Osciloskop( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Oscilloscope"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 1026,843 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 
 		~Osciloskop();
-
-};
-
-///////////////////////////////////////////////////////////////////////////////
-/// Class SoftwareGenerator
-///////////////////////////////////////////////////////////////////////////////
-class SoftwareGenerator : public wxDialog
-{
-	private:
-
-	protected:
-		wxNotebook* m_notebook3;
-		wxPanel* m_panel14;
-		wxStaticText* m_staticText3911;
-		wxChoice* m_comboBoxType0;
-		wxStaticText* m_staticText4021;
-		wxTextCtrl* m_textCtrlPeriod0;
-		wxChoice* m_comboBoxPeriod0;
-		wxStaticText* m_staticText40121;
-		wxTextCtrl* m_textCtrlPeek0;
-		wxChoice* m_comboBoxPeek0;
-		wxStaticText* m_staticText401121;
-		wxTextCtrl* m_textCtrlSpeed0;
-		wxStaticText* m_staticText4011111;
-		wxTextCtrl* m_textCtrlAvery0;
-		wxButton* m_buttonOn0;
-		wxButton* m_buttonOff0;
-		wxPanel* m_panel15;
-		wxStaticText* m_staticText39111;
-		wxChoice* m_comboBoxType1;
-		wxStaticText* m_staticText40211;
-		wxTextCtrl* m_textCtrlPeriod1;
-		wxChoice* m_comboBoxPeriod1;
-		wxStaticText* m_staticText401211;
-		wxTextCtrl* m_textCtrlPeek1;
-		wxChoice* m_comboBoxPeek1;
-		wxStaticText* m_staticText4011211;
-		wxTextCtrl* m_textCtrlSpeed1;
-		wxStaticText* m_staticText40111111;
-		wxTextCtrl* m_textCtrlAvery1;
-		wxButton* m_buttonOn1;
-		wxButton* m_buttonOff1;
-		wxButton* m_buttonOk;
-		wxButton* m_buttonDefault;
-		wxButton* m_buttonCancel;
-
-		// Virtual event handlers, overide them in your derived class
-		virtual void SoftwareGeneratorOnInitDialog( wxInitDialogEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxType0OnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlPeriod0OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxPeriod0OnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlPeek0OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxPeek0OnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlSpeed0OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlAvery0OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_buttonOn0OnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_buttonOff0OnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxType1OnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlPeriod1OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxPeriod1OnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlPeek1OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxPeek1OnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlSpeed1OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlAvery1OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_buttonOn1OnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_buttonOff1OnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_buttonOkOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_buttonDefaultOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_buttonCancelOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-
-
-	public:
-
-		SoftwareGenerator( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("SoftwareGenerator"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxDEFAULT_DIALOG_STYLE );
-		~SoftwareGenerator();
-
-};
-
-///////////////////////////////////////////////////////////////////////////////
-/// Class HardwareGenerator
-///////////////////////////////////////////////////////////////////////////////
-class HardwareGenerator : public wxDialog
-{
-	private:
-
-	protected:
-		wxNotebook* m_notebook3;
-		wxPanel* m_panel14;
-		wxStaticText* m_staticText54;
-		wxChoice* m_comboBoxType;
-		wxStaticText* m_staticText55;
-		wxTextCtrl* m_textCtrlFrequency;
-		wxSpinButton* m_spinBtnFrequency;
-		wxStaticText* m_staticText551;
-		wxTextCtrl* m_textCtrlVoltage0;
-		wxSpinButton* m_spinBtnCh0Volt;
-		wxSlider* m_sliderVoltage;
-		wxStaticText* m_staticText5511;
-		wxTextCtrl* m_textCtrlOffset0;
-		wxSpinButton* m_spinBtnCh0Offset;
-		wxSlider* m_sliderOffset;
-		wxStaticText* m_staticText5513;
-		wxTextCtrl* m_textCtrlPhase0;
-		wxSpinButton* m_spinBtnPhase0;
-		wxSlider* m_sliderPhase0;
-		wxStaticText* m_staticText55111;
-		wxTextCtrl* m_textCtrlSquareDuty0;
-		wxSpinButton* m_spinBtnGen0SqrDuty;
-		wxSlider* m_sliderSquareDuty;
-		wxFilePickerCtrl* m_filePicker1;
-		wxButton* m_buttonCustomFile;
-		wxButton* m_buttonOn0;
-		wxButton* m_buttonOff0;
-		wxPanel* m_panel15;
-		wxStaticText* m_staticText541;
-		wxChoice* m_comboBoxType1;
-		wxStaticText* m_staticText552;
-		wxTextCtrl* m_textCtrlFrequency1;
-		wxSpinButton* m_spinBtnFrequency1;
-		wxStaticText* m_staticText5512;
-		wxTextCtrl* m_textCtrlVoltage1;
-		wxSpinButton* m_spinBtnCh1Volt;
-		wxSlider* m_sliderVoltage1;
-		wxStaticText* m_staticText55112;
-		wxTextCtrl* m_textCtrlOffset1;
-		wxSpinButton* m_spinBtnCh1Offset;
-		wxSlider* m_sliderOffset1;
-		wxStaticText* m_staticText55131;
-		wxTextCtrl* m_textCtrlPhase1;
-		wxSpinButton* m_spinBtnPhase1;
-		wxSlider* m_sliderPhase1;
-		wxStaticText* m_staticText551112;
-		wxTextCtrl* m_textCtrlSquareDuty1;
-		wxSpinButton* m_spinBtnGen1SqrDuty;
-		wxSlider* m_sliderSquareDuty1;
-		wxFilePickerCtrl* m_filePicker11;
-		wxButton* m_buttonCustomFile1;
-		wxButton* m_buttonOn1;
-		wxButton* m_buttonOff1;
-		wxButton* m_buttonOk;
-		wxButton* m_buttonDefault;
-		wxButton* m_buttonCancel;
-
-		// Virtual event handlers, overide them in your derived class
-		virtual void HardwareGeneratorOnInitDialog( wxInitDialogEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxTypeOnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlFrequencyOnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnFrequencyOnSpinDown( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnFrequencyOnSpinUp( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlVoltage0OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnCh0VoltOnSpinDown( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnCh0VoltOnSpinUp( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_sliderVoltageOnScroll( wxScrollEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlOffset0OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnCh0OffsetOnSpinDown( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnCh0OffsetOnSpinUp( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_sliderOffsetOnScroll( wxScrollEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlPhase0OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnPhase0OnSpinDown( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnPhase0OnSpinUp( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_sliderPhase0OnScroll( wxScrollEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlSquareDuty0OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnGen0SqrDutyOnSpinDown( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnGen0SqrDutyOnSpinUp( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_sliderSquareDutyOnScroll( wxScrollEvent& event ) { event.Skip(); }
-		virtual void m_filePicker1OnFileChanged( wxFileDirPickerEvent& event ) { event.Skip(); }
-		virtual void m_buttonCustomFileOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_buttonOn0OnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_buttonOff0OnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_comboBoxType1OnChoice( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlFrequency1OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnFrequency1OnSpinDown( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnFrequency1OnSpinUp( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlVoltage1OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnCh1VoltOnSpinDown( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnCh1VoltOnSpinUp( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_sliderVoltage1OnScroll( wxScrollEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlOffset1OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnCh1OffsetOnSpinDown( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnCh1OffsetOnSpinUp( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_sliderOffset1OnScroll( wxScrollEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlPhase1OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnPhase1OnSpinDown( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnPhase1OnSpinUp( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_sliderPhase1OnScroll( wxScrollEvent& event ) { event.Skip(); }
-		virtual void m_textCtrlSquareDuty1OnTextEnter( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnGen1SqrDutyOnSpinDown( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_spinBtnGen1SqrDutyOnSpinUp( wxSpinEvent& event ) { event.Skip(); }
-		virtual void m_sliderSquareDuty1OnScroll( wxScrollEvent& event ) { event.Skip(); }
-		virtual void m_filePicker11OnFileChanged( wxFileDirPickerEvent& event ) { event.Skip(); }
-		virtual void m_buttonCustomFile1OnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_buttonOn1OnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_buttonOff1OnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_buttonOkOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_buttonDefaultOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_buttonCancelOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-
-
-	public:
-
-		HardwareGenerator( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("HardwareGenerator"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxDEFAULT_DIALOG_STYLE );
-		~HardwareGenerator();
 
 };
 
@@ -695,7 +302,7 @@ class Thermal : public wxDialog
 		wxButton* m_buttonDefault;
 		wxButton* m_buttonCancel;
 
-		// Virtual event handlers, overide them in your derived class
+		// Virtual event handlers, override them in your derived class
 		virtual void ThermalOnActivate( wxActivateEvent& event ) { event.Skip(); }
 		virtual void m_textCtrlHeatingOnTextEnter( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_spinBtnHeatingOnSpinDown( wxSpinEvent& event ) { event.Skip(); }
@@ -714,6 +321,7 @@ class Thermal : public wxDialog
 	public:
 
 		Thermal( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Thermal"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxDEFAULT_DIALOG_STYLE );
+
 		~Thermal();
 
 };
@@ -784,7 +392,7 @@ class Display : public wxDialog
 		wxButton* m_buttonDefault;
 		wxButton* m_buttonCancel;
 
-		// Virtual event handlers, overide them in your derived class
+		// Virtual event handlers, override them in your derived class
 		virtual void DisplayOnInitDialog( wxInitDialogEvent& event ) { event.Skip(); }
 		virtual void m_checkBoxUnitsOnCheckBox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_checkBoxAxisOnCheckBox( wxCommandEvent& event ) { event.Skip(); }
@@ -824,6 +432,7 @@ class Display : public wxDialog
 	public:
 
 		Display( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Display"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxDEFAULT_DIALOG_STYLE );
+
 		~Display();
 
 };
@@ -861,7 +470,7 @@ class Measure : public wxDialog
 		wxButton* m_buttonDefault;
 		wxButton* m_buttonCancel;
 
-		// Virtual event handlers, overide them in your derived class
+		// Virtual event handlers, override them in your derived class
 		virtual void DisplayOnInitDialog( wxInitDialogEvent& event ) { event.Skip(); }
 		virtual void m_checkBoxAutoClearOnCheckBox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_checkBoxAutoClearTriggerOnCheckBox( wxCommandEvent& event ) { event.Skip(); }
@@ -933,6 +542,7 @@ class Measure : public wxDialog
 		wxSlider* m_sliderFFT1;
 
 		Measure( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Measure"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxDEFAULT_DIALOG_STYLE );
+
 		~Measure();
 
 };
@@ -976,7 +586,7 @@ class Info : public wxDialog
 		wxStaticBitmap* m_bitmapLogo;
 		wxButton* m_buttonOk;
 
-		// Virtual event handlers, overide them in your derived class
+		// Virtual event handlers, override them in your derived class
 		virtual void ThermalOnActivate( wxActivateEvent& event ) { event.Skip(); }
 		virtual void InfoOnClose( wxCloseEvent& event ) { event.Skip(); }
 		virtual void m_textCtrlGlewOnTextURL( wxTextUrlEvent& event ) { event.Skip(); }
@@ -986,6 +596,7 @@ class Info : public wxDialog
 	public:
 
 		Info( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("About"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 700,500 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxSTAY_ON_TOP );
+
 		~Info();
 
 };
@@ -1000,7 +611,7 @@ class Debug : public wxDialog
 	protected:
 		wxButton* m_buttonSave;
 
-		// Virtual event handlers, overide them in your derived class
+		// Virtual event handlers, override them in your derived class
 		virtual void ThermalOnActivate( wxActivateEvent& event ) { event.Skip(); }
 		virtual void m_buttonSaveOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
 
@@ -1009,6 +620,7 @@ class Debug : public wxDialog
 		wxTextCtrl* m_textCtrlOutput;
 
 		Debug( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Debug"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 488,396 ), long style = wxCAPTION|wxCLOSE_BOX|wxRESIZE_BORDER );
+
 		~Debug();
 
 };
@@ -1035,7 +647,7 @@ class Storage : public wxDialog
 		wxButton* m_buttonDefault;
 		wxButton* m_buttonCancel;
 
-		// Virtual event handlers, overide them in your derived class
+		// Virtual event handlers, override them in your derived class
 		virtual void m_choiceStorageOnChoice( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_textCtrlStorageOnTextEnter( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_choicePacketSizeOnChoice( wxCommandEvent& event ) { event.Skip(); }
@@ -1047,6 +659,7 @@ class Storage : public wxDialog
 	public:
 
 		Storage( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Storage"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE );
+
 		~Storage();
 
 };
@@ -1075,7 +688,7 @@ class Connection : public wxDialog
 		wxButton* m_buttonDefault;
 		wxButton* m_buttonCancel;
 
-		// Virtual event handlers, overide them in your derived class
+		// Virtual event handlers, override them in your derived class
 		virtual void m_choiceConnectionOnChoice( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_checkBoxConnectedOnCheckBox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_buttonConnectOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
@@ -1088,6 +701,7 @@ class Connection : public wxDialog
 	public:
 
 		Connection( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Connection"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE );
+
 		~Connection();
 
 };

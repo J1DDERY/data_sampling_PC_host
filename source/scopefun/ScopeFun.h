@@ -38,7 +38,6 @@ extern "C" {
 #include <scopefun/osc/oscfft.h>
 #include <scopefun/osc/oscrender.h>
 #include <scopefun/window/wnddisplay.h>
-#include <scopefun/window/wndgenerate.h>
 #include <scopefun/window/wndshadow.h>
 #include <scopefun/window/wndmain.h>
 #include <scopefun/osc/osccontrol.h>

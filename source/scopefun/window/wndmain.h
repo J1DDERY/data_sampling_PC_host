@@ -139,40 +139,7 @@ public:
     void Default();
 };
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// MWDigital
-//
-////////////////////////////////////////////////////////////////////////////////
-class MWDigital
-{
-public:
-    Array<int, 16>    digital;
-    Array<byte, 16>   output;
-public:
-    MWDigital();
-public:
-    void Default();
-};
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// MWDigitalSetup
-//
-////////////////////////////////////////////////////////////////////////////////
-class MWDigitalSetup
-{
-public:
-    double voltage;
-    uint   divider;
-    int    inputOutput11to6;
-    int    inputOutput5to0;
-    bool   digitalPatternOutEn;
-public:
-    MWDigitalSetup();
-public:
-    void Default();
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -660,8 +627,6 @@ public:
 public:
     WndDisplay          display;
     WndThermal          thermal;
-    WndSoftwareGenerator softwareGenerator;
-    WndHardwareGenerator hardwareGenerator;
     WndStorage           storage;
 public:
     MWProgress     progress;
@@ -671,8 +636,6 @@ public:
     MWFunction     function;
     MWHorizontal   horizontal;
     MWTrigger      trigger;
-    MWDigital      digital;
-    MWDigitalSetup digitalSetup;
     MWCalibrate    calibrate;
 public:
     Flag32  fftDigital;

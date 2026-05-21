@@ -31,9 +31,6 @@ class OsciloskopDebug;
 class OsciloskopInfo;
 class OsciloskopDisplay;
 class OsciloskopThermal;
-class OsciloskopSoftwareGenerator;
-class OsciloskopHardwareGenerator;
-
 class wxStreamToCppTextRedirector;
 
 #include <scopefun/ScopeFun.h>

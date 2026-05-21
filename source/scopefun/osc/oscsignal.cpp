@@ -46,8 +46,6 @@ uint ScopeFunCaptureBuffer::save(const char* path)
     SHardware*      frameHardware    = sfCreateSHardware();
     uint            frameEts         = 0;
     SFloat          frameTemperature = { 0.0 };
-    uint            digitalPatternCompleteCnt  = { 0 };
-
     // context
     sfApiCreateContext(ctx, SCOPEFUN_FRAME_MEMORY);
     // info
@@ -60,7 +58,6 @@ uint ScopeFunCaptureBuffer::save(const char* path)
     sfGetHeaderHardware(frameHeader, frameHardware);
     sfGetHeaderEts(frameHeader, &frameEts);
     sfGetHeaderTemperature(frameHeader, &frameTemperature);
-    sfGetHeaderDigitalPatternCompleteCnt(frameHeader, &digitalPatternCompleteCnt);
     // frame
     FORMAT("frame.index,%d\n", (frameIndex%frameCount) );
     SDL_RWwrite(sfFile, &formatBuffer, SDL_strlen(formatBuffer), 1);
@@ -90,7 +87,7 @@ uint ScopeFunCaptureBuffer::save(const char* path)
         FORMAT("hardware.%s,%04x\n", (char*)stringId.bytes, ptr[j]);
         SDL_RWwrite(sfFile, &formatBuffer, SDL_strlen(formatBuffer), 1);
     }
-    FORMAT("sample.ch0[-512...511],sample.ch1[-512...511],sample.digital[0x000...0xfff]\n",0);
+
     SDL_RWwrite(sfFile, &formatBuffer, SDL_strlen(formatBuffer), 1);
     // samples
     int sampleCount = sfGetNumSamples(frameHardware);
@@ -308,31 +305,6 @@ double OsciloscopeFrame::getAnalogDouble(uint channel, uint sample)
     return clamp(fvalue, -1.0, 1.0);
 }
 
-ishort OsciloscopeFrame::getDigital(uint channel, uint sample)
-{
-    uint count = digital.getCount();
-    if(!count)
-    {
-        return 0;
-    }
-    int       idx = clamp<uint>(sample, 0, count - 1);
-    ishort ivalue = digital[idx];
-    ishort    bit = (ivalue >> channel) & 0x0001;
-    return bit;
-}
-
-ushort OsciloscopeFrame::getDigitalChannels(uint sample)
-{
-    uint count = digital.getCount();
-    if(!count)
-    {
-        return 0;
-    }
-    int       idx = clamp<uint>(sample, 0, count - 1);
-    ushort value = digital[idx];
-    return value;
-}
-
 float rand_FloatRange(float a, float b)
 {
     return ((b - a) * ((float)rand() / RAND_MAX)) + a;
@@ -342,190 +314,6 @@ void OsciloscopeFrame::generate(double dt, uint amount, double captureStart, dou
 {
     if(SDL_AtomicGet(&pOsciloscope->signalMode) != SIGNAL_MODE_SIMULATE)
     { return; }
-    deltaTime[0] += dt;
-    deltaTime[1] += dt;
-    //////////////////////////////////////////////////
-    // ets
-    //////////////////////////////////////////////////
-    ets = rand() % pOsciloscope->settings.getHardware()->fpgaEtsCount;
-    //////////////////////////////////////////////////
-    // analog
-    //////////////////////////////////////////////////
-    for(int i = 0; i < 2; i++)
-    {
-        // on/off
-        if(pOsciloscope->window.softwareGenerator.channel[i].onOff == 0)
-        {
-            continue;
-        }
-        // capture
-        float captureTime = pOsciloscope->window.horizontal.Capture * float(NUM_SAMPLES);
-        float captureVolt = 0;
-        if(i == 0)
-        {
-            captureVolt = pOsciloscope->window.channel01.Capture;
-        }
-        if(i == 1)
-        {
-            captureVolt = pOsciloscope->window.channel02.Capture;
-        }
-        // channels
-        SoftwareGeneratorChannel* pGenerate = 0;
-        if(i == 0)
-        {
-            pGenerate = &pOsciloscope->window.softwareGenerator.channel[0];
-        }
-        if(i == 1)
-        {
-            pGenerate = &pOsciloscope->window.softwareGenerator.channel[1];
-        }
-        GenerateType type       = pGenerate->type;
-        float        period     = pGenerate->period;
-        float        peaktopeak = pGenerate->peakToPeak;
-        float        speed      = pGenerate->speed;
-        // generate only on specified time
-        if(deltaTime[i] < pGenerate->every)
-        {
-            continue;
-        }
-        if(!pOsciloscope->window.horizontal.ETS)
-        {
-            generateTime[i] += deltaTime[i] * speed;
-        }
-        deltaTime[i] = 0;
-        // min/max peak
-        float minpeak = -peaktopeak / 2.f;
-        float maxpeak = peaktopeak / 2.f;
-        // frame size
-        float displayFrameSize = float(NUM_SAMPLES);
-        // generate
-        srand((uint)SDL_GetPerformanceCounter());
-        float value = 0;
-        for(uint j = 0; j < amount; j++)
-        {
-            switch(type)
-            {
-                case GENERATE_SINUS:
-                case GENERATE_COSINUS:
-                    {
-                        float  normalizedTime = float(j) / float(displayFrameSize) + float(generateTime[i]);
-                        float  signaltime  = (normalizedTime * captureTime);
-                        float            t = (signaltime / period);
-                        float    angle2Pi  = 2.f * PI * (t);
-                        switch(type)
-                        {
-                            case GENERATE_SINUS   :
-                                value = maxpeak * sinf(angle2Pi);
-                                break;
-                            case GENERATE_COSINUS :
-                                value = maxpeak * cosf(angle2Pi);
-                                break;
-                            default:
-                                break;
-                        };
-                    }
-                    break;
-                case GENERATE_DECREMENT:
-                case GENERATE_INCREMENT:
-                    {
-                        float  normalizedTime   = float(j) / float(displayFrameSize) + float(generateTime[i]);
-                        float  normalizedPeriod = period / captureTime;
-                        double input            = normalizedPeriod;
-                        float mod               = (float)modf(normalizedTime, &input);
-                        float div               = mod / (normalizedPeriod);
-                        switch(type)
-                        {
-                            case GENERATE_INCREMENT :
-                                value = div * peaktopeak + minpeak;
-                                break;
-                            case GENERATE_DECREMENT :
-                                value = (1.f - div) * peaktopeak + minpeak;
-                                break;
-                            default:
-                                break;
-                        };
-                    }
-                    break;
-                case GENERATE_CONSTANT:
-                    value = peaktopeak;
-                    break;
-                case GENERATE_RADOM:
-                    value = rand_FloatRange(-1.f, 1.f) * (peaktopeak / 2.f);
-                    break;
-                case GENERATE_SQUARE:
-                    {
-                        float  normalizedTime = float(j) / float(displayFrameSize) + generateTime[i];
-                        float  normalizedPeriod = period / captureTime;
-                        float  time = fmod(normalizedTime, 1.0f);
-                        if(time < normalizedPeriod)
-                        {
-                            value = peaktopeak;
-                        }
-                        else
-                        {
-                            value = 0.f;
-                        }
-                    }
-                    break;
-                case GENERATE_DELTA:
-                    {
-                        float  normalizedTime = float(j) / float(displayFrameSize) + generateTime[i];
-                        float  normalizedPeriod = period / captureTime;
-                        float  time = fmod(normalizedTime, 1.0f);
-                        float      t = time / normalizedPeriod / 2;
-                        if(time < normalizedPeriod / 2)
-                        {
-                            value = 4.0 * t * peaktopeak;
-                        }
-                        else if(time < normalizedPeriod)
-                        {
-                            value = 4.0 * (0.5f - t) * peaktopeak;
-                        }
-                        else
-                        {
-                            value = 0.f;
-                        }
-                    }
-                    break;
-            };
-            float normalized = float(value) / (5.f * float(captureVolt));
-            normalized = clamp<float>(normalized, -1.0, 1.0);
-            ishort val = (ishort)(float(normalized) * MAXOSCVALUE);
-            if(analog[i].getCount() < NUM_SAMPLES)
-            {
-                analog[i].pushBack(val);
-            }
-        }
-    }
-    //////////////////////////////////////////////////
-    // digital
-    //////////////////////////////////////////////////
-    srand((uint)SDL_GetPerformanceCounter());
-    for(uint i = 0; i < amount; i++)
-    {
-        byte digital0 = rand() % 2;
-        byte digital1 = rand() % 2;
-        byte digital2 = rand() % 2;
-        byte digital3 = rand() % 2;
-        byte digital4 = rand() % 2;
-        byte digital5 = rand() % 2;
-        byte digital6 = rand() % 2;
-        byte digital7 = rand() % 2;
-        byte digital8 = rand() % 2;
-        byte digital9 = rand() % 2;
-        byte digital10 = rand() % 2;
-        byte digital11 = rand() % 2;
-        byte digital12 = rand() % 2;
-        byte digital13 = rand() % 2;
-        byte digital14 = rand() % 2;
-        byte digital15 = rand() % 2;
-        ushort bits   = digital0 | (digital1 << 1) | (digital2 << 2) | (digital3 << 3) | (digital4 << 4) | (digital5 << 5) | (digital6 << 6) | (digital7 << 7);
-        bits  |= digital8 << 8 | (digital9 << 9) | (digital10 << 10) | (digital11 << 11) | (digital12 << 12) | (digital13 << 13) | (digital14 << 14) | (digital15 << 15);
-        if(digital.getCount() < NUM_SAMPLES)
-        {
-            digital.pushBack(bits);
-        }
-    }
     // attrobutes
     for(uint i = 0; i < amount; i++)
     {
@@ -621,10 +409,6 @@ int OsciloscopeFrame::isFull()
     {
         return 1;
     }
-    if(digital.getCount()   >= numSamples)
-    {
-        return 1;
-    }
     return 0;
 }
 
@@ -632,7 +416,6 @@ void OsciloscopeFrame::clear()
 {
     analog[0].clear();
     analog[1].clear();
-    digital.clear();
     attr.clear();
 }
 

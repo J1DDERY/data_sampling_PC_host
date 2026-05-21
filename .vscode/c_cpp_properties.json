@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "name": "Win-MSYS2",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/lib/wxWidgets-3.2.2.1/include",
+                "${workspaceFolder}/lib/wxWidgets-3.2.2.1/lib/vc_x64_lib/mswud",
+                "${workspaceFolder}/lib/wxWidgets-3.2.2.1/include/wx/msw",
+                "${workspaceFolder}/lib/*/include",
+                "${workspaceFolder}/source"
+            ],
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/lib/wxWidgets-3.2.2.1/include",
+                    "${workspaceFolder}/source"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "compilerPath": "D:/0_ENV/MSYS2/mingw64/bin/g++.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
+        }
+    ],
+    "version": 4
+}
