@@ -1,0 +1,3 @@
+To compile from source, please follow instructions from Wiki:
+
+- https://gitlab.com/scopefun/scopefun-software/-/wikis/Developers-Guide/Building-software-from-source

@@ -1,0 +1,326 @@
+stages:
+  - exe
+  - ftp
+  
+#-------------------------------------------------------------------------------
+# exe 
+#-------------------------------------------------------------------------------
+
+Build-Win:
+    stage: exe
+    environment: 
+        name: Win
+    tags:
+        - ScopeFun
+    needs: []
+    artifacts:
+        name: "ScopeFun-Win64"
+        paths: 
+         - sfExe/*.exe
+         - sfExe/*.sha512
+         - sfExe/source/*.pyd
+        expire_in: 1 day
+    cache:
+        key: $CI_COMMIT_REF_SLUG
+        untracked: true
+    allow_failure: false
+    script:
+        - $env:Path += ";C:\msys64\mingw64\bin;C:\msys64\usr\bin;"
+        - Set-Alias -Name python3 -Value python
+        - powershell New-Item -ItemType Directory -name sfExe\source -Force
+        - cd lib/libusb-1.0.25
+        - bash aclocal
+        - bash automake
+        - cd ..
+        - cd ..
+        - cd sfExe
+        - powershell Remove-Item *.exe
+        - powershell Remove-Item *.sha512
+        - powershell Remove-Item .\source\*.pyd
+        - cmake -G "MinGW Makefiles" -DSCOPEFUN_VERSION_MAJOR="$VERSION_MAJOR" -DSCOPEFUN_VERSION_MINOR="$VERSION_MINOR" -DSCOPEFUN_VERSION_MICRO="$VERSION_MICRO" -DSCOPEFUN_BUILD_TYPE="Release" -DCPACK_SOURCE_ZIP="false" -DPython_EXECUTABLE="$Python_EXECUTABLE" -DPython_LIBRARY="$Python_LIBRARY" -DPython_INCLUDE_DIR="$DPython_INCLUDE_DIR" -S .. -B .
+        - mingw32-make package
+    only:
+        - master
+        - develop
+
+Build-Linux:Ubuntu-22-04:
+    stage: exe
+    environment: 
+        name: Linux-Ubuntu-22-04
+    tags:
+        - ScopeFunLinux
+    needs: []
+    artifacts:
+        name: "ScopeFun-Ubuntu-22-04"
+        paths: 
+         - sfExe/*.deb
+         - sfExe/*.sha512
+         - sfExe/source/*.so
+        expire_in: 1 day
+    cache:
+        key: $CI_COMMIT_REF_SLUG
+        untracked: true
+    allow_failure: false
+    image: ubuntu:22.04
+    script:
+        - ln -snf /usr/share/zoneinfo/Europe/Ljubljana /etc/localtime && echo Europe/Ljubljana > /etc/timezone
+        - apt-get update
+        - apt-get -y install cmake protobuf-compiler build-essential libgtk-3-dev
+        - apt-get -y install libudev-dev libgl1-mesa-dev autoconf automake libxxf86vm-dev
+        - apt-get -y install python3.10-dev
+        - cd lib/libusb-1.0.25
+        - aclocal
+        - automake
+        - cd ..
+        - cd ..
+        - mkdir -p sfExe
+        - cd sfExe
+        - rm -f *.deb
+        - rm -f *.sha512
+        - rm -f ./source/*.so
+        - chmod +x ../lib/libusb-1.0.25/install-sh
+        - cmake -G "Unix Makefiles" -D SCOPEFUN_VERSION_MAJOR="$VERSION_MAJOR" -D SCOPEFUN_VERSION_MINOR="$VERSION_MINOR" -D SCOPEFUN_VERSION_MICRO="$VERSION_MICRO" -D SCOPEFUN_BUILD_TYPE="Release" -D CPACK_BINARY_DEB="true" -D CPACK_BINARY_TZ="false" -D CPACK_BINARY_TGZ="false" -D CPACK_BINARY_STGZ="false" ..
+        - make package
+    only:
+        - master
+        - develop
+
+Build-Linux:Ubuntu-24-04:
+    stage: exe
+    environment: 
+        name: Linux-Ubuntu-24-04
+    tags:
+        - ScopeFunLinux
+    needs: []
+    artifacts:
+        name: "ScopeFun-Ubuntu-24-04"
+        paths: 
+         - sfExe/*.deb
+         - sfExe/*.sha512
+         - sfExe/source/*.so
+        expire_in: 1 day
+    cache:
+        key: $CI_COMMIT_REF_SLUG
+        untracked: true
+    allow_failure: false
+    image: ubuntu:24.04
+    script:
+        - ln -snf /usr/share/zoneinfo/Europe/Ljubljana /etc/localtime && echo Europe/Ljubljana > /etc/timezone
+        - apt-get update
+        - apt-get -y install cmake protobuf-compiler build-essential libgtk-3-dev
+        - apt-get -y install libudev-dev libgl1-mesa-dev autoconf automake libxxf86vm-dev
+        - apt-get -y install python3.12-dev
+        - cd lib/libusb-1.0.25
+        - aclocal
+        - automake
+        - cd ..
+        - cd ..
+        - mkdir -p sfExe
+        - cd sfExe
+        - rm -f *.deb
+        - rm -f *.sha512
+        - rm -f ./source/*.so
+        - chmod +x ../lib/libusb-1.0.25/install-sh
+        - cmake -G "Unix Makefiles" -D SCOPEFUN_VERSION_MAJOR="$VERSION_MAJOR" -D SCOPEFUN_VERSION_MINOR="$VERSION_MINOR" -D SCOPEFUN_VERSION_MICRO="$VERSION_MICRO" -D SCOPEFUN_BUILD_TYPE="Release" -D CPACK_BINARY_DEB="true" -D CPACK_BINARY_TZ="false" -D CPACK_BINARY_TGZ="false" -D CPACK_BINARY_STGZ="false" ..
+        - make package
+    only:
+        - master
+        - develop
+
+Build-Mac:
+    stage: exe
+    environment: 
+        name: MacOS
+    tags:
+        - ScopeFunMac
+    needs: []
+    cache:
+        key: $CI_COMMIT_REF_SLUG
+        untracked: true
+    artifacts:
+        name: "ScopeFun-Mac64"
+        paths: 
+         - sfExe/*Darwin.dmg
+         - sfExe/*Darwin.dmg.sha512
+         - sfExe/source/*.so
+        expire_in: 1 day
+    allow_failure: false
+    script:
+        - mkdir -p sfExe
+        - cd sfExe
+        - rm -f *.dmg
+        - rm -f *.sha512
+        - rm -f ./source/*.so
+        - chmod +x ../lib/libusb-1.0.25/install-sh
+        - export CFLAGS="-arch arm64 -arch x86_64 -mmacosx-version-min=10.15"
+        - export MACOSX_DEPLOYMENT_TARGET=10.15
+        - PATH="/Applications/CMake.app/Contents/bin":"$PATH"
+        - cmake -G "Unix Makefiles" -DSCOPEFUN_VERSION_MAJOR="$VERSION_MAJOR" -DSCOPEFUN_VERSION_MINOR="$VERSION_MINOR" -DSCOPEFUN_VERSION_MICRO="$VERSION_MICRO" -DSCOPEFUN_BUILD_TYPE="Release" -DCPACK_BINARY_DRAGNDROP="true" -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -S .. -B .
+        - make package
+    only:
+        - master
+        - develop
+
+Build-RaspiOS:
+    stage: exe
+    environment: 
+        name: RaspiOS
+    tags:
+        - ScopeFunRaspiOS
+    needs: []
+    artifacts:
+        name: "ScopeFun-RaspiOS-arm64"
+        paths: 
+         - sfExe/*.deb
+         - sfExe/*.sha512
+         - sfExe/source/*.so
+        expire_in: 1 day
+    cache:
+        key: $CI_COMMIT_REF_SLUG
+        untracked: true
+    allow_failure: false
+    script:
+        - cd lib/libusb-1.0.25
+        - aclocal
+        - automake
+        - cd ..
+        - cd ..
+        - mkdir -p sfExe
+        - cd sfExe
+        - rm -f *.deb
+        - rm -f *.sha512
+        - rm -f ./source/*.so
+        - chmod +x ../lib/libusb-1.0.25/install-sh
+        - cmake -G "Unix Makefiles" -D SCOPEFUN_VERSION_MAJOR="$VERSION_MAJOR" -D SCOPEFUN_VERSION_MINOR="$VERSION_MINOR" -D SCOPEFUN_VERSION_MICRO="$VERSION_MICRO" -D SCOPEFUN_BUILD_TYPE="Release" -D CPACK_BINARY_DEB="true" -D CPACK_BINARY_TZ="false" -D CPACK_BINARY_TGZ="false" -D CPACK_BINARY_STGZ="false" ..
+        - make package
+    only:
+        - master
+        - develop
+
+#-------------------------------------------------------------------------------
+# ftp
+#-------------------------------------------------------------------------------
+
+Upload-Win:
+    stage: ftp
+    environment: 
+        name: Win
+    tags:
+        - ScopeFun
+    needs:
+        - Build-Win
+    cache: {}
+    dependencies:
+        - Build-Win
+    script:
+        - $COMMIT_TIME = git show -s --format=%ct
+        - New-Item -ItemType Directory $COMMIT_TIME\Windows
+        - copy .\sfExe\*.exe           $COMMIT_TIME\Windows
+        - copy .\sfExe\*.sha512        $COMMIT_TIME\Windows
+        - copy .\sfExe\source\*.pyd    $COMMIT_TIME\Windows
+        - winscp /ini=nul /command "open ftp://${FTP_USERNAME}:$FTP_PASSWORD@ftp.scopefun.com/" "cd Versions" "put $COMMIT_TIME" "close" "exit"
+    when: on_success
+    only:
+        - master
+        - develop
+
+Upload-Linux:Ubuntu-22-04:
+    stage: ftp
+    environment:
+        name: Linux-Ubuntu-22-04
+    tags:
+        - ScopeFunLinux
+    needs:
+        - Build-Linux:Ubuntu-22-04
+    cache: {}
+    dependencies:
+        - Build-Linux:Ubuntu-22-04
+    image: ubuntu:22.04
+    script:
+        - apt-get update
+        - apt-get -y install git
+        - apt-get -y install ncftp
+        - COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
+        - mkdir -p $COMMIT_TIME/Linux/Ubuntu-22-04
+        - cp ./sfExe/*.deb        $COMMIT_TIME/Linux/Ubuntu-22-04
+        - cp ./sfExe/*.sha512     $COMMIT_TIME/Linux/Ubuntu-22-04
+        - cp ./sfExe/source/*.so  $COMMIT_TIME/Linux/Ubuntu-22-04
+        - ncftpput -z -R -u $FTP_USERNAME -p $FTP_PASSWORD ftp.scopefun.com Versions $COMMIT_TIME
+    when: on_success
+    only:
+        - master
+        - develop
+
+Upload-Linux:Ubuntu-24-04:
+    stage: ftp
+    environment:
+        name: Linux-Ubuntu-24-04
+    tags:
+        - ScopeFunLinux
+    needs:
+        - Build-Linux:Ubuntu-24-04
+    cache: {}
+    dependencies:
+        - Build-Linux:Ubuntu-24-04
+    image: ubuntu:24.04
+    script:
+        - apt-get update
+        - apt-get -y install git
+        - apt-get -y install ncftp
+        - COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
+        - mkdir -p $COMMIT_TIME/Linux/Ubuntu-24-04
+        - cp ./sfExe/*.deb        $COMMIT_TIME/Linux/Ubuntu-24-04
+        - cp ./sfExe/*.sha512     $COMMIT_TIME/Linux/Ubuntu-24-04
+        - cp ./sfExe/source/*.so  $COMMIT_TIME/Linux/Ubuntu-24-04
+        - ncftpput -z -R -u $FTP_USERNAME -p $FTP_PASSWORD ftp.scopefun.com Versions $COMMIT_TIME
+    when: on_success
+    only:
+        - master
+        - develop
+
+
+Upload-Mac:
+    stage: ftp
+    environment: 
+        name: MacOS
+    tags:
+        - ScopeFunMac
+    needs:
+        - Build-Mac
+    cache: {}
+    dependencies:
+        - Build-Mac
+    script:
+        - COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
+        - mkdir -p $COMMIT_TIME/Mac
+        - cp ./sfExe/*.dmg        $COMMIT_TIME/Mac
+        - cp ./sfExe/*.sha512     $COMMIT_TIME/Mac
+        - cp ./sfExe/source/*.so  $COMMIT_TIME/Mac
+        - ncftpput -z -R -u $FTP_USERNAME -p $FTP_PASSWORD ftp.scopefun.com Versions $COMMIT_TIME
+    when: on_success
+    only:
+        - master
+        - develop
+
+Upload-RaspiOS:
+    stage: ftp
+    environment:
+        name: RaspiOS
+    tags:
+        - ScopeFunRaspiOS
+    needs:
+        - Build-RaspiOS
+    cache: {}
+    dependencies:
+        - Build-RaspiOS
+    script:
+        - COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
+        - mkdir -p $COMMIT_TIME/RaspiOS
+        - cp ./sfExe/*.deb        $COMMIT_TIME/RaspiOS
+        - cp ./sfExe/*.sha512     $COMMIT_TIME/RaspiOS
+        - cp ./sfExe/source/*.so  $COMMIT_TIME/RaspiOS
+        - ncftpput -z -R -u $FTP_USERNAME -p $FTP_PASSWORD ftp.scopefun.com Versions $COMMIT_TIME
+    when: on_success
+    only:
+        - master
+        - develop

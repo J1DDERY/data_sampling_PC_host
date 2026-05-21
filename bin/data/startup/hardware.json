@@ -1,0 +1,85 @@
+{
+	"usb":	{
+		"guid":	"0xae18aa60, 0x0000, 0x0000, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00",
+		"vendor":	7504,
+		"product":	24836,
+		"serial":	42,
+		"firmware":	"data/firmware/fx3.img"
+	},
+	"fpga":	{
+		"firmware":	"data/firmware/fpga2.bin",
+		"etsIndex":	11,
+		"etsCount":	7
+	},
+	"digital":	{
+		"voltageCoeficient":	152
+	},
+	"generator":	{
+		"fs":	200000000 
+	},
+	"reference":	{
+		"invertCh0":	0,
+		"invertCh1":	0,
+		"framesPerCapture":	8,
+		"maxIterations":	64,
+		"exitPercentage":	0.18,
+		"offsetMax":	10,
+		"offsetMin":	-60,
+		"generatorReference":	0,
+		"generatorMax":	20,
+		"generatorMin":	-20,
+		"generatorStep":	0.001000,
+		"stepMin":	400,
+		"stepMax":	480,
+		"gainValue":	{
+			"volt2":	1416,
+			"volt1":	1771,
+			"mili500":	2120,
+			"mili200":	2580,
+			"mili100":	1410,
+			"mili50":	1765,
+			"mili20":	2225,
+			"mili10":	2575
+		},
+		"gainVoltage":	{
+			"volt2":	200,
+			"volt1":	200,
+			"mili500":	125,
+			"mili200":	40,
+			"mili100":	25,
+			"mili50":	12.500000,
+			"mili20":	5,
+			"mili10":	2.500000
+		},
+		"gainMin":	{
+			"volt2":	1000,
+			"volt1":	1000,
+			"mili500":	1000,
+			"mili200":	1000,
+			"mili100":	1000,
+			"mili50":	1000,
+			"mili20":	1000,
+			"mili10":	1000
+		},
+		"gainMax":	{
+			"volt2":	2850,
+			"volt1":	2850,
+			"mili500":	2850,
+			"mili200":	2850,
+			"mili100":	2850,
+			"mili50":	2850,
+			"mili20":	2850,
+			"mili10":	2850
+		},
+		"gainAttr":	{
+			"volt2":	0,
+			"volt1":	0,
+			"mili500":	0,
+			"mili200":	0,
+			"mili100":	1,
+			"mili50":	1,
+			"mili20":	1,
+			"mili10":	1
+		}
+	}
+}

@@ -1,0 +1,134 @@
+{
+	"calibratedNormal":	{
+		"offsetsCh0":	{
+			"volt2":	-33,
+			"volt1":	-30,
+			"mili500":	-26,
+			"mili200":	-15,
+			"mili100":	-33,
+			"mili50":	-30,
+			"mili20":	-26,
+			"mili10":	-15
+		},
+		"offsetsCh1":	{
+			"volt2":	-37,
+			"volt1":	-34,
+			"mili500":	-32,
+			"mili200":	-26,
+			"mili100":	-38,
+			"mili50":	-34,
+			"mili20":	-32,
+			"mili10":	-26
+		},
+		"voltageStepCh0":	{
+			"volt2":	-1.559242,
+			"volt1":	-0.779771,
+			"mili500":	-0.390614,
+			"mili200":	-0.156153,
+			"mili100":	-0.077991,
+			"mili50":	-0.038994,
+			"mili20":	-0.015596,
+			"mili10":	-0.007810
+		},
+		"voltageStepCh1":	{
+			"volt2":	-1.561809,
+			"volt1":	-0.782804,
+			"mili500":	-0.388753,
+			"mili200":	-0.157207,
+			"mili100":	-0.077888,
+			"mili50":	-0.039171,
+			"mili20":	-0.015558,
+			"mili10":	-0.007859
+		},
+		"gainValueCh0":	{
+			"volt2":	1373,
+			"volt1":	1730,
+			"mili500":	2083,
+			"mili200":	2545,
+			"mili100":	1368,
+			"mili50":	1726,
+			"mili20":	2194,
+			"mili10":	2545
+		},
+		"gainValueCh1":	{
+			"volt2":	1370,
+			"volt1":	1723,
+			"mili500":	2073,
+			"mili200":	2540,
+			"mili100":	1360,
+			"mili50":	1720,
+			"mili20":	2189,
+			"mili10":	2544
+		},
+		"offsetsGenerator":	{
+			"channel0":	-3,
+			"channel1":	-3
+		}
+	},
+	"calibrated500Mhz":	{
+		"offsetsCh0":	{
+			"volt2":	-33,
+			"volt1":	-30,
+			"mili500":	-27,
+			"mili200":	-15,
+			"mili100":	-33,
+			"mili50":	-30,
+			"mili20":	-26,
+			"mili10":	-15
+		},
+		"offsetsCh1":	{
+			"volt2":	-36,
+			"volt1":	-33,
+			"mili500":	-29,
+			"mili200":	-19,
+			"mili100":	-28,
+			"mili50":	-33,
+			"mili20":	-28,
+			"mili10":	-19
+		},
+		"voltageStepCh0":	{
+			"volt2":	-1.559593,
+			"volt1":	-0.779998,
+			"mili500":	-0.390019,
+			"mili200":	-0.156182,
+			"mili100":	-0.078004,
+			"mili50":	-0.038997,
+			"mili20":	-0.015593,
+			"mili10":	-0.007809
+		},
+		"voltageStepCh1":	{
+			"volt2":	-1.567422,
+			"volt1":	-0.760025,
+			"mili500":	-0.403341,
+			"mili200":	-0.152254,
+			"mili100":	-0.080303,
+			"mili50":	-0.038035,
+			"mili20":	-0.016128,
+			"mili10":	-0.007611
+		},
+		"gainValueCh0":	{
+			"volt2":	1373,
+			"volt1":	1730,
+			"mili500":	2081,
+			"mili200":	2545,
+			"mili100":	1368,
+			"mili50":	1727,
+			"mili20":	2195,
+			"mili10":	2547
+		},
+		"gainValueCh1":	{
+			"volt2":	1372,
+			"volt1":	1723,
+			"mili500":	2074,
+			"mili200":	2542,
+			"mili100":	1377,
+			"mili50":	1720,
+			"mili20":	2189,
+			"mili10":	2543
+		},
+		"offsetsGenerator":	{
+			"channel0":	-3,
+			"channel1":	-3
+		}
+	}
+}
