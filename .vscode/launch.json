@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run ScopeFun (Release)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/scopefun.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}/bin",
+            "stopAtEntry": false,
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "D:/0_ENV/MSYS2/mingw64/bin/gdb.exe",
+            "preLaunchTask": "build scopefun release"
+        }
+    ]
+}

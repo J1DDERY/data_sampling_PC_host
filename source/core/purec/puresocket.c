@@ -98,7 +98,7 @@ int socketNonBlocking(SocketContext* ctx, int nonblock)
 {
     return PURESOCKET_SUCCESS;
     #if defined(PLATFORM_WIN) || defined(PLATFORM_MINGW)
-    int arg = nonblock;
+    u_long arg = (u_long)nonblock;
     int ret = ioctlsocket(ctx->socket, FIONBIO, &arg);
     #else
     int flags = fcntl(ctx->socket, F_GETFL, 0);

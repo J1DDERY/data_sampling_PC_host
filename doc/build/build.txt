@@ -1,3 +1,58 @@
-To compile from source, please follow instructions from Wiki:
+Building software from source
 
-- https://gitlab.com/scopefun/scopefun-software/-/wikis/Developers-Guide/Building-software-from-source
+To compile ScopeFun from source on Windows, follow these steps.
+
+Prerequisites:
+
+- Python: https://www.python.org/downloads/
+- CodeBlocks IDE: https://www.codeblocks.org/downloads/binaries/
+- MSYS2: https://www.msys2.org/
+
+Windows setup:
+
+1. Install MSYS2 in the default folder, C:\msys64.
+2. After installation, run the MSYS2 64-bit shell and update packages:
+
+	pacman -Syu
+
+3. Add C:\msys64\mingw64\bin to the Windows PATH.
+4. Open the MSYS2 MinGW 64-bit shell and install the required packages:
+
+	pacman -Su
+	pacman -S git
+	pacman -S make
+	pacman -S msys/automake-wrapper
+	pacman -S msys/autoconf
+	pacman -S mingw-w64-x86_64-gcc
+	pacman -S mingw-w64-x86_64-make
+	pacman -S mingw-w64-x86_64-nsis
+	pacman -S mingw-w64-x86_64-cmake
+	pacman -S mingw-w64-x86_64-gdb
+
+Build steps:
+
+1. Clone the repository and create a build directory:
+
+	git clone https://gitlab.com/scopefun/scopefun-software.git
+	mkdir scopefun-software/build
+	cd scopefun-software/build
+
+2. Build the libraries in MSYS2 MinGW 64-bit:
+
+	cd ~/scopefun-software/build
+	cd ../lib/libusb-1.0.25 && aclocal && automake && cd .. && cd ../build
+	cmake -G "MinGW Makefiles" -D SCOPEFUN_BUILD_TYPE="Release" -D CPACK_SOURCE_ZIP="false" ..
+	mingw32-make package
+
+	SCOPEFUN_BUILD_TYPE can be either Release or Debug.
+
+3. Build the CodeBlocks project after the libraries are complete:
+
+	cd scopefun-software
+	mkdir codeblocks-build
+	cd codeblocks-build
+	cmake -G "CodeBlocks - MinGW Makefiles" -D SCOPEFUN_BUILD_TYPE=Release ..
+
+4. Open the generated ScopeFun.cbp project in CodeBlocks, build it, then select the ScopeFun target and run it.
+
+The installation package is generated in the build folder, and the Python API module (.pyd) is generated in build/source.
