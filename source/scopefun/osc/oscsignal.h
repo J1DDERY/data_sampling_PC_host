@@ -21,7 +21,7 @@
 #ifndef __OSC__SIGNAL__
 #define __OSC__SIGNAL__
 
-#define MAXOSCVALUE    511.f
+#define MAXOSCVALUE    8191.f
 #define NUM_SAMPLES    10000
 #define NUM_FFT        1048576
 #define CAPTURE_BUFFER                62464

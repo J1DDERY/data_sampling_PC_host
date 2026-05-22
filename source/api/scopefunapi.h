@@ -167,9 +167,9 @@ enum DigitalBit
       ScopeFun API - Constants
 
 ----------------------------------------*/
-#define SCOPEFUN_MAX_VOLTAGE                 +511
-#define SCOPEFUN_MIN_VOLTAGE                 -512
-#define SCOPEFUN_VOLTAGE_RANGE               1023
+#define SCOPEFUN_MAX_VOLTAGE                 +8191
+#define SCOPEFUN_MIN_VOLTAGE                 -8192
+#define SCOPEFUN_VOLTAGE_RANGE               16383
 #define SCOPEFUN_DISPLAY                    10000
 #define SCOPEFUN_DISPLAY_FFT                (1*1024*1024)
 #define SCOPEFUN_FIRMWARE_FX3               16384

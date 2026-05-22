@@ -77,14 +77,12 @@ std::vector<short> sfGetSamplesFromBytes(int ch, SHardware SHw, py::array_t<unsi
     // check if there is enough rawData provided for requested number of samples
     if (rawDataSize >= requiredBytes)
     {   // loop through data
-        uint nPos = 0;
+                        uint nPos = 0;
 
-        // Channel bits assignment for encodingFormat 15 (default)
-        ushort byte0, byte1, byte2, byte3;
-
-        // encodingFormat is 4 bit wide (B3.B2.B1.B0)
-        // individual bits are used to determine which channels are encoded in raw data
-        // B3=CH1, B2=CH2, B1=Dig11to6, B0=Dig5to0
+                  // encodingFormat is 4 bit wide (B3.B2.B1.B0)
+                  // individual bits are used to determine which channels are encoded in raw data
+                  // temporary byte variables used by 2-byte encoding branches
+                  ushort byte0, byte1, byte2, byte3;
 
         switch(encodingFormat)
         {
@@ -93,135 +91,86 @@ std::vector<short> sfGetSamplesFromBytes(int ch, SHardware SHw, py::array_t<unsi
             {
                 for (uint i = 0; i < nSamples; i++)
                 {
-                    int signCh1, signCh2;
                     nPos = 4*i;
-                    byte0 = rawDataB[nPos];    // AAAAAAAA   A: Ch1 (9 downto 2)
-                    byte1 = rawDataB[nPos+1];  // AABBBBBB   A: Ch1 (1 downto 0), B: Ch2 (9 downto 4)
-                    byte2 = rawDataB[nPos+2];  // BBBBCCCC   B: Ch2 (3 downto 0), C: Dig (11 downto 8)
-                    byte3 = rawDataB[nPos+3];  // CCDDDDDD   C: Dig (7 downto 6), D: Dig (5 downto 0)
+                              uint packed = (uint)rawDataB[nPos]
+                                                | ((uint)rawDataB[nPos + 1] << 8)
+                                                | ((uint)rawDataB[nPos + 2] << 16)
+                                                | ((uint)rawDataB[nPos + 3] << 24);
 
-                    signCh1 = (byte0 >> 7) & 0x1;
-                    signCh2 = (byte1 >> 5) & 0x1;
+                              ishort analogCh1 = 0;
+                              ishort analogCh2 = 0;
+                              ushort digital = 0;
+                              sfGetData(packed, &analogCh1, &analogCh2, &digital);
 
                     // Output CH1
                     if (ch == 1) {
-                        if (signCh1 == 1) {
-                            // extend byte0 sign bit and shift
-                            byte0 =  (byte0 | 0xFF00) << 2;
-                        }
-                        else {
-                            byte0 =  (byte0 << 2) & 0x3FF;
-                        }
-                        result[i] = byte0 + ((byte1 >> 6) & 0x003);
+                                    result[i] = analogCh1;
                     }
 
                     // Output CH2
                     if (ch == 2) {
-                        if (signCh2 == 1) {
-                            // extend byte1 sign bit and shift
-                            byte1 =  (byte1 | 0xFFC0) << 4;
-                        }
-                        else {
-                            byte1 =  (byte1 << 4) & 0x3F0;
-                        }
-                        result[i] = byte1 + ((byte2 >> 4) & 0x00F);
+                                    result[i] = analogCh2;
                     }
 
                     // Output Digital
                     if (ch == 3) {
-                        result[i] = ((byte2 << 8) & 0xF00) + byte3;
+                                    result[i] = digital;
                     }
                 }
                 break;
             }
 
-            case 10: // encodingFormat = "1010"
-            case  9: // encodingFormat = "1001"
+            case 10: // encodingFormat = "1010"  — CH1 only (14-bit), no digital
+            case  9: // encodingFormat = "1001"  — CH1 only (14-bit), no digital
             {
                 for (uint i = 0; i < nSamples; i++)
                 {
-                    int signCh1;
                     nPos = 2*i;
 
-                    // received raw data contains only CH1 and Digital (D11-D6 or D5-D0) bits
-                    // AAAAAAAA   A: Ch1 (9 downto 2)
-                    // AABBBBBB   A: Ch1 (1 downto 0), B: Dig (11 downto 6)
-                    byte0 = rawDataB[nPos];    // AAAAAAAA
-                    byte1 = rawDataB[nPos+1];  // AABBBBBB
+                    // 2-byte packed CH1: byte0=bits[7:0], byte1[5:0]=bits[13:8]
+                    // byte1[7:6] unused
+                    byte0 = rawDataB[nPos];
+                    byte1 = rawDataB[nPos+1];
 
-                    signCh1 = (byte0 >> 7) & 0x1;
+                    uint ch0 = (uint)byte0 | (((uint)byte1 & 0x3F) << 8);
+                    if (ch0 & (1 << 13)) ch0 |= 0xFFFFC000; // sign-extend 14→32
 
-                    // Output CH1
                     if (ch == 1) {
-                        if (signCh1 == 1) {
-                            // extend byte0 sign bit and shift
-                            byte0 =  (byte0 | 0xFF00) << 2;
-                        }
-                        else {
-                            byte0 =  (byte0 << 2) & 0x3FF;
-                        }
-                        result[i] = byte0 + ((byte1 >> 6) & 0x003);
+                        result[i] = (ishort)(ch0 & 0xFFFF);
                     }
-
-                    // Output CH2
                     if (ch == 2) {
                         return {};
                     }
-
-                    // Output Digital
                     if (ch == 3) {
-                        if (encodingFormat == 10) {
-                            result[i] = ((byte1 << 6) & 0xFC0);  //D11 to D6
-                        }
-                        if (encodingFormat == 9) {
-                            result[i] = (byte1 & 0x3F);          //D5 to D0
-                        }
+                        result[i] = 0; // digital removed
                     }
                 }
                 break;
             }
 
-            case 6: // encodingFormat = "0110"
-            case 5: // encodingFormat = "0101"
+            case 6: // encodingFormat = "0110"  — CH2 only (14-bit), no digital
+            case 5: // encodingFormat = "0101"  — CH2 only (14-bit), no digital
             {
                 for (uint i = 0; i < nSamples; i++)
                 {
-                    int signCh2;
                     nPos = 2*i;
 
-                    // received raw data contains only CH2 and Digital (D11-D6 or D5-D0) bits
-                    // AAAAAAAA   A: Ch2 (9 downto 2)
-                    // AABBBBBB   A: Ch2 (1 downto 0), B: Dig (11 downto 6)
-                    byte0 = rawDataB[nPos];    // AAAAAAAA
-                    byte1 = rawDataB[nPos+1];  // AABBBBBB
+                    // 2-byte packed CH2: byte0=bits[7:0], byte1[5:0]=bits[13:8]
+                    // byte1[7:6] unused
+                    byte0 = rawDataB[nPos];
+                    byte1 = rawDataB[nPos+1];
 
-                    signCh2 = (byte0 >> 7) & 0x1;
+                    uint ch1 = (uint)byte0 | (((uint)byte1 & 0x3F) << 8);
+                    if (ch1 & (1 << 13)) ch1 |= 0xFFFFC000; // sign-extend 14→32
 
-                    // Output CH1
                     if (ch == 1) {
                         return {};
                     }
-
-                    // Output CH2
                     if (ch == 2) {
-                        if (signCh2 == 1) {
-                            // extend byte0 sign bit and shift
-                            byte0 =  (byte0 | 0xFF00) << 2;
-                        }
-                        else {
-                            byte0 =  (byte0 << 2) & 0x3FF;
-                        }
-                        result[i] = byte0 + ((byte1 >> 6) & 0x003);
+                        result[i] = (ishort)(ch1 & 0xFFFF);
                     }
-
-                    // Output Digital
                     if (ch == 3) {
-                        if (encodingFormat == 6) {
-                            result[i] = ((byte1 << 6) & 0xFC0);
-                        }
-                        if (encodingFormat == 5) {
-                            result[i] = (byte1 & 0x3F);
-                        }
+                        result[i] = 0; // digital removed
                     }
                 }
                 break;

@@ -56,36 +56,36 @@ public:
 public:
     Vector4& RowX()
     {
-        return (Vector4&)m11;
+        return reinterpret_cast<Vector4&>(m11);
     }
     Vector4& RowY()
     {
-        return (Vector4&)m21;
+        return reinterpret_cast<Vector4&>(m21);
     }
     Vector4& RowZ()
     {
-        return (Vector4&)m31;
+        return reinterpret_cast<Vector4&>(m31);
     }
     Vector4& Pos()
     {
-        return (Vector4&)m41;
+        return reinterpret_cast<Vector4&>(m41);
     }
 public:
     const Vector4& RowX() const
     {
-        return (Vector4&)m11;
+        return reinterpret_cast<const Vector4&>(m11);
     }
     const Vector4& RowY() const
     {
-        return (Vector4&)m21;
+        return reinterpret_cast<const Vector4&>(m21);
     }
     const Vector4& RowZ() const
     {
-        return (Vector4&)m31;
+        return reinterpret_cast<const Vector4&>(m31);
     }
     const Vector4& Pos()  const
     {
-        return (Vector4&)m41;
+        return reinterpret_cast<const Vector4&>(m41);
     }
 };
 

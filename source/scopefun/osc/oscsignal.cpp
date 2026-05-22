@@ -117,7 +117,7 @@ uint ScopeFunCaptureBuffer::save(const char* path)
                 ularge offset = framePos + SCOPEFUN_FRAME_HEADER + (j * textSampleCount + k) * 4;
                 uint     data = *(uint*)&m_dataPtr[offset];
                 sfGetData(data, &ch0, &ch1, &dig);
-                macroString(stringStart, textSampleBytes, "%d,%d,%04x\n", ch0, ch1, dig);
+                    macroString(stringStart, textSampleBytes, "%d,%d,%04x\n", ch0, ch1, 0);
                 stringStart += SDL_strlen(stringStart);
             }
             SDL_RWwrite(sfFile, stringArray, SDL_strlen(stringArray), 1);
@@ -246,7 +246,7 @@ uint ScopeFunCaptureBuffer::load(const char* path)
         int    ch1 = 0;
         uint   dig = 0;
         SDL_sscanf(sampleBuffer, "%d,%d,%04x\n", &ch0, &ch1, &dig);
-        sfSetData(memorySamples, ch0, ch1, dig);
+            sfSetData(memorySamples, ch0, ch1, 0);
         memorySamples += 4;
     }
     SDL_RWclose(sfFile);

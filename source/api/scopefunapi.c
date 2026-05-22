@@ -41,7 +41,7 @@
 #define PI                 3.14159265358979323846f
 #define NUM_SAMPLES        10000
 #define NUM_SAMPLESF       10000.f
-#define MAXOSCVALUE        511.f
+#define MAXOSCVALUE        8191.f
 
 float fClamp(float a, float min, float max)
 {
@@ -694,216 +694,106 @@ int softwareGenerator(int frameVersion, int frameHeader, int frameData, int fram
     }
     // crc
     header->crc.bytes[0] = 0;
-    // analog
-    for(int i = 0; i < 2; i++)
-    {
-        // capture
-        float captureTime = sim->time * numSamplesF;
-        float captureVolt = 0;
-        if(i == 0)
-        {
-            captureVolt = sim->voltage0;
-        }
-        if(i == 1)
-        {
-            captureVolt = sim->voltage1;
-        }
-        // generateTime
-        float generateTime = 0;
-        if(i == 0)
-        {
-            generateTime = (float)timer * sim->speed0;
-        }
-        if(i == 1)
-        {
-            generateTime = (float)timer * sim->speed1;
-        }
-        // peakToPeak
-        float peakToPeak = 0;
-        if(i == 0)
-        {
-            peakToPeak = sim->peakToPeak0;
-        }
-        if(i == 1)
-        {
-            peakToPeak = sim->peakToPeak1;
-        }
-        // peakToPeak
-        ESimulateType type = stSin;
-        if(i == 0)
-        {
-            type = sim->type0;
-        }
-        if(i == 1)
-        {
-            type = sim->type1;
-        }
-        // period
-        float period = 0;
-        if(i == 0)
-        {
-            period = sim->period0;
-        }
-        if(i == 1)
-        {
-            period = sim->period1;
-        }
-        // min/max peak
-        float minpeak = -peakToPeak / 2.f;
-        float maxpeak = peakToPeak / 2.f;
-        // frame size
-        float displayFrameSize = numSamplesF;
-        // period
-        period = period * numSamplesF / NUM_SAMPLESF;
-        // generate
-        srand((uint)SDL_GetPerformanceCounter());
-        float value = 0;
-        for(uint j = 0; j < numSamples; j++)
-        {
-            float sample = (float)j;
-            switch(type)
-            {
-                case stSin:
-                case stCos:
-                    {
-                        float  normalizedTime = sample / displayFrameSize + generateTime;
-                        float  signaltime = (normalizedTime * captureTime);
-                        float            t = (signaltime / period);
-                        float    angle2Pi = 2.f * PI * t;
-                        switch(type)
-                        {
-                            case stSin:
-                                value = maxpeak * sinf(angle2Pi);
-                                break;
-                            case stCos:
-                                value = maxpeak * cosf(angle2Pi);
-                                break;
-                            default:
-                                break;
-                        };
-                    }
-                    break;
-                case stDec:
-                case stInc:
-                    {
-                        float  normalizedTime = sample / displayFrameSize + generateTime;
-                        float  normalizedPeriod = period / captureTime;
-                        float mod = fmodf(normalizedTime, normalizedPeriod);
-                        float div = mod / (normalizedPeriod);
-                        switch(type)
-                        {
-                            case stInc:
-                                value = div * peakToPeak + minpeak;
-                                break;
-                            case stDec:
-                                value = (1.f - div) * peakToPeak + minpeak;
-                                break;
-                            default:
-                                break;
-                        };
-                    }
-                    break;
-                case stConstant:
-                    value = peakToPeak;
-                    break;
-                case stRandom:
-                    value = rand_FloatRange(-1.f, 1.f) * (peakToPeak / 2.f);
-                    break;
-                case stSquare:
-                    {
-                        float  normalizedTime = sample / displayFrameSize + generateTime;
-                        float  normalizedPeriod = period / captureTime;
-                        float  time = fmodf(normalizedTime, 1.0f);
-                        if(time < normalizedPeriod)
-                        {
-                            value = peakToPeak;
-                        }
-                        else
-                        {
-                            value = 0.f;
-                        }
-                    }
-                    break;
-                case stDelta:
-                    {
-                        float  normalizedTime = sample / displayFrameSize + generateTime;
-                        float  normalizedPeriod = period / captureTime;
-                        float  time = fmodf(normalizedTime, 1.0f);
-                        float      t = time / normalizedPeriod / 2.f;
-                        if(time < normalizedPeriod / 2.f)
-                        {
-                            value = 4.0f * t * peakToPeak;
-                        }
-                        else if(time < normalizedPeriod)
-                        {
-                            value = 4.0f * (0.5f - t) * peakToPeak;
-                        }
-                        else
-                        {
-                            value = 0.f;
-                        }
-                    }
-                    break;
-            };
-            float normalized = value / (5.f * captureVolt);
-            normalized = fClamp(normalized, -1.0f, 1.0f);
-            ishort ival = (ishort)(normalized * MAXOSCVALUE);
-            byte*  data = packet + frameHeader + j * 4;
-            byte* byte0 = (byte*)(data + 0);
-            byte* byte1 = (byte*)(data + 1);
-            byte* byte2 = (byte*)(data + 2);
-            byte* byte3 = (byte*)(data + 3);
-            uint val = ival & 0x1FF;
-            if(ival < 0)
-            {
-                val |= 0x200;
-            }
-            if(i == 0)
-            {
-                ishort shifted0 = (val >> 2);
-                *byte0 = *byte0 | (byte)(shifted0);
-                *byte1 = *byte1 | (byte)(val & 0x3);
-                *byte1 = (*byte1 << 6);
-            }
-            if(i == 1)
-            {
-                ishort shifted1 = (val >> 4);
-                *byte1 = *byte1 | (byte)(shifted1);
-                *byte2 = *byte2 | (byte)(val & 0xF);
-                *byte2 = (*byte2 << 4);
-            }
-        }
-    }
-    // digital
+    // analog — generate both channels per sample, use sfSetData for 14-bit packing
     srand((uint)SDL_GetPerformanceCounter());
-    int r = rand();
-    for(uint i = 0; i < numSamples; i++)
+    // capture params (ch0 / ch1)
+    float captureTime0 = sim->time * numSamplesF;
+    float captureTime1 = sim->time * numSamplesF;
+    float generateTime0 = (float)timer * sim->speed0;
+    float generateTime1 = (float)timer * sim->speed1;
+    float peakToPeak0   = sim->peakToPeak0;
+    float peakToPeak1   = sim->peakToPeak1;
+    float period0       = sim->period0 * numSamplesF / NUM_SAMPLESF;
+    float period1       = sim->period1 * numSamplesF / NUM_SAMPLESF;
+    float captureVolt0  = sim->voltage0;
+    float captureVolt1  = sim->voltage1;
+    float minpeak0 = -peakToPeak0 / 2.f;
+    float minpeak1 = -peakToPeak1 / 2.f;
+    float maxpeak0 =  peakToPeak0 / 2.f;
+    float maxpeak1 =  peakToPeak1 / 2.f;
+
+    for(uint j = 0; j < numSamples; j++)
     {
-        byte digital0 = (r + 0) % 2;
-        byte digital1 = (r + 1) % 2;
-        byte digital2 = (r + 2) % 2;
-        byte digital3 = (r + 3) % 2;
-        byte digital4 = (r + 4) % 2;
-        byte digital5 = (r + 5) % 2;
-        byte digital6 = (r + 6) % 2;
-        byte digital7 = (r + 7) % 2;
-        byte digital8 = (r + 8) % 2;
-        byte digital9 = (r + 9) % 2;
-        byte digital10 = (r + 10) % 2;
-        byte digital11 = (r + 11) % 2;
-        byte digital12 = (r + 12) % 2;
-        byte digital13 = (r + 13) % 2;
-        byte digital14 = (r + 14) % 2;
-        byte digital15 = (r + 15) % 2;
-        ushort bits = digital0 | (digital1 << 1) | (digital2 << 2) | (digital3 << 3) | (digital4 << 4) | (digital5 << 5) | (digital6 << 6) | (digital7 << 7);
-        bits |= digital8 << 8 | (digital9 << 9) | (digital10 << 10) | (digital11 << 11) | (digital12 << 12) | (digital13 << 13) | (digital14 << 14) | (digital15 << 15);
-        byte* byte0 = (byte*)(packet + frameHeader + i * 4 + 0);
-        byte* byte1 = (byte*)(packet + frameHeader + i * 4 + 1);
-        byte* byte2 = (byte*)(packet + frameHeader + i * 4 + 2);
-        byte* byte3 = (byte*)(packet + frameHeader + i * 4 + 3);
-        *byte2 = *byte2 | (byte)(bits >> 12);
-        *byte3 = *byte3 | (byte)(bits >> 4);
+        float sample  = (float)j;
+        float value0  = 0.f;
+        float value1  = 0.f;
+
+        // --- channel 0 ---
+        float normalizedTime0 = sample / numSamplesF + generateTime0;
+        float signaltime0 = normalizedTime0 * captureTime0;
+        float t0 = signaltime0 / period0;
+        float angle2Pi0 = 2.f * PI * t0;
+        float normalizedPeriod0 = period0 / captureTime0;
+        float mod0 = fmodf(normalizedTime0, normalizedPeriod0);
+        float div0 = mod0 / normalizedPeriod0;
+        float timeFrac0 = fmodf(normalizedTime0, 1.0f);
+
+        switch(sim->type0)
+        {
+            case stSin:  value0 = maxpeak0 * sinf(angle2Pi0); break;
+            case stCos:  value0 = maxpeak0 * cosf(angle2Pi0); break;
+            case stInc:  value0 = div0 * peakToPeak0 + minpeak0; break;
+            case stDec:  value0 = (1.f - div0) * peakToPeak0 + minpeak0; break;
+            case stConstant: value0 = peakToPeak0; break;
+            case stRandom:   value0 = rand_FloatRange(-1.f, 1.f) * (peakToPeak0 / 2.f); break;
+            case stSquare:
+                value0 = (timeFrac0 < normalizedPeriod0) ? peakToPeak0 : 0.f;
+                break;
+            case stDelta:
+            {
+                float tt0 = timeFrac0 / normalizedPeriod0 / 2.f;
+                if(timeFrac0 < normalizedPeriod0 / 2.f)
+                    value0 = 4.0f * tt0 * peakToPeak0;
+                else if(timeFrac0 < normalizedPeriod0)
+                    value0 = 4.0f * (0.5f - tt0) * peakToPeak0;
+                else
+                    value0 = 0.f;
+                break;
+            }
+        }
+        float norm0 = fClamp(value0 / (5.f * captureVolt0), -1.0f, 1.0f);
+        ishort ival0 = (ishort)(norm0 * MAXOSCVALUE);
+
+        // --- channel 1 ---
+        float normalizedTime1 = sample / numSamplesF + generateTime1;
+        float signaltime1 = normalizedTime1 * captureTime1;
+        float t1 = signaltime1 / period1;
+        float angle2Pi1 = 2.f * PI * t1;
+        float normalizedPeriod1 = period1 / captureTime1;
+        float mod1 = fmodf(normalizedTime1, normalizedPeriod1);
+        float div1 = mod1 / normalizedPeriod1;
+        float timeFrac1 = fmodf(normalizedTime1, 1.0f);
+
+        switch(sim->type1)
+        {
+            case stSin:  value1 = maxpeak1 * sinf(angle2Pi1); break;
+            case stCos:  value1 = maxpeak1 * cosf(angle2Pi1); break;
+            case stInc:  value1 = div1 * peakToPeak1 + minpeak1; break;
+            case stDec:  value1 = (1.f - div1) * peakToPeak1 + minpeak1; break;
+            case stConstant: value1 = peakToPeak1; break;
+            case stRandom:   value1 = rand_FloatRange(-1.f, 1.f) * (peakToPeak1 / 2.f); break;
+            case stSquare:
+                value1 = (timeFrac1 < normalizedPeriod1) ? peakToPeak1 : 0.f;
+                break;
+            case stDelta:
+            {
+                float tt1 = timeFrac1 / normalizedPeriod1 / 2.f;
+                if(timeFrac1 < normalizedPeriod1 / 2.f)
+                    value1 = 4.0f * tt1 * peakToPeak1;
+                else if(timeFrac1 < normalizedPeriod1)
+                    value1 = 4.0f * (0.5f - tt1) * peakToPeak1;
+                else
+                    value1 = 0.f;
+                break;
+            }
+        }
+        float norm1 = fClamp(value1 / (5.f * captureVolt1), -1.0f, 1.0f);
+        ishort ival1 = (ishort)(norm1 * MAXOSCVALUE);
+
+        // pack both 14-bit channels into 4 bytes — digital = 0
+        sfSetData(packet + frameHeader + j * 4, ival0, ival1, 0);
     }
+    // digital removed — buffer was already zeroed by SDL_memset
     return 0;
 }
 
@@ -1417,140 +1307,43 @@ byte reverseByte(byte v)
     return r;
 }
 
-uint setBits(uint channel0, uint channel1, uint digital)
-{
-    // result
-    uint r = 0;
-    // input
-    uint ch0 = channel0 & 0x03ff;
-    uint ch1 = channel1 & 0x03ff;
-    uint dig = digital  & 0x0fff;
-    // ch 0
-    byte  b0 = (ch0 & 0x00ff);
-    byte  b1 = (ch0 & 0xff00) >> 8;
-    byte  lo = (b0 & 0x03) << 6;
-    byte  me = (b0 >> 2) & 0x3F;
-    byte  hi = (b1 << 6) & 0xC0;
-    uint uLo = lo;
-    uLo <<= 8;
-    uint uMe = me;
-    uint uHi = hi;
-    r |= (uLo | uMe | uHi);
-    // ch 1
-    b0 = (ch1 & 0x00ff);
-    b1 = (ch1 & 0xff00) >> 8;
-    lo = (b0 & 0x0f) << 4;
-    me = (b0 >> 4) & 0x0F;
-    hi = (b1 << 4) & 0x30;
-    uLo = lo;
-    uLo <<= 16;
-    uMe = me;
-    uMe <<= 8;
-    uHi = hi;
-    uHi <<= 8;
-    r |= (uLo | uMe | uHi);
-    // digital
-    b0 = (dig & 0x00ff);
-    b1 = (dig & 0xff00) >> 8;
-    lo =  b0 & 0xff;
-    hi =  b1 & 0x0f;
-    uLo = lo;
-    uLo <<= 24;
-    uHi = hi;
-    uHi <<= 16;
-    r |= (uLo | uHi);
-    return r;
-    // ch 1
-    //b0 = (ch1 & 0x00ff);
-    //b1 = (ch1 & 0xff00) >> 8;
-    //r0 = b1;
-    //r1 = reverseByte(b0);
-    //r2 = reverseByte(b0 & 0x03);
-    //u0 = r0;
-    //u1 = r1;
-    //u2 = r2;
-    //r = u0 | u1 | (u2 >> 8);
-    // ch 1
-    //r |= (channel0 & rotateBits(1 , 0)) >> 2;
-    //r |= (channel0 & rotateBits(1 , 1)) >> 2;
-    //r |= (channel0 & rotateBits(1 , 2)) >> 2;
-    //r |= (channel0 & rotateBits(1 , 3)) >> 2;
-    //r |= (channel0 & rotateBits(1 , 4)) >> 2;
-    //r |= (channel0 & rotateBits(1 , 5)) >> 2;
-    //r |= (channel0 & rotateBits(1 , 6)) >> 2;
-    //r |= (channel0 & rotateBits(1 , 7)) >> 2;
-    //r |= (channel0 & rotateBits(1 , 8)) >> 2;
-    //r |= (channel0 & rotateBits(1 , 9)) >> 2;
-    //// ch 1
-    //r |= ((channel1 & rotateBits(1 , 0)) << 10);
-    //r |= ((channel1 & rotateBits(1 , 1)) << 10);
-    //r |= ((channel1 & rotateBits(1 , 2)) << 10);
-    //r |= ((channel1 & rotateBits(1 , 3)) << 10);
-    //r |= ((channel1 & rotateBits(1 , 4)) << 10);
-    //r |= ((channel1 & rotateBits(1 , 5)) << 10);
-    //r |= ((channel1 & rotateBits(1 , 6)) << 10);
-    //r |= ((channel1 & rotateBits(1 , 7)) << 10);
-    //r |= ((channel1 & rotateBits(1 , 8)) << 10);
-    //r |= ((channel1 & rotateBits(1 , 9)) << 10);
-    //
-    //return r;
-}
-
 SCOPEFUN_API int sfSetData(byte* ptr, ishort channel0, ishort channel1, ushort digital)
 {
-    //uint ch0 = channel0 & 0x03ff;
-    //uint ch1 = channel1 & 0x03ff;
-    //uint dig = digital  & 0x0fff;
-    //uint data = 0;
-    //// ch0
-    //byte loCh0 = (ch0 & 0xff)  << 6;
-    //byte miCh0 = (ch0 & 0xff)  >> 2;
-    //byte hiCh0 = (ch0 & 0x300) >> 8;
-    //     data |= (loCh0 >> 8);
-    //     data |= miCh0;
-    //     data |= hiCh0;
-    //// ch1
-    //uint b0Ch1 =  ch1 & 0xff;
-    //uint b1Ch1 = (ch1 & 0x300) >> 8;
-    //     b0Ch1 = (b0Ch1 >> 12);
-    //     b1Ch1 = (b1Ch1 >> 4);
-    //     data |= b0Ch1;
-    //     data |= b1Ch1;
-    // dig
-    //uint b0Dig =  dig & 0xff;
-    //uint b1Dig = (dig & 0xF00) >> 8;
-    //     data |= (b0Dig >> 24) | (b1Dig >> 16);
-    uint data = setBits(channel0, channel1, digital);
-    ishort iCh0 = 0;
-    ishort iCh1 = 0;
-    ushort iDig = 0;
-    sfGetData(data, &iCh0, &iCh1, &iDig);
-    *(uint*)ptr = data;
+    // Pack two signed 14-bit channels into 4 bytes (28 bits used). digital removed.
+    uint ch0 = ((uint)channel0) & 0x3FFF; // 14 bits
+    uint ch1 = ((uint)channel1) & 0x3FFF; // 14 bits
+    // layout (LSB first): [ byte0 | byte1 | byte2 | byte3 ]
+    // pack: lower 8 bits of ch0 -> byte0
+    //       next 6 bits of ch0 + lower 2 bits of ch1 -> byte1
+    //       next 8 bits of ch1 -> byte2
+    //       remaining upper 4 bits of ch1 -> byte3 (in low nibble), rest zero
+    byte b0 = (byte)(ch0 & 0xFF);
+    byte b1 = (byte)(((ch0 >> 8) & 0x3F) | ((ch1 & 0x3) << 6));
+    byte b2 = (byte)((ch1 >> 2) & 0xFF);
+    byte b3 = (byte)((ch1 >> 10) & 0x0F);
+    ptr[0] = b0;
+    ptr[1] = b1;
+    ptr[2] = b2;
+    ptr[3] = b3;
     return SCOPEFUN_SUCCESS;
 }
 
 SCOPEFUN_API int sfGetData(uint data, ishort* analogCh1, ishort* analogCh2, ushort* digital)
 {
+    // Unpack two signed 14-bit channels from 4 bytes packed by sfSetData (digital removed).
     byte* dataStart = (byte*)&data;
-    ushort  ch0 = 0;
-    ushort  ch1 = 0;
-    ushort  dig = 0;
-    byte byte0 = *(dataStart + 0);
-    byte byte1 = *(dataStart + 1);
-    byte byte2 = *(dataStart + 2);
-    byte byte3 = *(dataStart + 3);
-    ch0 |= byte0;
-    ch0 = ch0 << 2;
-    ch0 |= ((byte1 >> 6) & 0x3F);
-    ch1 |= (byte1 & 0x3F);
-    ch1 = ch1 << 4;
-    ch1 |= ((byte2 >> 4) & 0xF);
-    dig |= (byte2 & 0xF);
-    dig  = dig << 8;
-    dig |= byte3;
-    *analogCh1 = leadBitShift(ch0 & 0x000003FF);
-    *analogCh2 = leadBitShift(ch1 & 0x000003FF);
-    *digital  = dig;
+    byte byte0 = dataStart[0];
+    byte byte1 = dataStart[1];
+    byte byte2 = dataStart[2];
+    byte byte3 = dataStart[3];
+    uint ch0 = (uint)byte0 | (((uint)byte1 & 0x3F) << 8);
+    uint ch1 = (((uint)byte1 >> 6) & 0x03) | ((uint)byte2 << 2) | (((uint)byte3 & 0x0F) << 10);
+    // sign extend 14-bit values to 16-bit signed
+    if (ch0 & (1 << 13)) ch0 |= 0xFFFFC000;
+    if (ch1 & (1 << 13)) ch1 |= 0xFFFFC000;
+    *analogCh1 = (ishort)(ch0 & 0xFFFF);
+    *analogCh2 = (ishort)(ch1 & 0xFFFF);
+    if (digital) *digital = 0;
     return SCOPEFUN_SUCCESS;
 }
 

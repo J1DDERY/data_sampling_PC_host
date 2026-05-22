@@ -525,7 +525,7 @@ Osciloskop::Osciloskop( wxWindow* parent, wxWindowID id, const wxString& title, 
 	m_panel16->SetSizer( bSizer141 );
 	m_panel16->Layout();
 	bSizer141->Fit( m_panel16 );
-	m_notebook4->AddPage( m_panel16, _("Channel 2"), false );
+	m_notebook4->AddPage( m_panel16, _("Channel 2"), true );
 	m_panel161 = new wxPanel( m_notebook4, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer1411;
 	bSizer1411 = new wxBoxSizer( wxHORIZONTAL );
@@ -602,7 +602,7 @@ Osciloskop::Osciloskop( wxWindow* parent, wxWindowID id, const wxString& title, 
 	m_staticText45->Wrap( -1 );
 	gSizer71->Add( m_staticText45, 0, wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT, 5 );
 
-	wxString m_comboBoxTriggerSourceChoices[] = { _("Channel 1"), _("Channel 2"), _("AWG 1"), _("AWG 2"), _("Digital"), _("AWG 1 (Phase)"), _("AWG 2 (Phase)") };
+	wxString m_comboBoxTriggerSourceChoices[] = { _("Channel 1"), _("Channel 2") };
 	int m_comboBoxTriggerSourceNChoices = sizeof( m_comboBoxTriggerSourceChoices ) / sizeof( wxString );
 	m_comboBoxTriggerSource = new wxChoice( m_panel3, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_comboBoxTriggerSourceNChoices, m_comboBoxTriggerSourceChoices, 0 );
 	m_comboBoxTriggerSource->SetSelection( 0 );
@@ -1619,6 +1619,9 @@ Display::Display( wxWindow* parent, wxWindowID id, const wxString& title, const 
 	m_checkBoxFFTUnit->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( Display::m_checkBoxFFTUnitOnCheckBox ), NULL, this );
 	m_checkBoxFFTAxis->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( Display::m_checkBoxFFTAxisOnCheckBox ), NULL, this );
 	m_checkBoxFFTGrid->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( Display::m_checkBoxFFTGridOnCheckBox ), NULL, this );
+	m_checkBoxDigitalUnit->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( Display::m_checkBoxDigitalUnitOnCheckBox ), NULL, this );
+	m_checkBoxDigitalAxis->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( Display::m_checkBoxDigitalAxisOnCheckBox ), NULL, this );
+	m_checkBoxDigitalGrid->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( Display::m_checkBoxDigitalGridOnCheckBox ), NULL, this );
 	m_choiceSignal->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( Display::m_choiceSignalOnChoice ), NULL, this );
 	m_textCtrlSignal->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( Display::m_textCtrlSignalOnTextEnter ), NULL, this );
 	m_sliderSignal->Connect( wxEVT_SCROLL_TOP, wxScrollEventHandler( Display::m_sliderSignalOnScroll ), NULL, this );
@@ -1711,6 +1714,9 @@ Display::~Display()
 	m_checkBoxFFTUnit->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( Display::m_checkBoxFFTUnitOnCheckBox ), NULL, this );
 	m_checkBoxFFTAxis->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( Display::m_checkBoxFFTAxisOnCheckBox ), NULL, this );
 	m_checkBoxFFTGrid->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( Display::m_checkBoxFFTGridOnCheckBox ), NULL, this );
+	m_checkBoxDigitalUnit->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( Display::m_checkBoxDigitalUnitOnCheckBox ), NULL, this );
+	m_checkBoxDigitalAxis->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( Display::m_checkBoxDigitalAxisOnCheckBox ), NULL, this );
+	m_checkBoxDigitalGrid->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( Display::m_checkBoxDigitalGridOnCheckBox ), NULL, this );
 	m_choiceSignal->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( Display::m_choiceSignalOnChoice ), NULL, this );
 	m_textCtrlSignal->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( Display::m_textCtrlSignalOnTextEnter ), NULL, this );
 	m_sliderSignal->Disconnect( wxEVT_SCROLL_TOP, wxScrollEventHandler( Display::m_sliderSignalOnScroll ), NULL, this );
