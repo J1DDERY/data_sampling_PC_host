@@ -181,8 +181,7 @@ const char* captureTimeToStr(int enumerated)
     {
         switch(enumerated)
         {
-            case t2c2ns:
-                return "2ns";
+    
             case t2c4ns:
                 return "4ns";
             case t2c8ns:
@@ -292,8 +291,7 @@ double captureTimeFromEnumV2(int enumerated)
 {
     switch(enumerated)
     {
-        case t2c2ns:
-            return 2.0 * DOUBLE_NANO;
+
         case t2c4ns:
             return 4.0 * DOUBLE_NANO;
         case t2c8ns:
@@ -368,20 +366,11 @@ uint captureTimeMaxReceive(int enumerated, int version)
 ECalibrationType getCalibrationType(int enumerated)
 {
     int version = pOsciloscope->thread.getVersion();
-    if(version == 2 && enumerated == t2c2ns)
-    {
-        return ct500Mhz;
-    }
     return ctNormal;
 }
 
 ECalibrationType getCalibrationType(float value)
 {
-    int version = pOsciloscope->thread.getVersion();
-    if(version == 2 && captureTimeFromValue(value) == t2c2ns)
-    {
-        return ct500Mhz;
-    }
     return ctNormal;
 }
 
@@ -496,10 +485,6 @@ uint captureTimeFromValue(float value)
     }
     if(version == 2)
     {
-        if(value < 4.f * NANO)
-        {
-            return t2c2ns;
-        }
         if(value < 8.f * NANO)
         {
             return t2c4ns;

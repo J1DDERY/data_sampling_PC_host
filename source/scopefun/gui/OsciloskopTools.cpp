@@ -213,7 +213,6 @@ void recreateGUI(int initial)
     // set clinet size for proper border calculation
     int sx = wxSystemSettings::GetMetric(wxSYS_SCREEN_X);
     int sy = wxSystemSettings::GetMetric(wxSYS_SCREEN_Y);
-    frame->SetClientSize(45 * sx / 80, 7 * sy / 8);
     // border
     wxRect rect3 = frame->GetClientRect();
     wxRect rect4 = frame->GetScreenRect();
@@ -230,10 +229,6 @@ void recreateGUI(int initial)
         pt.y -= borderY;
         #endif
     }
-    // proper client size
-    #ifdef _WINDOWS
-    frame->SetClientSize(45 * sx / 80, 7 * sy / 8 - borderY + borderX);
-    #endif
     // position
     frame->SetPosition(pt);
     // show window
@@ -659,9 +654,6 @@ void OsciloskopOsciloskop::setTimeMode(int value)
         case SIGNAL_MODE_CAPTURE:
             m_buttonCaptureOnButtonClick(evt);
             break;
-        case SIGNAL_MODE_SIMULATE:
-            m_buttonSimulateOnButtonClick(evt);
-            break;
         case SIGNAL_MODE_CLEAR:
             m_buttonClearOnButtonClick(evt);
             break;
@@ -676,8 +668,6 @@ void OsciloskopOsciloskop::SetButtonColors()
     m_buttonPause->SetForegroundColour(pOsciloscope->settings.getColors()->windowFront);
     m_buttonCapture->SetBackgroundColour(pOsciloscope->settings.getColors()->windowBack);
     m_buttonCapture->SetForegroundColour(pOsciloscope->settings.getColors()->windowFront);
-    m_buttonSimulate->SetBackgroundColour(pOsciloscope->settings.getColors()->windowBack);
-    m_buttonSimulate->SetForegroundColour(pOsciloscope->settings.getColors()->windowFront);
     m_buttonClear->SetBackgroundColour(pOsciloscope->settings.getColors()->windowBack);
     m_buttonClear->SetForegroundColour(pOsciloscope->settings.getColors()->windowFront);
 }

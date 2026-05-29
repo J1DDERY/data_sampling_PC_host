@@ -82,7 +82,6 @@ class Osciloskop : public wxFrame
 		wxButton* m_buttonPlay;
 		wxButton* m_buttonPause;
 		wxButton* m_buttonCapture;
-		wxButton* m_buttonSimulate;
 		wxButton* m_buttonClear;
 		wxStaticText* m_staticText181;
 		wxTextCtrl* m_textCtrlTimeFrameSize;
@@ -167,7 +166,6 @@ class Osciloskop : public wxFrame
 		virtual void m_menuItem21OnMenuSelection( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_menuItem22OnMenuSelection( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_menuItem23OnMenuSelection( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_menuItem6OnMenuSelection( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_menuItem8OnMenuSelection( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_menuItem9OnMenuSelection( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_menuItemReadEEPROMOnMenuSelection( wxCommandEvent& event ) { event.Skip(); }
@@ -204,7 +202,6 @@ class Osciloskop : public wxFrame
 		virtual void m_buttonPlayOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_buttonPauseOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_buttonCaptureOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_buttonSimulateOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_buttonClearOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_textCtrlTimeFrameSizeOnTextEnter( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_textCtrlTimeFFTSizeOnTextEnter( wxCommandEvent& event ) { event.Skip(); }
@@ -269,7 +266,7 @@ class Osciloskop : public wxFrame
 		wxMenuItem* m_menuItemEraseECalibration;
 		wxMenuItem* m_menuItemDebug;
 
-		Osciloskop( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Oscilloscope"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 1026,843 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+		Osciloskop( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Oscilloscope"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 612,616 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 
 		~Osciloskop();
 

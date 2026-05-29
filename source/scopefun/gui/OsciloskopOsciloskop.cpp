@@ -267,10 +267,7 @@ void OsciloskopOsciloskop::OnIdle(wxIdleEvent& event)
             pOsciloscope->window.horizontal.Mode = SIGNAL_MODE_PAUSE;
             SDL_AtomicSet(&pOsciloscope->signalMode, SIGNAL_MODE_PAUSE);
             // clear render target
-            if(captureTimeFromValue(pOsciloscope->window.horizontal.Capture) != t2c2ns)
-            {
-                SDL_AtomicSet(&pOsciloscope->clearRenderTarget, 1);
-            }
+            SDL_AtomicSet(&pOsciloscope->clearRenderTarget, 1);
             // user interface
             setupUI(pOsciloscope->window);
             // transfer
@@ -381,7 +378,7 @@ void OsciloskopOsciloskop::OnIdle(wxIdleEvent& event)
         ////////////////////////////////////////////////////////////////////////////////
         int mode = SDL_AtomicGet(&pOsciloscope->signalMode);
         if( mode == SignalMode::SIGNAL_MODE_CAPTURE  ||
-            mode == SignalMode::SIGNAL_MODE_SIMULATE ||
+            mode == SignalMode::SIGNAL_MODE_CAPTURE ||
             mode == SignalMode::SIGNAL_MODE_PLAY )
         {
             int frameIndex = SDL_AtomicGet(&pOsciloscope->m_captureBuffer.m_frameIndex);
@@ -493,7 +490,6 @@ void OsciloskopOsciloskop::OnSetFocus(wxFocusEvent& event)
 
 void OsciloskopOsciloskop::OnSize(wxSizeEvent& event)
 {
-    this->SetSize(event.GetSize().GetX(), event.GetSize().GetY());
     this->Layout();
     this->Refresh();
 }
@@ -992,6 +988,9 @@ void OsciloskopOsciloskop::m_buttonConnectOnButtonClick(wxCommandEvent& event)
     pOsciloscope->thread.openUSB(pOsciloscope->settings.getHardware(), 0);
     if (pOsciloscope->thread.isOpen())
         pOsciloscope->thread.useEepromCalibration(pOsciloscope->settings.getHardware());
+    // Send full hardware configuration after connect
+    pOsciloscope->setupControl(pOsciloscope->window);
+    pOsciloscope->transferData();
     m_comboBoxCh0CaptureOnCombobox(event);
     m_comboBoxCh1CaptureOnCombobox(event);
 }
@@ -1039,32 +1038,6 @@ void OsciloskopOsciloskop::m_comboBoxTimeCaptureOnCombobox(wxCommandEvent& event
 {
     pOsciloscope->window.horizontal.Capture = captureTimeFromEnum(m_comboBoxTimeCapture->GetSelection());
     SDL_AtomicSet(&pOsciloscope->threadCapture, m_comboBoxTimeCapture->GetSelection());
-    if(captureTimeFromValue(pOsciloscope->window.horizontal.Capture) == t2c2ns)
-    {
-        // 500 Mhz help
-        m_comboBoxCh1Capture->SetSelection(m_comboBoxCh0Capture->GetSelection());
-        double oldTriggerVoltagePerStep = pOsciloscope->getTriggerVoltagePerStep();
-        pOsciloscope->window.channel02.Capture = captureVoltFromEnum(m_comboBoxCh0Capture->GetSelection());
-        pOsciloscope->window.channel02.Scale = pFormat->stringToFloat(m_textCtrlCh0Scale->GetValue().ToAscii().data());
-        pOsciloscope->window.channel02.Display = pOsciloscope->window.channel01.Capture;
-        uint capture0 = m_comboBoxCh0Capture->GetSelection();
-        sfSetYRangeScaleB(getHw(), pOsciloscope->getAttr(capture0), pOsciloscope->getGain(1, capture0));
-        // steps
-        float    time = pOsciloscope->window.horizontal.Capture;
-        float capture = pOsciloscope->window.channel01.Capture;
-        pOsciloscope->window.channel01.YPosition = double(m_sliderCh0Position->GetValue()) * pOsciloscope->settings.getHardware()->getAnalogStep(time, 0, capture);
-        pOsciloscope->window.channel02.YPosition = double(m_sliderCh0Position->GetValue()) * pOsciloscope->settings.getHardware()->getAnalogStep(time, 0, capture);
-        double stepsA = double(pOsciloscope->window.channel01.YPosition) / pOsciloscope->settings.getHardware()->getAnalogStep(time, 0, capture);
-        double stepsB = double(pOsciloscope->window.channel02.YPosition) / pOsciloscope->settings.getHardware()->getAnalogStep(time, 1, capture);
-        sfSetYPositionA(getHw(), stepsA + pOsciloscope->settings.getHardware()->getAnalogOffset(time, 0, capture));
-        sfSetYPositionB(getHw(), stepsB + pOsciloscope->settings.getHardware()->getAnalogOffset(time, 1, capture));
-        m_sliderCh0Position->SetValue(stepsA);
-        m_textCtrlCh0Position->SetValue(pFormat->doubleToString(pOsciloscope->window.channel01.YPosition));
-        m_sliderCh1Position->SetValue(stepsB);
-        m_textCtrlCh1Position->SetValue(pFormat->doubleToString(pOsciloscope->window.channel02.YPosition));
-        double newTriggerVoltagePerStep = pOsciloscope->getTriggerVoltagePerStep();
-        RecalculateTriggerPosition(oldTriggerVoltagePerStep, newTriggerVoltagePerStep);
-    }
     sfSetXRange(getHw(), m_comboBoxTimeCapture->GetSelection());
     pOsciloscope->transferData();
     /*
@@ -1075,10 +1048,6 @@ void OsciloskopOsciloskop::m_comboBoxTimeCaptureOnCombobox(wxCommandEvent& event
     pOsciloscope->window.measure.ClearCapture();
     pOsciloscope->window.measure.data.column[MEASURE_MINIMUM].SetValue(MAX_DOUBLE);
     pOsciloscope->window.measure.data.column[MEASURE_MAXIMUM].SetValue(-MAX_DOUBLE);
-    if(captureTimeFromValue(pOsciloscope->window.horizontal.Capture) == t2c2ns)
-    {
-        m_comboBoxCh0CaptureOnCombobox(event);
-    }
 }
 
 void OsciloskopOsciloskop::m_checkBoxETSOnCheckBox(wxCommandEvent& event)
@@ -1186,7 +1155,6 @@ void OsciloskopOsciloskop::m_buttonPlayOnButtonClick(wxCommandEvent& event)
     m_buttonPlay->Disable();
     if (pOsciloscope->thread.isFpga())
         m_buttonCapture->Enable();
-    m_buttonSimulate->Enable();
     m_buttonClear->Enable();
 }
 
@@ -1208,7 +1176,6 @@ void OsciloskopOsciloskop::m_buttonPauseOnButtonClick(wxCommandEvent& event)
     m_buttonPlay->Enable();
     if (pOsciloscope->thread.isFpga())
         m_buttonCapture->Enable();
-    m_buttonSimulate->Enable();
     m_buttonClear->Enable();
 }
 
@@ -1244,31 +1211,8 @@ void OsciloskopOsciloskop::m_buttonCaptureOnButtonClick(wxCommandEvent& event)
         m_buttonPause->Enable();
         m_buttonPlay->Enable();
         m_buttonCapture->Disable();
-        m_buttonSimulate->Enable();
         m_buttonClear->Enable();
     }
-}
-
-void OsciloskopOsciloskop::m_buttonSimulateOnButtonClick(wxCommandEvent& event)
-{
-    pOsciloscope->window.horizontal.Mode = SIGNAL_MODE_SIMULATE;
-    SDL_AtomicSet(&pOsciloscope->signalMode, SIGNAL_MODE_SIMULATE);
-    if(!pOsciloscope->settings.getColors()->windowDefault)
-    {
-        SetButtonColors();
-        m_buttonSimulate->SetBackgroundColour(pOsciloscope->settings.getColors()->windowFront);
-        m_buttonSimulate->SetForegroundColour(pOsciloscope->settings.getColors()->windowBack);
-    }
-    pOsciloscope->UndoRedoOnOff(0);
-    if(event.GetClientData() == 0)
-    { pOsciloscope->transferData(); }
-    pOsciloscope->UndoRedoOnOff(1);
-    m_buttonPause->Enable();
-    m_buttonPlay->Enable();
-    if (pOsciloscope->thread.isFpga())
-        m_buttonCapture->Enable();
-    m_buttonSimulate->Disable();
-    m_buttonClear->Enable();
 }
 
 void OsciloskopOsciloskop::m_buttonClearOnButtonClick(wxCommandEvent& event)
@@ -1290,7 +1234,6 @@ void OsciloskopOsciloskop::m_buttonClearOnButtonClick(wxCommandEvent& event)
     m_buttonPlay->Enable();
     if (pOsciloscope->thread.isFpga())
         m_buttonCapture->Enable();
-    m_buttonSimulate->Enable();
     m_buttonClear->Disable();
 }
 
@@ -1324,24 +1267,6 @@ void OsciloskopOsciloskop::m_textCtrlTimeFFTSizeOnTextEnter(wxCommandEvent& even
 
 void OsciloskopOsciloskop::m_comboBoxCh0CaptureOnCombobox(wxCommandEvent& event)
 {
-    if(captureTimeFromValue(pOsciloscope->window.horizontal.Capture) == t2c2ns)
-    {
-        // 500 Mhz help
-        m_comboBoxCh1Capture->SetSelection(m_comboBoxCh0Capture->GetSelection());
-        double oldTriggerVoltagePerStep = pOsciloscope->getTriggerVoltagePerStep();
-        //pOsciloscope->window.channel02.Capture = captureVoltFromEnum(m_comboBoxCh0Capture->GetSelection());
-        //pOsciloscope->window.channel02.Scale = pFormat->stringToFloat(m_textCtrlCh0Scale->GetValue().ToAscii().data());
-        //pOsciloscope->window.channel02.Display = pOsciloscope->window.channel02.Capture;
-        //pOsciloscope->control.setYRangeScaleB(m_comboBoxCh0Capture->GetSelection(), pOsciloscope->window.channel02.Scale);
-        m_comboBoxCh1CaptureOnCombobox(event);
-        //
-        float volt;
-        uint  unit;
-        _setYDisplay(volt, unit, (VoltageCapture)m_comboBoxCh1Capture->GetSelection());
-        //
-        double newTriggerVoltagePerStep = pOsciloscope->getTriggerVoltagePerStep();
-        RecalculateTriggerPosition(oldTriggerVoltagePerStep, newTriggerVoltagePerStep);
-    }
     float time = pOsciloscope->window.horizontal.Capture;
     float captureOld = pOsciloscope->window.channel01.Capture;
     double oldTriggerVoltagePerSteps = pOsciloscope->getTriggerVoltagePerStep();
@@ -1433,19 +1358,6 @@ void OsciloskopOsciloskop::m_checkBoxDigitalPatternRestartOnUploadOnCheckBox(wxC
 
 void OsciloskopOsciloskop::m_textCtrlCh0PositionOnTextEnter(wxCommandEvent& event)
 {
-    if(captureTimeFromValue(pOsciloscope->window.horizontal.Capture) == t2c2ns)
-    {
-        // 500 Mhz help
-        m_textCtrlCh1Position->SetValue(m_textCtrlCh0Position->GetValue());
-        float time = pOsciloscope->window.horizontal.Capture;
-        float capture = pOsciloscope->window.channel02.Capture;
-        // voltage
-        pOsciloscope->window.channel02.YPosition = pFormat->stringToDouble(m_textCtrlCh1Position->GetValue().ToAscii().data());
-        // step
-        double steps = double(pOsciloscope->window.channel02.YPosition) / pOsciloscope->settings.getHardware()->getAnalogStep(time, 1, capture);
-        sfSetYPositionB(getHw(), steps + pOsciloscope->settings.getHardware()->getAnalogOffset(time, 1, capture));
-        m_sliderCh1Position->SetValue(-steps);
-    }
     float time = pOsciloscope->window.horizontal.Capture;
     float capture = pOsciloscope->window.channel01.Capture;
     // voltage
@@ -1460,11 +1372,6 @@ void OsciloskopOsciloskop::m_textCtrlCh0PositionOnTextEnter(wxCommandEvent& even
 
 void OsciloskopOsciloskop::m_spinBtnCh0YPosOnSpinDown(wxSpinEvent& event)
 {
-    if(captureTimeFromValue(pOsciloscope->window.horizontal.Capture) == t2c2ns)
-    {
-        // 500 Mhz help
-        m_spinBtnCh1YPosOnSpinDown(event);
-    }
     // position
     int ypos = sfGetYPositionA(getHw());
     sfSetYPositionA(getHw(), ypos + 1);
@@ -1482,11 +1389,6 @@ void OsciloskopOsciloskop::m_spinBtnCh0YPosOnSpinDown(wxSpinEvent& event)
 
 void OsciloskopOsciloskop::m_spinBtnCh0YPosOnSpinUp(wxSpinEvent& event)
 {
-    if(captureTimeFromValue(pOsciloscope->window.horizontal.Capture) == t2c2ns)
-    {
-        // 500 Mhz help
-        m_spinBtnCh1YPosOnSpinUp(event);
-    }
     // position
     int ypos = sfGetYPositionA(getHw());
     sfSetYPositionA(getHw(), ypos - 1);
@@ -1504,19 +1406,6 @@ void OsciloskopOsciloskop::m_spinBtnCh0YPosOnSpinUp(wxSpinEvent& event)
 
 void OsciloskopOsciloskop::m_sliderCh0PositionOnScroll(wxScrollEvent& event)
 {
-    if(captureTimeFromValue(pOsciloscope->window.horizontal.Capture) == t2c2ns)
-    {
-        // 500 Mhz help
-        float time    = pOsciloscope->window.horizontal.Capture;
-        float capture = pOsciloscope->window.channel01.Capture;
-        // voltage
-        pOsciloscope->window.channel02.YPosition = double(-m_sliderCh0Position->GetValue()) * pOsciloscope->settings.getHardware()->getAnalogStep(time, 0, capture);
-        // step
-        double steps = double(pOsciloscope->window.channel02.YPosition) / pOsciloscope->settings.getHardware()->getAnalogStep(time, 1, capture);
-        sfSetYPositionB(getHw(), steps + pOsciloscope->settings.getHardware()->getAnalogOffset(time, 1, capture));
-        m_sliderCh1Position->SetValue(-steps);
-        m_textCtrlCh1Position->SetValue(pFormat->doubleToString(pOsciloscope->window.channel02.YPosition));
-    }
     float time    = pOsciloscope->window.horizontal.Capture;
     float capture = pOsciloscope->window.channel01.Capture;
     // steps

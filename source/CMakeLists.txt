@@ -104,11 +104,9 @@ set( HEADER_SCOPEFUN ${CMAKE_SOURCE_DIR}/source/scopefun/ScopeFun.h
                      ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopConnection.h
                      ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopDebug.h
                      ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopDisplay.h
-                     ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopHardwareGenerator.h
                      ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopInfo.h
                      ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopMeasure.h
                      ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopOsciloskop.h
-                     ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopSoftwareGenerator.h
                      ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopStorage.h
                      ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopThermal.h
                      ${CMAKE_SOURCE_DIR}/source/scopefun/gui/OsciloskopTools.h

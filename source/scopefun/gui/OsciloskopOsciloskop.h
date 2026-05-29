@@ -98,7 +98,6 @@ class OsciloskopOsciloskop : public Osciloskop
 		void m_buttonPlayOnButtonClick( wxCommandEvent& event );
 		void m_buttonPauseOnButtonClick( wxCommandEvent& event );
 		void m_buttonCaptureOnButtonClick( wxCommandEvent& event );
-		void m_buttonSimulateOnButtonClick( wxCommandEvent& event );
 		void m_buttonClearOnButtonClick( wxCommandEvent& event );
 		void m_textCtrlTimeFrameSizeOnTextEnter( wxCommandEvent& event );
 		void m_textCtrlTimeFFTSizeOnTextEnter( wxCommandEvent& event );

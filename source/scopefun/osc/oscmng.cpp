@@ -119,8 +119,6 @@ ThreadApi::ThreadApi()
     wait();
     SDL_AtomicSet(&calibrated, 0);
     wait();
-    SDL_AtomicSet(&simulate, 0);
-    wait();
     SDL_AtomicSet(&vid, 0);
     wait();
     SDL_AtomicSet(&pid, 0);
@@ -144,7 +142,6 @@ ThreadApi::ThreadApi()
     SDL_memset(&eepromData, 0, sizeof(SEeprom));
     eepromSize   = 0;
     eepromOffset = 0;
-    simulateTimeValue = 0.0;
     wait();
     SDL_memset(&displayData, 0, sizeof(SDisplay));
     SDL_memset(&config, 0, sizeof(SHardware));
@@ -203,14 +200,11 @@ void ThreadApi::update()
     SDL_AtomicUnlock(&lock);
     // default
     SInt iopened = {0};
-    int isimulate = 0;
     int iversion = SDL_AtomicGet(&version);
     /*
     sfHardwareIsOpened(getCtx(), &iopened);
     SDL_AtomicSet(&open, iopened.value);
     */
-    isimulate = sfIsSimulate(getCtx());
-    SDL_AtomicSet(&simulate, isimulate);
     while(true)
     {
         uint count = execute.getCount();
@@ -808,6 +802,10 @@ int ThreadApi::hardwareControlFunction(SHardware* hw)
 ////////////////////////////////////////////////////////////////////////////////
 OsciloscopeManager::OsciloscopeManager()
 {
+    SDL_AtomicSet(&captureWatchdogTimer, 0);
+    SDL_AtomicSet(&captureWatchdogHealthy, 1);
+    SDL_AtomicSet(&debugFrameCount, 0);
+    SDL_AtomicSet(&debugStuckCount, 0);
     SDL_AtomicSet(&m_undoRedoEnabled,0);
     dtUpdate = 0.0;
     dtRender = 0.0;
@@ -824,6 +822,53 @@ OsciloscopeManager::OsciloscopeManager()
     SDL_AtomicSet(&signalMode, SIGNAL_MODE_PAUSE);
     windowSlot = 0;
     SDL_AtomicSet(&oscExit, 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Watchdog
+////////////////////////////////////////////////////////////////////////////////
+void OsciloscopeManager::watchdogPing()
+{
+    SDL_AtomicSet(&captureWatchdogTimer, (int)SDL_GetTicks());
+    SDL_AtomicSet(&captureWatchdogHealthy, 1);
+}
+
+int OsciloscopeManager::watchdogCheck()
+{
+    int now    = (int)SDL_GetTicks();
+    int last   = SDL_AtomicGet(&captureWatchdogTimer);
+    int elapsed = now - last;
+    int stuckCount = SDL_AtomicGet(&debugStuckCount);
+
+    // If > 6 seconds since last ping, capture thread is stuck
+    if (elapsed > 6000 && last > 0)
+    {
+        SDL_AtomicSet(&captureWatchdogHealthy, 0);
+        SDL_AtomicAdd(&debugStuckCount, 1);
+        CORE_MESSAGE("Watchdog: capture thread stuck for %d ms (count=%d)",
+                     elapsed, SDL_AtomicGet(&debugStuckCount));
+
+        // Recover: pause capture
+        SDL_AtomicSet(&signalMode, SIGNAL_MODE_PAUSE);
+
+        // Reset partial frame state so next capture starts fresh
+        SFContext* sfCtx = getCtx();
+        if (sfCtx)
+        {
+            sfCtx->frame.received = 0;
+            CORE_MESSAGE("%s", "Watchdog: frame state reset");
+        }
+
+        // Reset USB on repeated hangs
+        if (stuckCount > 2)
+        {
+            CORE_MESSAGE("%s", "Watchdog: attempting USB reset...");
+            SDL_AtomicSet(&debugStuckCount, 0);
+            pOsciloscope->thread.function(EThreadApiFunction::afResetUsb);
+        }
+        return 1; // stuck, recovered
+    }
+    return 0; // healthy
 }
 
 void* malloc_fn2(size_t sz)
@@ -1575,10 +1620,6 @@ void OsciloscopeManager::renderThread(uint threadId, OsciloscopeThreadData& thre
     OsciloscopeRenderData&    render = threadData.m_render;
     SDisplay&                  frame = threadData.m_frame;
     MeasureData&             measure = measureData[threadId];
-    // double frequency ?
-    uint isDoubleFreq = captureTimeFromValue(wndMain.horizontal.Capture) == (uint)t2c2ns;
-    if (isDoubleFreq)
-        render.colorChannel1 = render.colorChannel0;
     ////////////////////////////////////////////////////////////////////////////////
     // begin
     ////////////////////////////////////////////////////////////////////////////////
@@ -3299,76 +3340,39 @@ void OsciloscopeManager::transferUI()
 
 void OsciloscopeManager::setupControl(WndMain window)
 {
-    /*int version = control.getVersion();
-     for(int i = 1; i < 3; i++)
-     {
-         control.setVersion(i);
-         settings.setVersion(i);
-         control.setAnalogSwitchBit(CHANNEL_A_GROUND, window.channel01.Ground);
-         control.setAnalogSwitchBit(CHANNEL_B_GROUND, window.channel02.Ground);
-         control.setAnalogSwitchBit(CHANNEL_A_ACDC, window.channel01.AcDc);
-         control.setAnalogSwitchBit(CHANNEL_B_ACDC, window.channel02.AcDc);
-         control.setAnalogSwitchBit(CHANNEL_ATTR_A, pOsciloscope->control.getAttr(captureVoltFromValue(window.channel01.Capture)));
-         control.setAnalogSwitchBit(CHANNEL_ATTR_B, pOsciloscope->control.getAttr(captureVoltFromValue(window.channel02.Capture)));
-         control.setControl(window.horizontal.Control);
-         control.setYRangeScaleA(captureVoltFromValue(window.channel01.Capture), window.channel01.Scale);
-         control.setYPositionA(window.channel01.YPosition + pOsciloscope->settings.getHardware()->getAnalogOffset(window.horizontal.Capture, 0, window.channel01.Capture));
-         control.setYRangeScaleB(captureVoltFromValue(window.channel02.Capture), window.channel02.Scale);
-         control.setYPositionB(window.channel02.YPosition + pOsciloscope->settings.getHardware()->getAnalogOffset(window.horizontal.Capture, 1, window.channel02.Capture));
-         control.setTriggerSource(window.trigger.Source);
-         control.setTriggerMode(window.trigger.Mode);
-         control.setTriggerSlope(window.trigger.Slope);
-         control.setTriggerPre(window.trigger.Percent);
-         control.setTriggerHis(window.trigger.His);
-         control.setTriggerLevel(window.trigger.Level);
-         control.setXRange(captureTimeFromValue(window.horizontal.Capture));
-         control.setSampleSize(window.horizontal.FrameSize);
-         control.setHoldoff(window.trigger.Holdoff);
-         control.setDigitalStart(window.trigger.stageStart);
-         control.setDigitalMode(window.trigger.stageMode);
-         control.setDigitalChannel(window.trigger.stageChannel);
-         for(int stage = 0; stage < 4; stage++)
-         {
-             control.setDigitalDelay((DigitalStage)stage, window.trigger.delay[stage]);
-         }
-         for(int stage = 0; stage < 4; stage++)
-         {
-             for(int bit = 0; bit < 16; bit++)
-             {
-                 control.setDigitalMask((DigitalStage)stage, (DigitalBit)bit, window.trigger.mask[stage][bit]);
-             }
-         }
-         for(int stage = 0; stage < 4; stage++)
-         {
-             for(int bit = 0; bit < 16; bit++)
-             {
-                 control.setDigitalPattern((DigitalStage)stage, (DigitalBit)bit, (DigitalPattern)window.trigger.pattern[stage][bit]);
-             }
-         }
-         control.setGeneratorType0((GeneratorType)window.hardwareGenerator.type0);
-         control.setGeneratorOn0(window.hardwareGenerator.onOff0);
-         control.setGeneratorSlope0(window.hardwareGenerator.sawSlopePositive0);
-         control.setGeneratorVoltage0(window.hardwareGenerator.voltage0);
-         control.setGeneratorOffset0(window.hardwareGenerator.offset0 + pOsciloscope->settings.getHardware()->getGeneratorOffset(window.horizontal.Capture, 0));
-         control.setGeneratorFrequency0(window.hardwareGenerator.frequency0, pOsciloscope->settings.getHardware()->generatorFs);
-         control.setGeneratorSquareDuty0(window.hardwareGenerator.squareDuty0);
-         control.setGeneratorType1((GeneratorType)window.hardwareGenerator.type1);
-         control.setGeneratorOn1(window.hardwareGenerator.onOff1);
-         control.setGeneratorSlope1(window.hardwareGenerator.sawSlopePositive1);
-         control.setGeneratorVoltage1(window.hardwareGenerator.voltage1);
-         control.setGeneratorOffset1(window.hardwareGenerator.offset1 + pOsciloscope->settings.getHardware()->getGeneratorOffset(window.horizontal.Capture, 1));
-         control.setGeneratorFrequency1(window.hardwareGenerator.frequency1, pOsciloscope->settings.getHardware()->generatorFs);
-         control.setGeneratorSquareDuty1(window.hardwareGenerator.squareDuty1);
-         control.setDigitalVoltage(window.digitalSetup.voltage);
-         control.setDigitalInputOutput(window.digitalSetup.inputOutput15, window.digitalSetup.inputOutput7);
-         for(int i = 0; i < 16; i++)
-         {
-             control.setDigitalOutputBit(i, window.digital.output[i]);
-         }
-         control.setDigitalClockDivide(window.digitalSetup.divider);
-     }
-     control.setVersion(version);
-     settings.setVersion(version);*/
+    SHardware* hw = getHw();
+
+    // Control register (essential: enables FPGA streaming, default to normal)
+    int ctrl = window.horizontal.Control;
+    if (ctrl == 0) ctrl = 1;
+    sfSetControl(hw, ctrl);
+
+    // Channel A
+    sfSetYRangeScaleA(hw, getAttr(captureVoltFromValue(window.channel01.Capture)),
+                                getGain(0, captureVoltFromValue(window.channel01.Capture)));
+    sfSetYPositionA(hw, window.channel01.YPosition /
+        pOsciloscope->settings.getHardware()->getAnalogStep(window.horizontal.Capture, 0, window.channel01.Capture)
+        + pOsciloscope->settings.getHardware()->getAnalogOffset(window.horizontal.Capture, 0, window.channel01.Capture));
+
+    // Channel B
+    sfSetYRangeScaleB(hw, getAttr(captureVoltFromValue(window.channel02.Capture)),
+                                getGain(1, captureVoltFromValue(window.channel02.Capture)));
+    sfSetYPositionB(hw, window.channel02.YPosition /
+        pOsciloscope->settings.getHardware()->getAnalogStep(window.horizontal.Capture, 1, window.channel02.Capture)
+        + pOsciloscope->settings.getHardware()->getAnalogOffset(window.horizontal.Capture, 1, window.channel02.Capture));
+
+    // Trigger settings
+    sfSetTriggerSource(hw, window.trigger.Source);
+    sfSetTriggerMode(hw, window.trigger.Mode);
+    sfSetTriggerSlope(hw, window.trigger.Slope);
+    sfSetTriggerPre(hw, window.trigger.Percent);
+    sfSetTriggerHis(hw, window.trigger.His);
+    sfSetTriggerLevel(hw, window.trigger.Level);
+
+    // Timebase
+    sfSetXRange(hw, captureTimeFromValue(window.horizontal.Capture));
+    sfSetSampleSize(hw, window.horizontal.FrameSize);
+    sfSetHoldoff(hw, window.trigger.Holdoff);
 }
 
 ushort OsciloscopeManager::getAttr(uint volt)
@@ -3424,6 +3428,9 @@ int OsciloscopeManager::Render()
     pOsciloscope->dtUpdate = pTimer->getDelta(TIMER_MAIN_THREAD);
     pManager->update(pOsciloscope->dtUpdate);
 
+    // watchdog: detect stuck capture thread
+    pOsciloscope->watchdogCheck();
+
     ////////////////////////////////////////////////////////////////////////////////
     // render
     ////////////////////////////////////////////////////////////////////////////////
@@ -3469,27 +3476,31 @@ int SDLCALL CaptureDataThreadFunction(void* data)
         // mode
         SignalMode mode = (SignalMode)SDL_AtomicGet(&pOsciloscope->signalMode);
 
-        // simulate
-        if(mode == SIGNAL_MODE_SIMULATE)
-        {
-            int ret = sfSimulate(getCtx(), getHw(), &receivedBytes, &receivedFrameSize, time);
-        }
+        // simulate removed
 
-        // capture
-        if (mode == SIGNAL_MODE_CAPTURE)
+        // capture (both single CAPTURE and continuous PLAY)
+        if (mode == SIGNAL_MODE_CAPTURE || mode == SIGNAL_MODE_PLAY)
         {
             int isFpga = pOsciloscope->thread.isFpga();
             int isOpen = pOsciloscope->thread.isOpen();
 
             if (!isOpen || !isFpga)
             {
+                pOsciloscope->watchdogPing();
                 SDL_Delay(100);
                 continue;
             }
             else
             {
                 int ret = sfFrameCapture(getCtx(), &receivedBytes, &receivedFrameSize);
+                pOsciloscope->watchdogPing();
             }
+        }
+
+        // idle — keep watchdog alive when paused
+        if (mode == SIGNAL_MODE_PAUSE)
+        {
+            pOsciloscope->watchdogPing();
         }
 
         // capture
@@ -3506,8 +3517,8 @@ int SDLCALL CaptureDataThreadFunction(void* data)
         uint     frameSize   = SDL_AtomicGet(&captureBuffer.m_frameSize);
         uint     frameOffset = SDL_AtomicGet(&captureBuffer.m_frameOffset);
 
-        // copy frame
-        if (mode == SIGNAL_MODE_CAPTURE || mode == SIGNAL_MODE_SIMULATE)
+        // copy frame (both CAPTURE and PLAY)
+        if (mode == SIGNAL_MODE_CAPTURE || mode == SIGNAL_MODE_PLAY)
         {
             // size
             if (receivedFrameSize.value != frameSize && receivedFrameSize.value != 0)
@@ -3556,17 +3567,6 @@ int SDLCALL CaptureDataThreadFunction(void* data)
                SDL_AtomicSet(&captureBuffer.m_frameClear, 0);
                SDL_memset(&captureBuffer.m_dataPtr[0], 0, captureBuffer.m_dataMax);
             }
-        }
-
-        // play
-        if (mode == SIGNAL_MODE_PLAY)
-        {
-            // offset
-            frameOffset = frameSize;
-
-            // index
-            uint frameIndex = SDL_AtomicGet(&captureBuffer.m_frameIndex);
-            SDL_AtomicSet(&captureBuffer.m_frameIndex, (frameIndex + 1)%frameCount );
         }
 
         if (mode == SIGNAL_MODE_PAUSE)

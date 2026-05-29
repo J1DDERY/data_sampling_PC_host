@@ -810,7 +810,6 @@ private:
     SDL_atomic_t open;
     SDL_atomic_t fpga;
     SDL_atomic_t calibrated;
-    SDL_atomic_t simulate;
     SDL_atomic_t vid;
     SDL_atomic_t pid;
     SDL_atomic_t sid;
@@ -836,7 +835,6 @@ public:
     uint         active;
     uint         timeout;
 public:
-    double            simulateTimeValue;
     SDisplay          displayData;
     SHardware         config;
 public:
@@ -1223,6 +1221,15 @@ public:
 public:
     SDL_atomic_t clearRenderTarget;
     SDL_atomic_t clearThermal;
+public:
+    // Watchdog / health monitoring
+    SDL_atomic_t captureWatchdogTimer;   // timestamp of last ping
+    SDL_atomic_t captureWatchdogHealthy; // 1=ok, 0=stuck/recovered
+    SDL_atomic_t debugFrameCount;       // total frames captured
+    SDL_atomic_t debugStuckCount;       // how many times watchdog fired
+public:
+    void watchdogPing();
+    int  watchdogCheck();
 public:
     OsciloscopeManager();
 public:

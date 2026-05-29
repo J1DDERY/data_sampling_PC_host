@@ -49,11 +49,6 @@ Osciloskop::Osciloskop( wxWindow* parent, wxWindowID id, const wxString& title, 
 	m_menuItem23 = new wxMenuItem( m_menu2, wxID_ANY, wxString( _("FFT 2D") ) , wxEmptyString, wxITEM_CHECK );
 	m_menu2->Append( m_menuItem23 );
 
-	wxMenuItem* m_menuItem6;
-	m_menuItem6 = new wxMenuItem( m_menu2, wxID_ANY, wxString( _("Digital") ) , wxEmptyString, wxITEM_CHECK );
-	m_menu2->Append( m_menuItem6 );
-	m_menuItem6->Check( true );
-
 	m_menubar1->Append( m_menu2, _("View") );
 
 	m_menu3 = new wxMenu();
@@ -227,10 +222,10 @@ Osciloskop::Osciloskop( wxWindow* parent, wxWindowID id, const wxString& title, 
 
 	bSizer1751->Add( m_staticText141, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	wxString m_comboBoxTimeCaptureChoices[] = { _("2ns"), _("4ns"), _("10ns"), _("20ns"), _("50ns"), _("100ns"), _("200ns"), _("500ns"), _("1us"), _("2us"), _("5us"), _("10us"), _("20us"), _("50us"), _("100us"), _("200us"), _("500us"), _("1ms"), _("2ms"), _("5ms"), _("10ms"), _("20ms"), _("50ms"), _("100ms"), _("200ms"), _("500ms"), _("1s") };
+	wxString m_comboBoxTimeCaptureChoices[] = { _("4ns"), _("10ns"), _("20ns"), _("50ns"), _("100ns"), _("200ns"), _("500ns"), _("1us"), _("2us"), _("5us"), _("10us"), _("20us"), _("50us"), _("100us"), _("200us"), _("500us"), _("1ms"), _("2ms"), _("5ms"), _("10ms"), _("20ms"), _("50ms"), _("100ms"), _("200ms"), _("500ms"), _("1s") };
 	int m_comboBoxTimeCaptureNChoices = sizeof( m_comboBoxTimeCaptureChoices ) / sizeof( wxString );
 	m_comboBoxTimeCapture = new wxChoice( m_panel251, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_comboBoxTimeCaptureNChoices, m_comboBoxTimeCaptureChoices, 0 );
-	m_comboBoxTimeCapture->SetSelection( 3 );
+	m_comboBoxTimeCapture->SetSelection( 0 );
 	bSizer1751->Add( m_comboBoxTimeCapture, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
 
@@ -315,11 +310,6 @@ Osciloskop::Osciloskop( wxWindow* parent, wxWindowID id, const wxString& title, 
 
 	m_buttonCapture = new wxButton( m_panel251, wxID_ANY, _("Capture"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer8->Add( m_buttonCapture, 2, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-
-	m_buttonSimulate = new wxButton( m_panel251, wxID_ANY, _("Simulate"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_buttonSimulate->Hide();
-
-	bSizer8->Add( m_buttonSimulate, 2, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
 	m_buttonClear = new wxButton( m_panel251, wxID_ANY, _("Clear"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer8->Add( m_buttonClear, 2, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
@@ -780,7 +770,6 @@ Osciloskop::Osciloskop( wxWindow* parent, wxWindowID id, const wxString& title, 
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItem21OnMenuSelection ), this, m_menuItem21->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItem22OnMenuSelection ), this, m_menuItem22->GetId());
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItem23OnMenuSelection ), this, m_menuItem23->GetId());
-	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItem6OnMenuSelection ), this, m_menuItem6->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItem8OnMenuSelection ), this, m_menuItem8->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItem9OnMenuSelection ), this, m_menuItem9->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemReadEEPROMOnMenuSelection ), this, m_menuItemReadEEPROM->GetId());
@@ -833,7 +822,6 @@ Osciloskop::Osciloskop( wxWindow* parent, wxWindowID id, const wxString& title, 
 	m_buttonPlay->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Osciloskop::m_buttonPlayOnButtonClick ), NULL, this );
 	m_buttonPause->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Osciloskop::m_buttonPauseOnButtonClick ), NULL, this );
 	m_buttonCapture->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Osciloskop::m_buttonCaptureOnButtonClick ), NULL, this );
-	m_buttonSimulate->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Osciloskop::m_buttonSimulateOnButtonClick ), NULL, this );
 	m_buttonClear->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Osciloskop::m_buttonClearOnButtonClick ), NULL, this );
 	m_textCtrlTimeFrameSize->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( Osciloskop::m_textCtrlTimeFrameSizeOnTextEnter ), NULL, this );
 	m_textCtrlTimeFFTSize->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( Osciloskop::m_textCtrlTimeFFTSizeOnTextEnter ), NULL, this );
@@ -979,7 +967,6 @@ Osciloskop::~Osciloskop()
 	m_buttonPlay->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Osciloskop::m_buttonPlayOnButtonClick ), NULL, this );
 	m_buttonPause->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Osciloskop::m_buttonPauseOnButtonClick ), NULL, this );
 	m_buttonCapture->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Osciloskop::m_buttonCaptureOnButtonClick ), NULL, this );
-	m_buttonSimulate->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Osciloskop::m_buttonSimulateOnButtonClick ), NULL, this );
 	m_buttonClear->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Osciloskop::m_buttonClearOnButtonClick ), NULL, this );
 	m_textCtrlTimeFrameSize->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( Osciloskop::m_textCtrlTimeFrameSizeOnTextEnter ), NULL, this );
 	m_textCtrlTimeFFTSize->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( Osciloskop::m_textCtrlTimeFFTSizeOnTextEnter ), NULL, this );

@@ -41,21 +41,6 @@ void OsciloskopDisplay::m_checkBoxFFTGridOnCheckBox(wxCommandEvent& event)
     // TODO: Implement m_checkBoxFFTGridOnCheckBox
 }
 
-void OsciloskopDisplay::m_checkBoxDigitalUnitOnCheckBox(wxCommandEvent& event)
-{
-    // TODO: Implement m_checkBoxDigitalUnitOnCheckBox
-}
-
-void OsciloskopDisplay::m_checkBoxDigitalAxisOnCheckBox(wxCommandEvent& event)
-{
-    // TODO: Implement m_checkBoxDigitalAxisOnCheckBox
-}
-
-void OsciloskopDisplay::m_checkBoxDigitalGridOnCheckBox(wxCommandEvent& event)
-{
-    // TODO: Implement m_checkBoxDigitalGridOnCheckBox
-}
-
 void OsciloskopDisplay::m_choiceSignalOnChoice(wxCommandEvent& event)
 {
     // TODO: Implement m_choiceSignalOnChoice
@@ -109,36 +94,6 @@ void OsciloskopDisplay::m_checkBox3dLightOnCheckBox(wxCommandEvent& event)
 void OsciloskopDisplay::m_checkBox3dDepthTestOnCheckBox(wxCommandEvent& event)
 {
     // TODO: Implement m_checkBox3dDepthTestOnCheckBox
-}
-
-void OsciloskopDisplay::m_textCtrl3dAlphaCh0OnTextEnter(wxCommandEvent& event)
-{
-    // TODO: Implement m_textCtrl3dAlphaCh0OnTextEnter
-}
-
-void OsciloskopDisplay::m_slider3dAlphaCh0OnScroll(wxScrollEvent& event)
-{
-    // TODO: Implement m_slider3dAlphaCh0OnScroll
-}
-
-void OsciloskopDisplay::m_textCtrl3dAlphaCh1OnTextEnter(wxCommandEvent& event)
-{
-    // TODO: Implement m_textCtrl3dAlphaCh1OnTextEnter
-}
-
-void OsciloskopDisplay::m_slider3dAlphaCh1OnScroll(wxScrollEvent& event)
-{
-    // TODO: Implement m_slider3dAlphaCh1OnScroll
-}
-
-void OsciloskopDisplay::m_textCtrl3dAlphaFunOnTextEnter(wxCommandEvent& event)
-{
-    // TODO: Implement m_textCtrl3dAlphaFunOnTextEnter
-}
-
-void OsciloskopDisplay::m_slider3dAlphaFunOnScroll(wxScrollEvent& event)
-{
-    // TODO: Implement m_slider3dAlphaFunOnScroll
 }
 
 void OsciloskopDisplay::m_textCtrl3dTessalationOnTextEnter(wxCommandEvent& event)

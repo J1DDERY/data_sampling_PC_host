@@ -62,6 +62,9 @@ public:
     void ThreadStop();
     void Clear();
     void AppendText(const char* str);
+public:
+    void OnTimerUpdate(wxTimerEvent& event);
+    wxTimer m_refreshTimer;
     /* TODO: erase
     void AssignScript(OsciloscopeScript* script) { m_script = script; }
     */

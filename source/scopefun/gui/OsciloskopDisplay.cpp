@@ -49,14 +49,8 @@ void OsciloskopDisplay::DisplayOnInitDialog(wxInitDialogEvent& event)
     m_checkBox3dDepthTest->SetValue(pOsciloscope->window.display.depthTest3d > 0 ? true : false);
     m_textCtrl3dTessalation->SetValue(wxString(pFormat->integerToString(pOsciloscope->window.display.tessalation3d)));
     m_textCtrl3dTessalation->SetValue(wxString(pFormat->integerToString(pOsciloscope->window.display.tessalation3d)));
-    m_textCtrl3dAlphaCh0->SetValue(wxString(pFormat->integerToString(pOsciloscope->window.display.alpha3dCh0)));
-    m_textCtrl3dAlphaCh1->SetValue(wxString(pFormat->integerToString(pOsciloscope->window.display.alpha3dCh1)));
-    m_textCtrl3dAlphaFun->SetValue(wxString(pFormat->integerToString(pOsciloscope->window.display.alpha3dFun)));
     m_slider3dTessalation->SetValue(pOsciloscope->window.display.tessalation3d);
     m_slider2dTessalation->SetValue(pOsciloscope->window.display.tessalation2d);
-    m_slider3dAlphaCh0->SetValue(pOsciloscope->window.display.alpha3dCh0);
-    m_slider3dAlphaCh1->SetValue(pOsciloscope->window.display.alpha3dCh1);
-    m_slider3dAlphaFun->SetValue(pOsciloscope->window.display.alpha3dFun);
 }
 
 void OsciloskopDisplay::m_checkBoxUnitsOnCheckBox(wxCommandEvent& event)
@@ -190,42 +184,6 @@ void OsciloskopDisplay::m_slider2dTessalationOnScroll(wxScrollEvent& event)
 {
     pOsciloscope->window.display.tessalation2d = m_slider2dTessalation->GetValue();
     m_textCtrl2dTessalation->SetValue(wxString(pFormat->integerToString(pOsciloscope->window.display.tessalation2d)));
-}
-
-void OsciloskopDisplay::m_slider3dAlphaCh0OnScroll(wxScrollEvent& event)
-{
-    pOsciloscope->window.display.alpha3dCh0 = m_slider3dAlphaCh0->GetValue();
-    m_textCtrl3dAlphaCh0->SetValue(wxString(pFormat->integerToString(pOsciloscope->window.display.alpha3dCh0)));
-}
-
-void OsciloskopDisplay::m_textCtrl3dAlphaCh0OnTextEnter(wxCommandEvent& event)
-{
-    pOsciloscope->window.display.alpha3dCh0 = pFormat->stringToInteger(m_textCtrl3dAlphaCh0->GetValue().ToAscii().data());
-    m_slider3dAlphaCh0->SetValue(pOsciloscope->window.display.alpha3dCh0);
-}
-
-void OsciloskopDisplay::m_slider3dAlphaCh1OnScroll(wxScrollEvent& event)
-{
-    pOsciloscope->window.display.alpha3dCh1 = m_slider3dAlphaCh1->GetValue();
-    m_textCtrl3dAlphaCh1->SetValue(wxString(pFormat->integerToString(pOsciloscope->window.display.alpha3dCh1)));
-}
-
-void OsciloskopDisplay::m_textCtrl3dAlphaCh1OnTextEnter(wxCommandEvent& event)
-{
-    pOsciloscope->window.display.alpha3dCh1 = pFormat->stringToInteger(m_textCtrl3dAlphaCh1->GetValue().ToAscii().data());
-    m_slider3dAlphaCh1->SetValue(pOsciloscope->window.display.alpha3dCh1);
-}
-
-void OsciloskopDisplay::m_slider3dAlphaFunOnScroll(wxScrollEvent& event)
-{
-    pOsciloscope->window.display.alpha3dFun = m_slider3dAlphaFun->GetValue();
-    m_textCtrl3dAlphaFun->SetValue(wxString(pFormat->integerToString(pOsciloscope->window.display.alpha3dFun)));
-}
-
-void OsciloskopDisplay::m_textCtrl3dAlphaFunOnTextEnter(wxCommandEvent& event)
-{
-    pOsciloscope->window.display.alpha3dFun = pFormat->stringToInteger(m_textCtrl3dAlphaFun->GetValue().ToAscii().data());
-    m_slider3dAlphaFun->SetValue(pOsciloscope->window.display.alpha3dFun);
 }
 
 void OsciloskopDisplay::m_buttonOkOnButtonClick(wxCommandEvent& event)

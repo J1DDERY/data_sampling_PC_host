@@ -347,8 +347,6 @@ void MeasurePos::setYVolt(double volt, int channel)
 double MeasurePos::getXTime(double sx,double sz)
 {
     double maxTime = double(pOsciloscope->window.horizontal.Capture) * double(pOsciloscope->window.horizontal.FrameSize);
-    if(captureTimeFromValue(pOsciloscope->window.horizontal.Capture) == t2c2ns)
-        maxTime = 2 * maxTime;
     double tMin        = (sx - 0.5*sz) * maxTime;
     double tMax        = (sx + 0.5*sz) * maxTime;
                 xTime  = tMin + x*(tMax-tMin) - maxTime * (double(pOsciloscope->window.trigger.Percent) / 100.0);

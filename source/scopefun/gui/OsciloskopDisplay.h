@@ -60,12 +60,6 @@ protected:
     void m_slider3dTessalationOnScroll(wxScrollEvent& event);
     void m_textCtrl2dTessalationOnTextEnter(wxCommandEvent& event);
     void m_slider2dTessalationOnScroll(wxScrollEvent& event);
-    void m_slider3dAlphaCh0OnScroll(wxScrollEvent& event);
-    void m_textCtrl3dAlphaCh0OnTextEnter(wxCommandEvent& event);
-    void m_slider3dAlphaCh1OnScroll(wxScrollEvent& event);
-    void m_textCtrl3dAlphaCh1OnTextEnter(wxCommandEvent& event);
-    void m_slider3dAlphaFunOnScroll(wxScrollEvent& event);
-    void m_textCtrl3dAlphaFunOnTextEnter(wxCommandEvent& event);
 public:
     /** Constructor */
     OsciloskopDisplay(wxWindow* parent);

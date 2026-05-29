@@ -312,7 +312,7 @@ float rand_FloatRange(float a, float b)
 
 void OsciloscopeFrame::generate(double dt, uint amount, double captureStart, double captureFreq)
 {
-    if(SDL_AtomicGet(&pOsciloscope->signalMode) != SIGNAL_MODE_SIMULATE)
+    if(SDL_AtomicGet(&pOsciloscope->signalMode) != SIGNAL_MODE_CAPTURE)
     { return; }
     // attrobutes
     for(uint i = 0; i < amount; i++)

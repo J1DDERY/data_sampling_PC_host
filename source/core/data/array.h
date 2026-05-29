@@ -21,6 +21,12 @@
 #ifndef __ARRAY__
 #define __ARRAY__
 
+#if defined(__GNUC__)
+#pragma GCC system_header
+#endif
+
+#include <algorithm>
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // static array
@@ -28,8 +34,29 @@
 ////////////////////////////////////////////////////////////////////////////////
 template<class T, int size> class Array
 {
+    static_assert(size > 0, "Array size must be positive");
 private:
-    T    data[size];
+    struct Cell
+    {
+        T value;
+
+        Cell() = default;
+        Cell(const T& value) : value(value) {}
+
+        Cell& operator=(const T& value)
+        {
+            this->value = value;
+            return *this;
+        }
+
+        Cell& operator=(const Cell& other)
+        {
+            value = other.value;
+            return *this;
+        }
+    };
+
+    Cell data[(size > 0) ? size : 1];
     int count;
 public:
     Array()
@@ -59,27 +86,27 @@ public:
 public:
     T& index(int idx)
     {
-        if(idx < 0 || idx > count)
+        if(idx < 0 || idx >= count)
         {
             CORE_ABORT("idx out of range", 0);
         }
-        return data[idx];
+        return data[idx].value;
     }
 
     const T& index(int idx) const
     {
-        if(idx < 0 || idx > count)
+        if(idx < 0 || idx >= count)
         {
             CORE_ABORT("idx out of range", 0);
         }
-        return data[idx];
+        return data[idx].value;
     }
 
     int find(const T& el) const
     {
         for(int idx = 0; idx < count; idx++)
         {
-            if(data[idx] == el)
+            if(data[idx].value == el)
             {
                 return idx;
             }
@@ -89,13 +116,14 @@ public:
 
     void insert(int index, const T& el)
     {
-        if (count < getSize()) {
-            setCount(count + 1);
-            for(int idx = count - 1; idx > index; idx--)
+        int oldCount = count;
+        if (oldCount < getSize()) {
+            setCount(oldCount + 1);
+            for(int idx = oldCount; idx > index; idx--)
             {
-                data[idx] = data[idx - 1];
+                data[idx].value = data[idx - 1].value;
             }
-            data[index] = el;
+            data[index].value = el;
         }
         else {
             CORE_ABORT("count out of range", 0);
@@ -104,9 +132,9 @@ public:
 
     void remove(int index)
     {
-        for(int idx = index; idx < count; idx++)
+        for(int idx = index; idx + 1 < count; idx++)
         {
-            data[idx] = data[idx + 1];
+            data[idx].value = data[idx + 1].value;
         }
         setCount(count - 1);
     }

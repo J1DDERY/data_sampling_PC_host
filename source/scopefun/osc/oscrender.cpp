@@ -421,10 +421,7 @@ void OsciloscopeThreadRenderer::renderAnalogUnits(uint threadid, OsciloscopeThre
     {
         return;
     }
-    if(captureTimeFromValue(pOsciloscope->window.horizontal.Capture) == t2c2ns)
-        timeDisplay = double(wndMain.horizontal.Capture) * double(wndMain.horizontal.FrameSize) * 2.0; //10000.0;
-    else
-        timeDisplay = double(wndMain.horizontal.Capture) * double(wndMain.horizontal.FrameSize); //10000.0;
+    timeDisplay = double(wndMain.horizontal.Capture) * double(wndMain.horizontal.FrameSize); //10000.0;
     ////////////////////////////////////////////////////////////////////////////////
     // voltage / time
     ////////////////////////////////////////////////////////////////////////////////
@@ -569,9 +566,6 @@ void OsciloscopeThreadRenderer::renderAnalogUnits(uint threadid, OsciloscopeThre
     ilarge zoomSampleCnt = clamp<ilarge>(zoomSampleMax - zoomSampleMin + 1, 0, numSamples); // [0..n]
     // time between samples
     double sampleTime = double(wndMain.horizontal.Capture);
-    // frame time
-    if(captureTimeFromValue(pOsciloscope->window.horizontal.Capture) == t2c2ns)
-        sampleTime = double(wndMain.horizontal.Capture) * 2.0;
     // grid time
     double gridStartTime  = (double)zoomSampleMin * sampleTime;
     double gridTimeX      = (double)zoomSampleCnt * sampleTime;
@@ -669,6 +663,7 @@ void OsciloscopeThreadRenderer::measureSignal(uint threadId, OsciloscopeThreadDa
     {
         current.averageN++;
     }
+    bool is500MSps = false;
     double sigPos = render.signalPosition;
     double sigZoom = render.signalZoom;
     int iSamples = display.samples;
@@ -693,9 +688,6 @@ void OsciloscopeThreadRenderer::measureSignal(uint threadId, OsciloscopeThreadDa
     double minY = min(wndMain.measure.data.pickY0.position.y, wndMain.measure.data.pickY1.position.y);
     double maxY = max(wndMain.measure.data.pickY0.position.y, wndMain.measure.data.pickY1.position.y);
     double  capture   = wndMain.horizontal.Capture;
-    bool is500MSps = false;
-    if(captureTimeFromValue(pOsciloscope->window.horizontal.Capture) == t2c2ns)
-        is500MSps = true;
     double  frameSize = wndMain.horizontal.FrameSize;
     double  maxTime   = iSamples;
     wndMain.measure.data.pick.row[Ch0YV0] = maxTime;
@@ -792,18 +784,9 @@ void OsciloscopeThreadRenderer::measureSignal(uint threadId, OsciloscopeThreadDa
     y0Avg /= dSamples;
     y1Avg /= dSamples;
     yFAvg /= dSamples;
-    if (is500MSps == false)
-    {
-        current.row[Ch0Vavg] = y0Avg;
-        current.row[Ch1Vavg] = y1Avg;
-        current.row[FunVavg] = yFAvg;
-    }
-    else
-    {
-        current.row[Ch0Vavg] = (y0Avg + y1Avg) / 2;
-        current.row[Ch1Vavg] = 0;
-        current.row[FunVavg] = yFAvg;
-    }
+    current.row[Ch0Vavg] = y0Avg;
+    current.row[Ch1Vavg] = y1Avg;
+    current.row[FunVavg] = yFAvg;
     y0Middle = y0Min + (y0Max - y0Min) / 2;
     y1Middle = y1Min + (y1Max - y1Min) / 2;
     yFMiddle = yFMin + (yFMax - yFMin) / 2;
@@ -834,8 +817,6 @@ void OsciloscopeThreadRenderer::measureSignal(uint threadId, OsciloscopeThreadDa
         double   y1 = yPosCh1 * yfactor1 - yposition1 /*- ch1ZeroVolt*/;
         double   yF = channelFunction(y0, y1, wndMain.function.Type, wndMain);
         double deltaT = capture * ppi;
-        if (is500MSps)
-            deltaT = 2 * deltaT;
         double idxTime = pt * deltaT;
         int current0 = 0;
         int current1 = 0;
@@ -954,11 +935,6 @@ void OsciloscopeThreadRenderer::measureSignal(uint threadId, OsciloscopeThreadDa
     current.row[Ch0Tperiod] = period0;
     current.row[Ch1Tperiod] = period1;
     current.row[FunTperiod] = periodF;
-    if (is500MSps == false)
-    {
-        current.row[Ch1Tperiod] = 0;
-        current.row[FunTperiod] = 0;
-    }
     // division by zero?
     current.row[Ch0Tfreq] = (period0 > 0) ? (1.0 / current.row[Ch0Tperiod]) : 0;
     current.row[Ch1Tfreq] = (period1 > 0) ? (1.0 / current.row[Ch1Tperiod]) : 0;
@@ -985,13 +961,6 @@ void OsciloscopeThreadRenderer::measureSignal(uint threadId, OsciloscopeThreadDa
         current.row[FunYV0] = pickFunY0;
         current.row[FunYV1] = pickFunY1;
     }
-    else
-    {
-        current.row[Ch1YV0] = 0;
-        current.row[Ch1YV1] = 0;
-        current.row[FunYV0] = 0;
-        current.row[FunYV1] = 0;
-    }
     // x - pick
     double xTime0 = pOsciloscope->window.measure.data.pickX0.position.getXTime(pOsciloscope->signalPosition, pOsciloscope->signalZoom);
     current.row[Ch0XT0] = xTime0;
@@ -1000,22 +969,12 @@ void OsciloscopeThreadRenderer::measureSignal(uint threadId, OsciloscopeThreadDa
         current.row[Ch1XT0] = xTime0;
         current.row[FunXT0] = xTime0;
     }
-    else
-    {
-        current.row[Ch1XT0] = 0;
-        current.row[FunXT0] = 0;
-    }
     double xTime1 = pOsciloscope->window.measure.data.pickX1.position.getXTime(pOsciloscope->signalPosition, pOsciloscope->signalZoom);
     current.row[Ch0XT1] = xTime1;
     if (is500MSps == false)
     {
         current.row[Ch1XT1] = xTime1;
         current.row[FunXT1] = xTime1;
-    }
-    else
-    {
-        current.row[Ch1XT1] = 0;
-        current.row[FunXT1] = 0;
     }
     ///////////////////////////////////////////////////////////////////////
     // at pick 0 ( x axis )
@@ -1031,19 +990,6 @@ void OsciloscopeThreadRenderer::measureSignal(uint threadId, OsciloscopeThreadDa
         current.row[Ch1XV0] = y0Ch1;
         current.row[FunXV0] = y0F;
     }
-    else
-    {
-        if ((iX0Pos * 2) % 2 == 0) // select channel
-        {
-            current.row[Ch0XV0] = y0Ch0;
-        }
-        else
-        {
-            current.row[Ch0XV0] = y0Ch1;
-        }
-        current.row[Ch1XV0] = 0;
-        current.row[FunXV0] = 0;
-    }
     ///////////////////////////////////////////////////////////////////////
     // at pick 1 ( x axis )
     ///////////////////////////////////////////////////////////////////////
@@ -1057,19 +1003,6 @@ void OsciloscopeThreadRenderer::measureSignal(uint threadId, OsciloscopeThreadDa
         current.row[Ch0XV1] = y1Ch0;
         current.row[Ch1XV1] = y1Ch1;
         current.row[FunXV1] = y1F;
-    }
-    else
-    {
-        if ((iX1Pos * 2) % 2 == 0) // select channel
-        {
-            current.row[Ch0XV1] = y1Ch0;
-        }
-        else
-        {
-            current.row[Ch0XV1] = y1Ch1;
-        }
-        current.row[Ch1XV1] = 0;
-        current.row[FunXV1] = 0;
     }
     ///////////////////////////////////////////////////////////////////////
     // rms
@@ -1119,24 +1052,6 @@ void OsciloscopeThreadRenderer::measureSignal(uint threadId, OsciloscopeThreadDa
         current.row[Ch0VrmsAc] = valCh0VrmsAc;
         current.row[Ch1VrmsAc] = valCh1VrmsAc;
         current.row[FunVrmsAc] = valFunVrmsAc;
-    }
-    else
-    {
-        current.row[Ch0VrmsDc] = (valCh0VrmsDc + valCh1VrmsDc) / 2.0;
-        current.row[Ch1VrmsDc] = 0;
-        current.row[FunVrmsDc] = 0;
-        current.row[Ch0VrmsAc] = (valCh0VrmsAc + valCh1VrmsAc) / 2.0;
-        current.row[Ch1VrmsAc] = 0;
-        current.row[FunVrmsAc] = 0;
-        current.row[Ch0Vmin] = min(current.row[Ch0Vmin], current.row[Ch1Vmin]);
-        current.row[Ch0Vmax] = max(current.row[Ch0Vmax], current.row[Ch1Vmax]);
-        current.row[Ch1Vmin] = 0;
-        current.row[Ch1Vmax] = 0;
-        current.row[FunVmin] = 0;
-        current.row[FunVmax] = 0;
-        current.row[Ch0Surface] = (current.row[Ch0Surface]) + (current.row[Ch1Surface]);
-        current.row[Ch1Surface] = 0;
-        current.row[FunSurface] = 0;
     }
     current.row[Ch0XTD]    = max(current.row[Ch0XT0], current.row[Ch0XT1]) - min(current.row[Ch0XT0], current.row[Ch0XT1]);
     current.row[Ch0XInvTD] = 1.0 / current.row[Ch0XTD];
@@ -1201,7 +1116,7 @@ void OsciloscopeThreadRenderer::measureSignal(uint threadId, OsciloscopeThreadDa
             current.row[FFTCh0FD]   = 0;
             continue;
         }
-        if ((ch == 1 && wndMain.channel02.FFTOnOff == 0) || (ch == 1 && is500MSps))
+        if ((ch == 1 && wndMain.channel02.FFTOnOff == 0))
         {
             current.row[FFTCh1F0]   = 0;
             current.row[FFTCh1V0db] = 0;
@@ -1211,7 +1126,7 @@ void OsciloscopeThreadRenderer::measureSignal(uint threadId, OsciloscopeThreadDa
             current.row[FFTCh1FD]   = 0;
             continue;
         }
-        if ((ch == 2 && wndMain.function.FFTOnOff  == 0) || (ch == 2 && is500MSps))
+        if ((ch == 2 && wndMain.function.FFTOnOff  == 0))
         {
             current.row[FFTFunF0]   = 0;
             current.row[FFTFunV0db] = 0;
@@ -1350,8 +1265,6 @@ void OsciloscopeThreadRenderer::renderAnalog(uint threadId, OsciloscopeThreadDat
     {
         count++;
     }
-    // double frequency ?
-    uint isDoubleFreq = captureTimeFromValue(wndMain.horizontal.Capture) == (uint)t2c2ns;
     // ETS disabled
     bool isETS = false;
     float      xfactor = 1.f;
@@ -1371,12 +1284,7 @@ void OsciloscopeThreadRenderer::renderAnalog(uint threadId, OsciloscopeThreadDat
     {
         if(wndMain.display.signalType == 0)
         {
-            if(isDoubleFreq) {
-                pCanvas3d->beginBatch(threadId, CANVAS3D_BATCH_LINE, 2 * count);
-            }
-            else {
-                pCanvas3d->beginBatch(threadId, CANVAS3D_BATCH_LINE, 2 * count);
-            }
+            pCanvas3d->beginBatch(threadId, CANVAS3D_BATCH_LINE, 2 * count);
         }
         else
         {
@@ -1415,64 +1323,7 @@ void OsciloscopeThreadRenderer::renderAnalog(uint threadId, OsciloscopeThreadDat
                 xStart += xStart + displaySampleOffset;
             }
         }
-        else if(isDoubleFreq) // CH1, CH2: interleaving sampling
-        {
-            for(uint point = start; point <= end; point += increment)
-            {
-				uint idx0 = point;
-                uint idx1 = point + increment;
-                if (end == SCOPEFUN_DISPLAY - 1)
-                    idx1 = clamp<uint>(point + increment, start, end); //limit display to final sample
 
-                float y1, y0, y0next;
-                float x0st, x0end, x1st;
-
-                if (idx0 == start) {
-                    y0  = display.analog0.bytes[idx0] * yfactor + float(yOffset);
-                }
-                else {
-                    y0 = y0next;
-                }
-                y0next = display.analog0.bytes[idx1] * yfactor + float(yOffset);
-                y1     = display.analog1.bytes[idx0] * yfactor + float(yOffset);
-
-                x0st  = float(point) / float(bLineCount);
-                x1st  = x0st + halfSampleOffset;
-                x0end = x0st + displaySampleOffset;
-
-                Vector4 vArray[5] = { 0 };
-                vArray[0] = Vector4(x0st,  y0,     z, 1.f); // CH1(n)
-                vArray[1] = Vector4(x1st,  y0,     z, 1.f); // CH2(n)
-                vArray[2] = Vector4(x1st,  y1,     z, 1.f); // CH1(n+1)
-                vArray[3] = Vector4(x0end, y1,     z, 1.f); // CH2(n+1)
-                vArray[4] = Vector4(x0end, y0next, z, 1.f);
-
-                if(wndMain.display.signalType == 0)
-                {
-                    if(channelId == 0) {
-                        pCanvas3d->bLine(threadId, vArray[0], vArray[1]); // horizontal CH1
-                        pCanvas3d->bLine(threadId, vArray[1], vArray[2]); // vertical to CH2
-                    }
-                    if(channelId == 1) {
-                        pCanvas3d->bLine(threadId, vArray[2], vArray[3]); // horizontal CH2
-                        pCanvas3d->bLine(threadId, vArray[3], vArray[4]); // vertical to CH1
-                    }
-                    realcount++;
-                    //continue;
-                }
-                else
-                {
-                    // linear interpolation
-                    if(channelId == 0) {
-                        pCanvas3d->bLine(threadId, vArray[0], vArray[2]); // diagonal CH1
-                    }
-                    if(channelId == 1) {
-                        pCanvas3d->bLine(threadId, vArray[2], vArray[4]); // diagonal CH2
-                    }
-                }
-
-            }
-        }
         else
         {
             // analog CH1, CH2
@@ -1730,10 +1581,6 @@ void OsciloscopeThreadRenderer::renderAnalogFunction(uint threadId, OsciloscopeT
     // samples
     uint  isamples = display.samples;
     if(!isamples)
-    { return; }
-    // double frequency ?
-    uint isDoubleFreq = captureTimeFromValue(wndMain.horizontal.Capture) == (uint)t2c2ns;
-    if(isDoubleFreq)
     { return; }
     // sample zoom
     double sampleZoom = render.signalZoom;
@@ -2580,7 +2427,6 @@ void OsciloscopeThreadRenderer::renderFFT(uint threadId, OsciloscopeThreadData& 
     iint iFrameSamples = display.captured;
     iint  szFFT = wndMain.horizontal.FFTSize;
     int szFrame = wndMain.horizontal.FrameSize;
-    uint isDoubleFreq = captureTimeFromValue(wndMain.horizontal.Capture) == (uint)t2c2ns;
     int szBins = szFFT/2; //take single side of FFT spectrum
     if(!szFFT)
     {
@@ -2605,32 +2451,19 @@ void OsciloscopeThreadRenderer::renderFFT(uint threadId, OsciloscopeThreadData& 
         }
         else
         {
-            if (isDoubleFreq)
+            if (channelId == 0)
             {
-                if (channelId == 0)
-                {
-                    fft.aRe[2 * i + 0] = display.fft0.bytes[i];
-                    fft.aRe[2 * i + 1] = display.fft1.bytes[i];
-                }
+                if (i < iFrameSamples)
+                    fft.aRe[i] = display.fft0.bytes[i];
                 else
                     fft.aRe[i] = 0;
             }
-            else
+            if (channelId == 1)
             {
-                if (channelId == 0)
-                {
-                    if (i < iFrameSamples)
-                        fft.aRe[i] = display.fft0.bytes[i];
-                    else
-                        fft.aRe[i] = 0;
-                }
-                if (channelId == 1)
-                {
-                    if (i < iFrameSamples)
-                        fft.aRe[i] = display.fft1.bytes[i];
-                    else
-                        fft.aRe[i] = 0;
-                }
+                if (i < iFrameSamples)
+                    fft.aRe[i] = display.fft1.bytes[i];
+                else
+                    fft.aRe[i] = 0;
             }
         }
         fft.aIm[i] = 0.0;

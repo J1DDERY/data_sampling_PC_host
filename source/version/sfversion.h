@@ -22,5 +22,5 @@
 #define EXE_VERSION_MAJOR       "2"
 #define EXE_VERSION_MINOR       "4"
 #define EXE_VERSION_MICRO       "0"
-#define EXE_VERSION_TIMESTAMP   "12:24 28-05-2026"
+#define EXE_VERSION_TIMESTAMP   "14:09 29-05-2026"
 #define EXE_VERSION_TYPE        "release"

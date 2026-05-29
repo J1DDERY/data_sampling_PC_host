@@ -252,11 +252,6 @@ void OsciloskopOsciloskop::m_buttonCaptureOnButtonClick( wxCommandEvent& event )
     // TODO: Implement m_buttonCaptureOnButtonClick
 }
 
-void OsciloskopOsciloskop::m_buttonSimulateOnButtonClick( wxCommandEvent& event )
-{
-    // TODO: Implement m_buttonSimulateOnButtonClick
-}
-
 void OsciloskopOsciloskop::m_buttonClearOnButtonClick( wxCommandEvent& event )
 {
     // TODO: Implement m_buttonClearOnButtonClick

@@ -110,7 +110,6 @@ enum TimeCapture
 
 enum TimeCapture2
 {
-    t2c2ns,
     t2c4ns,
     t2c8ns,
     t2c20ns,

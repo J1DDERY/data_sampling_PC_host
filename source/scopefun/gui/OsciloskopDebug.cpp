@@ -27,13 +27,21 @@ OsciloskopDebug::OsciloskopDebug(wxWindow* parent)
     Debug(parent)
 {
     SetSize(500, 500);
-    //SetTitle("Debug");
 
     Connect(wxEVT_CLOSE_WINDOW, wxActivateEventHandler(OsciloskopDebug::OnDestroy));
 
     if (!isFileWritable())
        m_buttonSave->Disable();
 
+    // Start refresh timer (1 second interval)
+    m_refreshTimer.SetOwner(this);
+    Connect(m_refreshTimer.GetId(), wxEVT_TIMER, wxTimerEventHandler(OsciloskopDebug::OnTimerUpdate));
+    m_refreshTimer.Start(1000);
+}
+
+OsciloskopDebug::~OsciloskopDebug()
+{
+    m_refreshTimer.Stop();
 }
 
 void OsciloskopDebug::ThermalOnActivate(wxActivateEvent& event)
@@ -49,15 +57,62 @@ void OsciloskopDebug::ThermalOnActivate(wxActivateEvent& event)
 
 void OsciloskopDebug::OnDestroy(wxActivateEvent& event)
 {
-    /* TODO: erase Lua
-    if(m_script)
-    {
-        m_script->Stop();
-    }
-    if(m_script)
-    { ((OsciloskopOsciloskop*)this->GetParent())->GetMenuBar()->GetMenu(6)->GetMenuItems()[m_script->GetArrayIdx()]->Check(false); }
-    */
+    m_refreshTimer.Stop();
     Hide();
+}
+
+void OsciloskopDebug::Clear()
+{
+    if (m_textCtrlOutput)
+        m_textCtrlOutput->Clear();
+}
+
+void OsciloskopDebug::AppendText(const char* str)
+{
+    if (m_textCtrlOutput)
+        m_textCtrlOutput->AppendText(str);
+}
+
+void OsciloskopDebug::OnTimerUpdate(wxTimerEvent& event)
+{
+    if (!pOsciloscope || !IsShown())
+        return;
+
+    char buf[2048] = {0};
+    int frames  = SDL_AtomicGet(&pOsciloscope->debugFrameCount);
+    int healthy = SDL_AtomicGet(&pOsciloscope->captureWatchdogHealthy);
+    int stuck   = SDL_AtomicGet(&pOsciloscope->debugStuckCount);
+    int signal  = SDL_AtomicGet(&pOsciloscope->signalMode);
+    int fps     = pTimer ? pTimer->getFps(TIMER_CAPTURE) : 0;
+
+    const char* modeStr = "?";
+    switch (signal) {
+        case 0: modeStr = "PLAY";    break;
+        case 1: modeStr = "PAUSE";   break;
+        case 2: modeStr = "CAPTURE"; break;
+        case 3: modeStr = "CLEAR";   break;
+        default: modeStr = "?";      break;
+    }
+
+    macroString(buf, 2048,
+        "=== ScopeFun Debug ===\n"
+        "Status:      %s\n"
+        "SignalMode:  %s\n"
+        "Frames:      %d\n"
+        "Capture FPS: %d\n"
+        "Stuck count: %d\n"
+        "Thread:      %s\n"
+        "=====================\n",
+        healthy ? "OK" : "STUCK!",
+        modeStr,
+        frames,
+        fps,
+        stuck,
+        healthy ? "running" : "recovered"
+    );
+
+    Clear();
+    AppendText(buf);
 }
 void OsciloskopDebug::m_buttonStartOnButtonClick( wxCommandEvent& event )
 {
@@ -137,25 +192,4 @@ void OsciloskopDebug::ThreadStop()
    m_buttonStop->Disable();
    m_buttonUpload->Disable();
    */
-}
-
-void OsciloskopDebug::Clear()
-{
-    #if defined(PLATFORM_MINGW)
-    system("cls");
-    #else
-    system("clear");
-    #endif
-    m_textCtrlOutput->Clear();
-}
-
-
-OsciloskopDebug::~OsciloskopDebug()
-{
-
-}
-
-void OsciloskopDebug::AppendText(const char* str)
-{
-   m_textCtrlOutput->AppendText(str);
 }

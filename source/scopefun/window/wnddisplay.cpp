@@ -33,7 +33,7 @@ WndDisplay::WndDisplay()
 void WndDisplay::Default()
 {
     oscGrid  = 1;
-    oscAxis  = 0;
+    oscAxis  = 1;
     oscUnits = 1;
     fftGrid  = 1;
     fftAxis  = 0;
