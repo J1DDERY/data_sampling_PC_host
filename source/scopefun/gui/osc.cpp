@@ -67,17 +67,6 @@ Osciloskop::Osciloskop( wxWindow* parent, wxWindowID id, const wxString& title, 
 
 	m_menubar1->Append( m_menu3, _("Settings") );
 
-	m_menu4 = new wxMenu();
-	wxMenuItem* m_menuItemSoftware;
-	m_menuItemSoftware = new wxMenuItem( m_menu4, wxID_ANY, wxString( _("Software Simulator") ) , wxEmptyString, wxITEM_NORMAL );
-	m_menu4->Append( m_menuItemSoftware );
-
-	wxMenuItem* m_menuItem11;
-	m_menuItem11 = new wxMenuItem( m_menu4, wxID_ANY, wxString( _("Hardware Generator") ) , wxEmptyString, wxITEM_NORMAL );
-	m_menu4->Append( m_menuItem11 );
-
-	m_menubar1->Append( m_menu4, _("Generator") );
-
 	m_menu5 = new wxMenu();
 	wxMenuItem* m_menuItemReadEEPROM;
 	m_menuItemReadEEPROM = new wxMenuItem( m_menu5, wxID_ANY, wxString( _("Read FX3 Firmware") ) , wxEmptyString, wxITEM_NORMAL );
@@ -249,9 +238,6 @@ Osciloskop::Osciloskop( wxWindow* parent, wxWindowID id, const wxString& title, 
 
 
 	bSizer36->Add( 0, 0, 0, wxEXPAND, 5 );
-
-	m_checkBoxETS = new wxCheckBox( m_panel251, wxID_ANY, _("ETS"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer36->Add( m_checkBoxETS, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
 	m_checkBoxFull = new wxCheckBox( m_panel251, wxID_ANY, _("Full"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_checkBoxFull->Hide();
@@ -481,7 +467,7 @@ Osciloskop::Osciloskop( wxWindow* parent, wxWindowID id, const wxString& title, 
 	wxString m_choiceCh1ACDCChoices[] = { _("AC"), _("DC") };
 	int m_choiceCh1ACDCNChoices = sizeof( m_choiceCh1ACDCChoices ) / sizeof( wxString );
 	m_choiceCh1ACDC = new wxChoice( m_panel16, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_choiceCh1ACDCNChoices, m_choiceCh1ACDCChoices, 0 );
-	m_choiceCh1ACDC->SetSelection( 0 );
+	m_choiceCh1ACDC->SetSelection( 1 );
 	bSizer151->Add( m_choiceCh1ACDC, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
 	m_checkBoxCh1Invert = new wxCheckBox( m_panel16, wxID_ANY, _("Invert"), wxDefaultPosition, wxDefaultSize, 0 );
@@ -525,7 +511,7 @@ Osciloskop::Osciloskop( wxWindow* parent, wxWindowID id, const wxString& title, 
 	m_panel16->SetSizer( bSizer141 );
 	m_panel16->Layout();
 	bSizer141->Fit( m_panel16 );
-	m_notebook4->AddPage( m_panel16, _("Channel 2"), true );
+	m_notebook4->AddPage( m_panel16, _("Channel 2"), false );
 	m_panel161 = new wxPanel( m_notebook4, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer1411;
 	bSizer1411 = new wxBoxSizer( wxHORIZONTAL );
@@ -559,7 +545,7 @@ Osciloskop::Osciloskop( wxWindow* parent, wxWindowID id, const wxString& title, 
 	m_panel161->SetSizer( bSizer1411 );
 	m_panel161->Layout();
 	bSizer1411->Fit( m_panel161 );
-	m_notebook4->AddPage( m_panel161, _("Function"), false );
+	m_notebook4->AddPage( m_panel161, _("Function"), true );
 
 	bSizer155->Add( m_notebook4, 1, wxEXPAND|wxTOP|wxRIGHT|wxLEFT, 5 );
 
@@ -797,8 +783,6 @@ Osciloskop::Osciloskop( wxWindow* parent, wxWindowID id, const wxString& title, 
 	m_menu2->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItem6OnMenuSelection ), this, m_menuItem6->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItem8OnMenuSelection ), this, m_menuItem8->GetId());
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItem9OnMenuSelection ), this, m_menuItem9->GetId());
-	m_menu4->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemSoftwareOnMenuSelection ), this, m_menuItemSoftware->GetId());
-	m_menu4->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItem11OnMenuSelection ), this, m_menuItem11->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemReadEEPROMOnMenuSelection ), this, m_menuItemReadEEPROM->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemWriteEEPROMOnMenuSelection ), this, m_menuItemWriteEEPROM->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItem12OnMenuSelection ), this, m_menuItem12->GetId());
@@ -821,7 +805,6 @@ Osciloskop::Osciloskop( wxWindow* parent, wxWindowID id, const wxString& title, 
 	m_buttonRedo->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Osciloskop::m_buttonRedoOnButtonClick ), NULL, this );
 	m_comboBoxTimeControl->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( Osciloskop::m_comboBoxTimeControlOnCombobox ), NULL, this );
 	m_comboBoxTimeCapture->Connect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( Osciloskop::m_comboBoxTimeCaptureOnCombobox ), NULL, this );
-	m_checkBoxETS->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( Osciloskop::m_checkBoxETSOnCheckBox ), NULL, this );
 	m_checkBoxFull->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( Osciloskop::m_checkBoxFullOnCheckBox ), NULL, this );
 	m_textCtrlTimePosition->Connect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( Osciloskop::m_textCtrlTimePositionOnTextEnter ), NULL, this );
 	m_spinBtnXPos->Connect( wxEVT_SCROLL_LINEDOWN, wxSpinEventHandler( Osciloskop::m_spinBtnXPosOnSpinDown ), NULL, this );
@@ -968,7 +951,6 @@ Osciloskop::~Osciloskop()
 	m_buttonRedo->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Osciloskop::m_buttonRedoOnButtonClick ), NULL, this );
 	m_comboBoxTimeControl->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( Osciloskop::m_comboBoxTimeControlOnCombobox ), NULL, this );
 	m_comboBoxTimeCapture->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( Osciloskop::m_comboBoxTimeCaptureOnCombobox ), NULL, this );
-	m_checkBoxETS->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( Osciloskop::m_checkBoxETSOnCheckBox ), NULL, this );
 	m_checkBoxFull->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( Osciloskop::m_checkBoxFullOnCheckBox ), NULL, this );
 	m_textCtrlTimePosition->Disconnect( wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler( Osciloskop::m_textCtrlTimePositionOnTextEnter ), NULL, this );
 	m_spinBtnXPos->Disconnect( wxEVT_SCROLL_LINEDOWN, wxSpinEventHandler( Osciloskop::m_spinBtnXPosOnSpinDown ), NULL, this );

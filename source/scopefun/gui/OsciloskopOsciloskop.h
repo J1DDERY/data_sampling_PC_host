@@ -196,6 +196,7 @@ public:
     void setCompatibility();
     void SetButtonColors();
     void OnAutoDetectUsb();
+	wxMenu* getMenuSafe(int preferredIndex);
 public:
     OsciloskopStorage*    pStorage;
     OsciloskopConnection* pConnection;

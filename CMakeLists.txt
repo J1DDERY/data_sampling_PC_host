@@ -23,6 +23,21 @@ set (SCOPEFUN_VERSION_MAJOR  "2" CACHE STRING "major version" )
 set (SCOPEFUN_VERSION_MINOR  "4" CACHE STRING "minor version" )
 set (SCOPEFUN_VERSION_MICRO  "0" CACHE STRING "micro version" )
 
+#统一输出目录：将可执行文件放到 build/bin，库/静态库放到 build/lib
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+# 为多配置生成器（Visual Studio 等）设置 per-config 输出目录
+if (CMAKE_GENERATOR MATCHES "Visual Studio" OR CMAKE_CONFIGURATION_TYPES)
+	foreach(config IN LISTS CMAKE_CONFIGURATION_TYPES)
+		string(TOUPPER "${config}" config_upper)
+		set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${config_upper} ${CMAKE_BINARY_DIR}/bin)
+		set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${config_upper} ${CMAKE_BINARY_DIR}/lib)
+		set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${config_upper} ${CMAKE_BINARY_DIR}/lib)
+	endforeach()
+endif()
+
 # debug & release
 set ( CMAKE_CONFIGURATION_TYPES Debug Release )
 

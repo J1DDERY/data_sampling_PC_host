@@ -115,11 +115,7 @@ sfSetDefault(SHw)
 # set number of samples
 sfSetNumSamples(SHw, nSamples)
 sfSetDataEncodingFormat(SHw, 0) # read data from all channels (default)
-# enable AWG1
-sfSetGeneratorType0(SHw, 1)                       # sin
-sfSetGeneratorFrequency0(SHw, 100000, 200000000)  # 100 kHz
-sfSetGeneratorVoltage0(SHw, 1500)                 # 1.5 V
-sfSetGeneratorOn0(SHw, 1)
+# Generator/AWG removed: skipping generator configuration
 # apply SHw settings to hardware (USB transfer)
 ret = sfHardwareConfig(sfctx, SHw)
 if ret == 0:

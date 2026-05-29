@@ -674,12 +674,8 @@ void OsciloscopeThreadRenderer::measureSignal(uint threadId, OsciloscopeThreadDa
     int iSamples = display.samples;
     int ppi = display.ppi; // display re-sample factor
     double dSamples = (double)iSamples;
-    double   etsDelta = (1.f / iSamples) / double(render.maxEts);
-    double  etsOffset = etsDelta * double(display.ets);
-    if(!wndMain.horizontal.ETS)
-    {
-        etsOffset = 0;
-    }
+    // ETS removed: no time-interleaving offset
+    double  etsOffset = 0.0;
     double  yCount   = 10.0;
     double  preTriggerZero = (double(wndMain.trigger.Percent) / 100.0);
     double  yposition0 = wndMain.channel01.YPosition /*- render.analogChannelOffsets0*/;
@@ -1356,8 +1352,8 @@ void OsciloscopeThreadRenderer::renderAnalog(uint threadId, OsciloscopeThreadDat
     }
     // double frequency ?
     uint isDoubleFreq = captureTimeFromValue(wndMain.horizontal.Capture) == (uint)t2c2ns;
-    // ets ?
-    bool isETS = (display.attr & CHANNEL_ETS) >> daCHANNEL_ETS;
+    // ETS disabled
+    bool isETS = false;
     float      xfactor = 1.f;
     float    xposition = (wndMain.horizontal.Position / 100.f) * xfactor;
     // y
@@ -1395,14 +1391,8 @@ void OsciloscopeThreadRenderer::renderAnalog(uint threadId, OsciloscopeThreadDat
         double halfSampleOffset = 0.5 * displaySampleOffset;
         if(isETS)
         {
-            // ets offset
-            float etsOffset = displaySampleOffset * float(display.ets)/float(render.maxEts);
-            /*
-            if (display.ets < display.etsMin)
-                display.etsMin = display.ets;
-            if (display.ets > display.etsMax)
-                display.etsMax = display.ets;
-            */
+            // ETS disabled: no offset
+            float etsOffset = 0.0f;
             for(uint point = start; point <= end; point += increment)
             {
                 uint idx = point;
@@ -1609,12 +1599,8 @@ void OsciloscopeThreadRenderer::renderAnalog3d(uint threadid, OsciloscopeThreadD
         count++;
     }
     uint type = wndMain.display.signalType;
-    float   etsDelta = (1.f / float(NUM_SAMPLES)) / float(render.maxEts);
-    float   etsOffset = etsDelta * float(frame.ets);
-    if(!wndMain.horizontal.ETS)
-    {
-        etsOffset = 0;
-    }
+    // ETS removed: no per-frame offset
+    float   etsOffset = 0.0f;
     float   yGridMax = 0.5f;
     float    yfactor = yGridMax;
     float    xfactor = 1.f;
@@ -1763,8 +1749,8 @@ void OsciloscopeThreadRenderer::renderAnalogFunction(uint threadId, OsciloscopeT
     {
         count++;
     }
-    // ets ?
-    bool isETS = (display.attr & CHANNEL_ETS) >> daCHANNEL_ETS;
+    // ETS disabled
+    bool isETS = false;
     float      xfactor = 1.f;
     // y
     const float yGridMax = 0.5f;
@@ -1799,8 +1785,8 @@ void OsciloscopeThreadRenderer::renderAnalogFunction(uint threadId, OsciloscopeT
         double qSampleOffet = 0.25 * displaySampleOffset;
         if(isETS)
         {
-            // ets offset
-            float etsOffset = displaySampleOffset * float(display.ets)/float(render.maxEts);
+            // ETS disabled: no offset
+            float etsOffset = 0.0f;
             for(uint point = start; point <= end; point += increment)
             {
                 uint idx = point;
@@ -1933,11 +1919,8 @@ void OsciloscopeThreadRenderer::renderAnalogFunctionXY(uint threadid, Osciloscop
     uint type = wndMain.display.signalType;
     pCanvas3d->beginBatch(threadid, CANVAS3D_BATCH_LINE, count);
     float   etsDelta = (1.f / float(NUM_SAMPLES)) / float(render.maxEts);
-    float   etsOffset = etsDelta * float(frame.ets);
-    if(!wndMain.horizontal.ETS)
-    {
-        etsOffset = 0;
-    }
+    // ETS removed: no per-frame offset
+    float   etsOffset = 0.0f;
     float   yGridMax   = 0.5f;
     float    yfactor0  = yGridMax;
     float    yfactor1  = yGridMax;
@@ -2031,11 +2014,8 @@ void OsciloscopeThreadRenderer::renderAnalogFunction3d(uint threadid, Osciloscop
     }
     uint type = wndMain.display.signalType;
     float   etsDelta = (1.f / float(NUM_SAMPLES)) / float(render.maxEts);
-    float   etsOffset = etsDelta * float(frame.ets);
-    if(!wndMain.horizontal.ETS)
-    {
-        etsOffset = 0;
-    }
+    // ETS removed: no per-frame offset
+    float   etsOffset = 0.0f;
     float    yGridMax  = 0.5f;
     float    yfactor0  = yGridMax;
     float    yfactor1  = yGridMax;

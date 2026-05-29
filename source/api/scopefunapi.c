@@ -280,8 +280,7 @@ SCOPEFUN_CREATE_DELETE(SUsb)
 SCOPEFUN_CREATE_DELETE(SHardware)
 SCOPEFUN_CREATE_DELETE(SFx3)
 SCOPEFUN_CREATE_DELETE(SFpga)
-SCOPEFUN_CREATE_DELETE(SGeneratorConfig)
-SCOPEFUN_CREATE_DELETE(SGeneratorData)
+/* Generator create/delete removed */
 SCOPEFUN_CREATE_DELETE(SEeprom)
 SCOPEFUN_CREATE_DELETE(SFrameData)
 SCOPEFUN_CREATE_DELETE(SFrameHeader)
@@ -524,22 +523,7 @@ SCOPEFUN_API int sfHardwareUploadFpga(SFContext* ctx, SFpga* fpga)
     return result;
 }
 
-SCOPEFUN_API int sfHardwareUploadGenerator(SFContext* ctx, SGeneratorConfig* genConfig, SGeneratorData* genData)
-{
-    int result = SCOPEFUN_FAILURE;
-    apiLock(ctx);
-    if(ctx->api.active > 0)
-    {
-        struct UsbContext* pUsbCtx = (struct UsbContext*)ctx->usb;
-        int transfered = 0;
-        int ret = 0;
-        ret += usbFxxTransferDataOut(pUsbCtx, 4, (byte*)genConfig,           sizeof(SGeneratorConfig), 1, ctx->api.timeout, &transfered);
-        ret += usbFxxTransferDataOut(pUsbCtx, 4, (byte*)genData->data.bytes, genData->length * 2,      1, ctx->api.timeout, &transfered);
-        result = apiResult(ret);
-    }
-    apiUnlock(ctx);
-    return result;
-}
+/* sfHardwareUploadGenerator removed */
 
 SCOPEFUN_API int sfHardwareEepromRead(SFContext* ctx, SEeprom* eeprom, int size, int adress)
 {
@@ -961,8 +945,7 @@ SCOPEFUN_API int sfFrameDisplay(SFContext* ctx, SFrameData* buffer, int len, SDi
     // frame size
     uint frameSize = sfGetFrameSize(&hw);
     if(frameSize > SCOPEFUN_FRAME_MEMORY) { return 1; }
-    // ets delay
-    sfGetHeaderEts((SFrameHeader*)&buffer->data.bytes[0], &display->ets);
+    // ets delay removed: ETS not supported; renderer uses no ETS offset
     // channel attributes
     display->attr = sfGetAnalogSwitch(&hw);
     // digital loop counter
@@ -1233,8 +1216,6 @@ char* hardwareIds[] =
     "average",
     "preTriggerH",
     "preTriggerL",
-    "generatorPhase0",
-    "generatorPhase1",
     "reserved3",
     "reserved4",
     "reserved5",
@@ -1359,15 +1340,7 @@ SCOPEFUN_API int sfSetDefault(SHardware* hw)
     hw->sampleSizeH = 0;
     hw->sampleSizeL = SCOPEFUN_DISPLAY;
     sfSetXRange(hw, 1);
-    sfSetGeneratorType0(hw, GENERATOR_SIN);
-    sfSetGeneratorType1(hw, GENERATOR_SIN);
-    /*
-    sfSetGeneratorVoltage0(hw, 1);
-    sfSetGeneratorFrequency0(hw, 10000.f, 200000000.f);
-    sfSetGeneratorVoltage1(hw, 1);
-    sfSetGeneratorFrequency1(hw, 10000.f, 200000000.f);
-    */
-    sfSetDigitalInputOutput(hw, 1, 1);   //digital channels are configured as inputs
+    // Generators, ETS and digital functionality removed by design
     return SCOPEFUN_SUCCESS;
 }
 
@@ -1393,12 +1366,7 @@ SCOPEFUN_API int sfSetAnalogSwitchBit(SHardware* hw, int bit, int value)
     return SCOPEFUN_SUCCESS;
 }
 
-SCOPEFUN_API int sfSetEts(SHardware* hw, int enable)
-{
-    if(enable) { hw->analogswitch = raiseFlag16(hw->analogswitch, CHANNEL_ETS); }
-    else        { hw->analogswitch = lowerFlag16(hw->analogswitch, CHANNEL_ETS); }
-    return SCOPEFUN_SUCCESS;
-}
+/* sfSetEts removed */
 
 SCOPEFUN_API int sfSetYRangeScaleA(SHardware* hw, ushort attr, ushort gain)
 {
@@ -1537,52 +1505,7 @@ SCOPEFUN_API int  sfSetAverage(SHardware* hw, int enable)
     return SCOPEFUN_SUCCESS;
 }
 
-/*--------------------------------------------------------------------------------
-   generator 0
---------------------------------------------------------------------------------*/
-
-SCOPEFUN_API int sfSetGeneratorType0(SHardware* hw, ushort type)
-{
-    uint mask = 1 << 8;
-    if(hw->generatorType0 & mask)
-    {
-        hw->generatorType0 = type | mask;
-    }
-    else
-    {
-        hw->generatorType0 = type;
-    }
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int sfSetGeneratorOn0(SHardware* hw, int onoff)
-{
-    uint mask = 1 << 8;
-    if(onoff)
-    {
-        hw->generatorType0 = hw->generatorType0 | mask;
-    }
-    else
-    {
-        hw->generatorType0 = hw->generatorType0 & ~mask;
-    }
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int sfSetGeneratorVoltage0(SHardware* hw, int volt)
-{
-    uint voltage = volt;
-    uint mask = 0x7FF;
-    hw->generatorVoltage0 = voltage & mask;
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int sfSetGeneratorOffset0(SHardware* hw, int offset)
-{
-    int offsetSet = iClamp(offset, -2048, 2047);
-    hw->generatorOffset0 = offsetSet;
-    return SCOPEFUN_SUCCESS;
-}
+/* Generator setters removed from API */
 
 uint DoubleToBinary(double number)
 {
@@ -1648,421 +1571,14 @@ double BinaryToDouble(uint number)
    return result;
 }
 
-SCOPEFUN_API int sfSetGeneratorFrequency0(SHardware* hw, double freq, float fs)
-{
-    freq = dClamp(freq, 0, 50000000);
-
-    double delta = 0;
-    uint mask = (1 << 8);
-    mask = ~mask;
-    uint type = hw->generatorType0 & mask;
-    switch(type)
-    {
-        case GENERATOR_CUSTOM:
-        case GENERATOR_SIN:
-        case GENERATOR_COS:
-        case GENERATOR_TRIANGLE:
-        case GENERATOR_RAMP_UP:
-        case GENERATOR_RAMP_DOWN:
-        case GENERATOR_SQUARE:
-        case GENERATOR_DELTA:
-        case GENERATOR_DC:
-        case GENERATOR_NOISE:
-            delta = 2*16384.0 * freq / (double)fs;
-            break;
-    };
-
-    uint genDelta = DoubleToBinary(delta);
-    hw->generatorDeltaH0 = (genDelta & 0xFFFF0000) >> 16;
-    hw->generatorDeltaL0 = genDelta & 0x0000FFFF;
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int sfSetGeneratorSquareDuty0(SHardware* hw, int duty)
-{
-    hw->generatorSquareDuty0 = duty & 0x7FF;
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int sfSetGeneratorPhase0(SHardware* hw, int phase)
-{
-    hw->generatorPhase0 = phase & 0x7FFF;
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int  sfSetGeneratorDelta0(SHardware* hw, uint delta)
-{
-    hw->generatorDeltaH0 = (delta & 0xFFFF0000) >> 16;
-    hw->generatorDeltaL0 =  delta & 0x0000FFFF;
-    return SCOPEFUN_SUCCESS;
-}
 
 /*--------------------------------------------------------------------------------
    generator 1
 --------------------------------------------------------------------------------*/
 
-SCOPEFUN_API int  sfSetGeneratorType1(SHardware* hw, ushort type)
-{
-    uint mask = 1 << 8;
-    if(hw->generatorType1 & mask)
-    {
-        hw->generatorType1 = type | mask;
-    }
-    else
-    {
-        hw->generatorType1 = type;
-    }
-    return SCOPEFUN_SUCCESS;
-}
+/* Generator setters (AWG) removed from API */
 
-SCOPEFUN_API int  sfSetGeneratorOn1(SHardware* hw, int onoff)
-{
-    uint mask = 1 << 8;
-    if(onoff)
-    {
-        hw->generatorType1 = hw->generatorType1 | mask;
-    }
-    else
-    {
-        hw->generatorType1 = hw->generatorType1 & ~mask;
-    }
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int  sfSetGeneratorVoltage1(SHardware* hw, int volt)
-{
-    uint voltage = volt;
-    uint mask = 0x7FF;
-    hw->generatorVoltage1 = voltage & mask;
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int  sfSetGeneratorOffset1(SHardware* hw, int offset)
-{
-    int offsetSet = iClamp(offset, -2048, 2047);
-    hw->generatorOffset1 = offsetSet;
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int  sfSetGeneratorFrequency1(SHardware* hw, double freq, float fs)
-{
-    freq = dClamp(freq, 0, 50000000);
-
-    double delta = 0;
-    uint mask = (1 << 8);
-    mask = ~mask;
-    uint type = hw->generatorType1 & mask;
-    switch(type)
-    {
-        case GENERATOR_CUSTOM:
-        case GENERATOR_SIN:
-        case GENERATOR_COS:
-        case GENERATOR_TRIANGLE:
-        case GENERATOR_RAMP_UP:
-        case GENERATOR_RAMP_DOWN:
-        case GENERATOR_SQUARE:
-        case GENERATOR_DELTA:
-        case GENERATOR_DC:
-        case GENERATOR_NOISE:
-            delta = 2*16384.0 * freq / (double)fs;
-            break;
-    };
-    //
-    uint genDelta = DoubleToBinary(delta);
-    hw->generatorDeltaH1 = (genDelta & 0xFFFF0000) >> 16;
-    hw->generatorDeltaL1 =  genDelta & 0x0000FFFF;
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int  sfSetGeneratorSquareDuty1(SHardware* hw, int duty)
-{
-    hw->generatorSquareDuty1 = duty & 0x7FF;
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int sfSetGeneratorPhase1(SHardware* hw, int phase)
-{
-    hw->generatorPhase1 = phase & 0x7FFF;
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int  sfSetGeneratorDelta1(SHardware* hw, uint delta)
-{
-    hw->generatorDeltaH1 = (delta & 0xFFFF0000) >> 16;
-    hw->generatorDeltaL1 =  delta & 0x0000FFFF;
-    return SCOPEFUN_SUCCESS;
-}
-
-/*--------------------------------------------------------------------------------
-   digital GPIO
---------------------------------------------------------------------------------*/
-
-SCOPEFUN_API int  sfSetDigitalVoltage(SHardware* hw, double volt, double kDigital)
-{
-    double rab = 50000;
-    double rw = 75;
-    double rwb1 = 29763;
-    hw->digitalVoltage = 256 * (rwb1*((volt / 1.235) - 1.0) - rw) / rab;
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int  sfSetDigitalInputOutput(SHardware* hw, uint inout15, uint inout7)
-{
-    // 00 = OUT, OUT
-    // 01 = OUT, IN
-    // 10 = IN,  OUT
-    // 11 = IN,  IN
-    ushort inOutWordTmp = 0;
-    inOutWordTmp = hw->digitalInputOutput & 0xFFFFFFFC;  // clear last two bits
-    inOutWordTmp = inOutWordTmp | inout15 << 1 | inout7; // set last two bits
-    hw->digitalInputOutput = inOutWordTmp;
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int  sfSetDigitalOutputBit(SHardware* hw, int bit, int onoff)
-{
-    ushort output = 0;
-    ishort mask   = 0;
-    output = hw->digitalOutputBit;
-    mask   = hw->digitalOutputMask;
-    if(onoff == 0 || onoff == 1) // bit value '0' or '1'
-    {
-        output = bitFlag16(output, BIT(bit), onoff);
-        mask   = bitFlag16(mask,   BIT(bit), 1);
-    }
-    else if(onoff == 2)         // bit value from file
-    {
-        output = bitFlag16(output, BIT(bit), onoff);
-        mask   = bitFlag16(mask,   BIT(bit), 0);
-    }
-    hw->digitalOutputBit  = output;
-    hw->digitalOutputMask = mask;
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int  sfSetDigitalClockDivide(SHardware* hw, uint divider)
-{
-    hw->digitalClkDivideH = (divider & 0xFFFF0000) >> 16;
-    hw->digitalClkDivideL =  divider & 0x0000FFFF;
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int  sfSetDigitalPatternOutputEn(SHardware* hw, int outputEnable)
-{
-    ushort inOutWord = hw->digitalInputOutput;
-    if (outputEnable == 1) {
-        hw->digitalInputOutput = inOutWord | (1 << 8);
-    }
-    else {
-        hw->digitalInputOutput = inOutWord & ~(1 << 8);
-    }
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int  sfSetDigitalPatternOutputMode(SHardware* hw, int mode)
-{
-    ushort inOutWord = hw->digitalInputOutput;
-    if (mode == 1) {
-        hw->digitalInputOutput = inOutWord | (1 << 9);
-    }
-    else {
-        hw->digitalInputOutput = inOutWord & ~(1 << 9);
-    }
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int  sfSetDigitalPatternOutputRestart(SHardware* hw, int restart)
-{
-    ushort inOutWord = hw->digitalInputOutput;
-    if (restart == 1) {
-        hw->digitalInputOutput = inOutWord | (1 << 10);
-    }
-    else {
-        hw->digitalInputOutput = inOutWord & ~(1 << 10);
-    }
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int  sfSetDigitalPatternOutputRestartOnUpload(SHardware* hw, int restart)
-{
-    ushort inOutWord = hw->digitalInputOutput;
-    if (restart == 1) {
-        hw->digitalInputOutput = inOutWord | (1 << 11);
-    }
-    else {
-        hw->digitalInputOutput = inOutWord & ~(1 << 11);
-    }
-    return SCOPEFUN_SUCCESS;
-}
-
-/*--------------------------------------------------------------------------------
-   digital trigger
---------------------------------------------------------------------------------*/
-
-SCOPEFUN_API int sfSetDigitalStart(SHardware* hw, int start)
-{
-    ushort   startBits = start;
-    ushort controlBits = hw->dt_control;
-    controlBits = bitFlag16(controlBits, 1 << 8, isFlag16(startBits, 1));
-    controlBits = bitFlag16(controlBits, 1 << 9, isFlag16(startBits, 2));
-    hw->dt_control = controlBits;
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int  sfSetDigitalMode(SHardware* hw, int mode)
-{
-    ushort    modeBits = mode;
-    ushort controlBits = hw->dt_control;
-    controlBits = bitFlag16(controlBits, 1 << 4, isFlag16(modeBits, 1));
-    hw->dt_control = controlBits;
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int  sfSetDigitalChannel(SHardware* hw, int channel)
-{
-    ushort channelBits = channel;
-    ushort controlBits = hw->dt_control;
-    controlBits = bitFlag16(controlBits, 1 << 0, isFlag16(channelBits, 1));
-    controlBits = bitFlag16(controlBits, 1 << 1, isFlag16(channelBits, 2));
-    controlBits = bitFlag16(controlBits, 1 << 2, isFlag16(channelBits, 4));
-    controlBits = bitFlag16(controlBits, 1 << 3, isFlag16(channelBits, 8));
-    hw->dt_control = controlBits;
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int  sfSetDigitalDelay(SHardware* hw, uint stage, ushort delay)
-{
-    switch(stage)
-    {
-        case DIGITAL_STAGE_0:
-            hw->dt_delayMaxcnt1 = delay;
-            break;
-        case DIGITAL_STAGE_1:
-            hw->dt_delayMaxcnt2 = delay;
-            break;
-        case DIGITAL_STAGE_2:
-            hw->dt_delayMaxcnt3 = delay;
-            break;
-        case DIGITAL_STAGE_3:
-            hw->dt_delayMaxcnt4 = delay;
-            break;
-        default:
-            return SCOPEFUN_FAILURE;
-    };
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int  sfSetDigitalMask(SHardware* hw, uint stage, uint bit, int value)
-{
-    ushort mask = 0;
-    switch(stage)
-    {
-        case DIGITAL_STAGE_0:
-            mask = hw->digitalMask1;
-            break;
-        case DIGITAL_STAGE_1:
-            mask = hw->digitalMask2;
-            break;
-        case DIGITAL_STAGE_2:
-            mask = hw->digitalMask3;
-            break;
-        case DIGITAL_STAGE_3:
-            mask = hw->digitalMask4;
-            break;
-        default:
-            return SCOPEFUN_FAILURE;
-    };
-    if(value)  { mask = raiseFlag16(mask, BIT(bit)); }
-    else       { mask = lowerFlag16(mask, BIT(bit)); }
-    switch(stage)
-    {
-        case DIGITAL_STAGE_0:
-            hw->digitalMask1 = mask;
-            break;
-        case DIGITAL_STAGE_1:
-            hw->digitalMask2 = mask;
-            break;
-        case DIGITAL_STAGE_2:
-            hw->digitalMask3 = mask;
-            break;
-        case DIGITAL_STAGE_3:
-            hw->digitalMask4 = mask;
-            break;
-        default:
-            return SCOPEFUN_FAILURE;
-    };
-    return SCOPEFUN_SUCCESS;
-}
-
-SCOPEFUN_API int sfSetDigitalPattern(SHardware* hw, ushort stage, ushort bit, ushort pattern)
-{
-    ushort patternA = 0;
-    ushort patternB = 0;
-    switch(stage)
-    {
-        case 0:
-            patternA = hw->digitalPattern1a;
-            patternB = hw->digitalPattern1b;
-            break;
-        case 1:
-            patternA = hw->digitalPattern2a;
-            patternB = hw->digitalPattern2b;
-            break;
-        case 2:
-            patternA = hw->digitalPattern3a;
-            patternB = hw->digitalPattern3b;
-            break;
-        case 3:
-            patternA = hw->digitalPattern4a;
-            patternB = hw->digitalPattern4b;
-            break;
-        default:
-            return SCOPEFUN_FAILURE;
-    };
-    switch(pattern)
-    {
-        case DIGITAL_PATTERN_0:       // 00
-            patternA = lowerFlag16(patternA, BIT(bit));
-            patternB = lowerFlag16(patternB, BIT(bit));
-            break;
-        case DIGITAL_PATTERN_1:       // 11
-            patternA = raiseFlag16(patternA, BIT(bit));
-            patternB = raiseFlag16(patternB, BIT(bit));
-            break;
-        case DIGITAL_PATTERN_RISING:  // 01
-            patternA = lowerFlag16(patternA, BIT(bit));
-            patternB = raiseFlag16(patternB, BIT(bit));
-            break;
-        case DIGITAL_PATTERN_FALLING: // 10
-            patternA = raiseFlag16(patternA, BIT(bit));
-            patternB = lowerFlag16(patternB, BIT(bit));
-            break;
-        default:
-            return SCOPEFUN_FAILURE;
-    };
-    switch(stage)
-    {
-        case 0:
-            hw->digitalPattern1a = patternA;
-            hw->digitalPattern1b = patternB;
-            break;
-        case 1:
-            hw->digitalPattern2a = patternA;
-            hw->digitalPattern2b = patternB;
-            break;
-        case 2:
-            hw->digitalPattern3a = patternA;
-            hw->digitalPattern3b = patternB;
-            break;
-        case 3:
-            hw->digitalPattern4a = patternA;
-            hw->digitalPattern4b = patternB;
-            break;
-        default:
-            return SCOPEFUN_FAILURE;
-    };
-    return SCOPEFUN_SUCCESS;
-}
+/* Digital GPIO setters removed from API */
 
 SCOPEFUN_API int sfSetDataEncodingFormat(SHardware* hw, int encoding)
 {
@@ -2118,11 +1634,7 @@ SCOPEFUN_API ushort sfGetAnalogSwitch(SHardware* hw)
     return hw->analogswitch;
 }
 
-SCOPEFUN_API int sfGetEts(SHardware* hw)
-{
-    ushort tmp = hw->analogswitch;
-    return isFlag16(tmp, CHANNEL_ETS);
-}
+/* sfGetEts removed */
 
 SCOPEFUN_API uint sfGetControl(SHardware* hw)
 {
@@ -2222,264 +1734,81 @@ SCOPEFUN_API uint sfGetHoldoff(SHardware* hw)
 
 SCOPEFUN_API int sfGetDigitalStart(SHardware* hw)
 {
-    return (hw->dt_control & 0x300) >> 8;
+    (void)hw;
+    return 0;
 }
 
 SCOPEFUN_API int sfGetDigitalMode(SHardware* hw)
 {
-    return (hw->dt_control & 0x10) >> 4;
+    (void)hw;
+    return 0;
 }
 
 SCOPEFUN_API int sfGetDigitalChannel(SHardware* hw)
 {
-    return hw->dt_control & 0xF;
+    (void)hw;
+    return 0;
 }
 
 SCOPEFUN_API ushort sfGetDigitalDelay(SHardware* hw, ushort stage)
 {
-    switch(stage)
-    {
-        case DIGITAL_STAGE_0:
-            return hw->dt_delayMaxcnt1;
-        case DIGITAL_STAGE_1:
-            return hw->dt_delayMaxcnt2;
-        case DIGITAL_STAGE_2:
-            return hw->dt_delayMaxcnt3;
-        case DIGITAL_STAGE_3:
-            return hw->dt_delayMaxcnt4;
-        default:
-            return SCOPEFUN_FAILURE;
-    };
+    (void)hw; (void)stage;
+    return 0;
 }
 
 SCOPEFUN_API int sfGetDigitalMask(SHardware* hw, ushort stage, ushort bit)
 {
-    ushort mask = 0;
-    switch(stage)
-    {
-        case DIGITAL_STAGE_0:
-            mask = hw->digitalMask1;
-            break;
-        case DIGITAL_STAGE_1:
-            mask = hw->digitalMask2;
-            break;
-        case DIGITAL_STAGE_2:
-            mask = hw->digitalMask3;
-            break;
-        case DIGITAL_STAGE_3:
-            mask = hw->digitalMask4;
-            break;
-        default:
-            return SCOPEFUN_FAILURE;
-    };
-    return isFlag16(mask, BIT(bit));
+    (void)hw; (void)stage; (void)bit;
+    return 0;
 }
 
 SCOPEFUN_API ushort sfGetDigitalPattern(SHardware* hw, ushort stage, ushort bit)
 {
-    ushort patternA = 0;
-    ushort patternB = 0;
-    switch(stage)
-    {
-        case 0:
-            patternA = hw->digitalPattern1a;
-            patternB = hw->digitalPattern1b;
-            break;
-        case 1:
-            patternA = hw->digitalPattern2a;
-            patternB = hw->digitalPattern2b;
-            break;
-        case 2:
-            patternA = hw->digitalPattern3a;
-            patternB = hw->digitalPattern3b;
-            break;
-        case 3:
-            patternA = hw->digitalPattern4a;
-            patternB = hw->digitalPattern4b;
-            break;
-        default:
-            return SCOPEFUN_FAILURE;
-    };
-    int bitA = isFlag16(patternA, BIT(bit));
-    int bitB = isFlag16(patternB, BIT(bit));
-    if(bitA &&  bitB)
-    {
-        return DIGITAL_PATTERN_1;
-    }
-    if(!bitA && !bitB)
-    {
-        return DIGITAL_PATTERN_0;
-    }
-    if(!bitA &&  bitB)
-    {
-        return DIGITAL_PATTERN_RISING;
-    }
-    if(bitA && !bitB)
-    {
-        return DIGITAL_PATTERN_FALLING;
-    }
-    return DIGITAL_PATTERN_1;
+    (void)hw; (void)stage; (void)bit;
+    return 0;
 }
 
-/*--------------------------------------------------------------------------------
-   generator 0
---------------------------------------------------------------------------------*/
-
-SCOPEFUN_API ushort sfGetGeneratorType0(SHardware* hw)
-{
-    uint mask = 0xF;
-    return (ushort)((hw->generatorType0) & mask);
-}
-
-SCOPEFUN_API int sfGetGeneratorOn0(SHardware* hw)
-{
-    uint mask = 1;
-    return (hw->generatorType0 >> 8) & mask;
-}
-
-SCOPEFUN_API int sfGetGeneratorVoltage0(SHardware* hw)
-{
-    return hw->generatorVoltage0;
-}
-
-SCOPEFUN_API int sfGetGeneratorOffset0(SHardware* hw)
-{
-    return hw->generatorOffset0;
-}
-
-SCOPEFUN_API double sfGetGeneratorFrequency0(SHardware* hw, float fs)
-{
-    uint gDelta = (uint)(hw->generatorDeltaL0) | (uint)(hw->generatorDeltaH0 << 16);
-    double delta = BinaryToDouble(gDelta);
-    return delta * (double)(fs) / (2 * 16384.0);
-}
-
-SCOPEFUN_API int sfGetGeneratorSquareDuty0(SHardware* hw)
-{
-    return hw->generatorSquareDuty0;
-}
-
-SCOPEFUN_API int sfGetGeneratorPhase0(SHardware* hw)
-{
-    return hw->generatorPhase0;
-}
-
-SCOPEFUN_API uint sfGetGeneratorDelta0(SHardware* hw)
-{
-    uint gDelta = (uint)(hw->generatorDeltaL0) | (uint)(hw->generatorDeltaH0 << 16);
-    return gDelta;
-}
-
-/*--------------------------------------------------------------------------------
-   generator 1
---------------------------------------------------------------------------------*/
-
-SCOPEFUN_API ushort sfGetGeneratorType1(SHardware* hw)
-{
-    uint mask = 0xF;
-    return (ushort)((hw->generatorType1) & mask);
-}
-
-SCOPEFUN_API int sfGetGeneratorOn1(SHardware* hw)
-{
-    uint mask = 1;
-    return (hw->generatorType1 >> 8) & mask;
-}
-
-SCOPEFUN_API int sfGetGeneratorVoltage1(SHardware* hw)
-{
-    uint mask = 1 << 12;
-    return hw->generatorVoltage1;
-}
-
-SCOPEFUN_API int sfGetGeneratorOffset1(SHardware* hw)
-{
-    return hw->generatorOffset1;
-}
-
-SCOPEFUN_API double sfGetGeneratorFrequency1(SHardware* hw, float fs)
-{
-   uint gDelta = (uint)(hw->generatorDeltaL1) | (uint)(hw->generatorDeltaH1 << 16);
-   double delta = BinaryToDouble(gDelta);
-   return delta * (double)(fs) / (2 * 16384.0);
-}
-
-SCOPEFUN_API int sfGetGeneratorSquareDuty1(SHardware* hw)
-{
-    return hw->generatorSquareDuty1;
-}
-
-SCOPEFUN_API int sfGetGeneratorPhase1(SHardware* hw)
-{
-    return hw->generatorPhase1;
-}
-
-SCOPEFUN_API uint sfGetGeneratorDelta1(SHardware* hw)
-{
-    uint gDelta = (uint)(hw->generatorDeltaL1) | (uint)(hw->generatorDeltaH1 << 16);
-    return gDelta;
-}
+/* Generator getters removed from API */
 
 /*--------------------------------------------------------------------------------
    digital
 --------------------------------------------------------------------------------*/
 
-SCOPEFUN_API double sfGetDigitalVoltage(SHardware* hw, double kDigital)
-{
-    double rab  = 50000;
-    double rw   = 75;
-    double rwb1 = 29763;
-    double    a = hw->digitalVoltage;
-    double rwb0    = (rab*a / 256.0) + rw;
-    double voltage = 1.235*((rwb0/rwb1) + 1.0);
-    return voltage;
-}
-
-SCOPEFUN_API int sfGetDigitalInputOutput11to6(SHardware* hw)
-{
-    int ret = (hw->digitalInputOutput >> 1) & 0x1;
-    return ret;
-}
+/* Digital getters removed from API */
 
 SCOPEFUN_API int sfGetDigitalInputOutput5to0(SHardware* hw)
 {
-    return hw->digitalInputOutput & 0x1;
+    (void)hw; return 0;
 }
 
 SCOPEFUN_API int sfGetDigitalOutputBit(SHardware* hw, int bit)
 {
-    ushort bits = 0;
-    bits = hw->digitalOutputBit;
-    return isFlag16(bits, BIT(bit));
+    (void)hw; (void)bit; return 0;
 }
 
 SCOPEFUN_API uint sfGetDigitalClockDivide(SHardware* hw)
 {
-    return (uint)(hw->digitalClkDivideL) | (uint)(hw->digitalClkDivideH << 16);
+    (void)hw; return 0;
 }
 
 SCOPEFUN_API int sfGetDigitalPatternOutputEn(SHardware* hw)
 {
-    int ret = (hw->digitalInputOutput >> 8) & 0x1;
-    return ret;
+    (void)hw; return 0;
 }
 
 SCOPEFUN_API int sfGetDigitalPatternOutputMode(SHardware* hw)
 {
-    int ret = (hw->digitalInputOutput >> 9) & 0x1;
-    return ret;
+    (void)hw; return 0;
 }
 
 SCOPEFUN_API int sfGetDigitalPatternOutputRestart(SHardware* hw)
 {
-    int ret = (hw->digitalInputOutput >> 10) & 0x1;
-    return ret;
+    (void)hw; return 0;
 }
 
 SCOPEFUN_API int sfGetDigitalPatternOutputRestartOnUpload(SHardware* hw)
 {
-    int ret = (hw->digitalInputOutput >> 11) & 0x1;
-    return ret;
+    (void)hw; return 0;
 }
 
 SCOPEFUN_API int sfGetAverage(SHardware* hw)

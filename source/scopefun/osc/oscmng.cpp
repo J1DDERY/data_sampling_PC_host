@@ -2506,12 +2506,7 @@ void OsciloscopeManager::onCalibrateFrameCaptured(SDisplay& display, int version
                     {
                         calibrate.gainMode = 0;
                         calibrate.voltage = vc50Mili;
-                        sfSetGeneratorType0(getHw(), GENERATOR_DC);
-                        sfSetGeneratorType1(getHw(), GENERATOR_DC);
-                        sfSetGeneratorOn0(getHw(), 1);
-                        sfSetGeneratorOn1(getHw(), 1);
-                        sfSetGeneratorOffset0(getHw(), 0);
-                        sfSetGeneratorOffset1(getHw(), 0);
+                        // Generator functionality removed; no hardware API calls
                         sfSetAnalogSwitchBit(getHw(), CHANNEL_A_GROUND, 0);
                         sfSetAnalogSwitchBit(getHw(), CHANNEL_B_GROUND, 0);
                         sfSetAnalogSwitchBit(getHw(), CHANNEL_A_ACDC, 1);
@@ -2539,8 +2534,8 @@ void OsciloscopeManager::onCalibrateFrameCaptured(SDisplay& display, int version
                         calibrate.generatorOffset = (calibrate.generatorMin + calibrate.generatorMax) / 2.0;
                         sfSetYPositionA(getHw(), settings.getHardware()->calibratedOffsets[calibrate.type][0][calibrate.voltage]);
                         sfSetYPositionB(getHw(), settings.getHardware()->calibratedOffsets[calibrate.type][1][calibrate.voltage]);
-                        sfSetGeneratorOffset0(getHw(), calibrate.generatorOffset);
-                        sfSetGeneratorOffset1(getHw(), calibrate.generatorOffset);
+                        // Generator functionality removed: offset set skipped
+                        (void)calibrate.generatorOffset;
                         transferData();
                         calibrate.mode = acGeneratorCapture;
                         calibrate.debug << "acGeneratorSetup: \n";
@@ -2665,8 +2660,8 @@ void OsciloscopeManager::onCalibrateFrameCaptured(SDisplay& display, int version
                         }
                         sfSetYPositionA(getHw(), settings.getHardware()->calibratedOffsets[calibrate.type][0][calibrate.voltage]);
                         sfSetYPositionB(getHw(), settings.getHardware()->calibratedOffsets[calibrate.type][1][calibrate.voltage]);
-                        sfSetGeneratorOffset0(getHw(), gainGenOffset + settings.getHardware()->calibratedOffsetsGenerator[calibrate.type][0]);
-                        sfSetGeneratorOffset1(getHw(), gainGenOffset + settings.getHardware()->calibratedOffsetsGenerator[calibrate.type][1]);
+                        // Generator functionality removed: offsets skipped
+                        (void)gainGenOffset;
                         sfSetYRangeScaleA(getHw(), (uint)getAttr(calibrate.voltage), (ushort)calibrate.gainSet);
                         sfSetYRangeScaleB(getHw(), (uint)getAttr(calibrate.voltage), (ushort)calibrate.gainSet);
                         transferData();
@@ -3274,7 +3269,8 @@ void OsciloscopeManager::transferUI()
     window.channel02.Ground = flags.is(CHANNEL_B_GROUND);
     window.channel01.AcDc = flags.is(CHANNEL_A_ACDC);
     window.channel02.AcDc = flags.is(CHANNEL_B_ACDC);
-    window.horizontal.ETS = flags.is(CHANNEL_ETS);
+    // ETS support removed
+    window.horizontal.ETS = 0;
     // channel A, B
     window.horizontal.Control  = sfGetControl(&m_hw);
     window.channel01.Capture   = captureVoltFromEnum(getVolt(0, sfGetYGainA(&m_hw)));
@@ -3312,10 +3308,8 @@ void OsciloscopeManager::setupControl(WndMain window)
          control.setAnalogSwitchBit(CHANNEL_B_GROUND, window.channel02.Ground);
          control.setAnalogSwitchBit(CHANNEL_A_ACDC, window.channel01.AcDc);
          control.setAnalogSwitchBit(CHANNEL_B_ACDC, window.channel02.AcDc);
-         control.setAnalogSwitchBit(CHANNEL_ETS, window.horizontal.ETS);
          control.setAnalogSwitchBit(CHANNEL_ATTR_A, pOsciloscope->control.getAttr(captureVoltFromValue(window.channel01.Capture)));
          control.setAnalogSwitchBit(CHANNEL_ATTR_B, pOsciloscope->control.getAttr(captureVoltFromValue(window.channel02.Capture)));
-         control.setEts(window.horizontal.ETS);
          control.setControl(window.horizontal.Control);
          control.setYRangeScaleA(captureVoltFromValue(window.channel01.Capture), window.channel01.Scale);
          control.setYPositionA(window.channel01.YPosition + pOsciloscope->settings.getHardware()->getAnalogOffset(window.horizontal.Capture, 0, window.channel01.Capture));
@@ -3617,8 +3611,8 @@ int DisplayFrame(uint maxBytesToRead,uint frameIndex, uint frameCount, uint fram
     sfGetHeader(getCtx(), (SFrameData*)&captureBuffer.m_dataPtr[framePos], &header);
     sfGetHeaderHardware((SFrameHeader*)&header, &threadData.m_hw);
 
-    // ets
-    int isEts = sfGetAnalogSwitch(&threadData.m_hw) && CHANNEL_ETS;
+    // ETS removed
+    int isEts = 0;
 
     // 3D history
     threadData.m_historyCount = 0;

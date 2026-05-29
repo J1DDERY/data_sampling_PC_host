@@ -117,7 +117,6 @@ void OsciloskopDebug::m_buttonHelpOnButtonClick( wxCommandEvent& event )
 void OsciloskopDebug::m_buttonUploadOnButtonClick(wxCommandEvent& event)
 {
     /* TODO: erase Lua
-   m_script->OnUpload(&getCtx()->generator, &getCtx()->generatorCount);
    pOsciloscope->thread.setGeneratorData(&getCtx()->generator);
    pOsciloscope->thread.function(afUploadGenerator);
    pOsciloscope->transferData();

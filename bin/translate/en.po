@@ -598,14 +598,6 @@ msgstr ""
 msgid "Software Simulator"
 msgstr ""
 
-#: osciloscope/gui/osc.cpp:76
-msgid "Hardware Generator"
-msgstr ""
-
-#: osciloscope/gui/osc.cpp:79
-msgid "Generator"
-msgstr ""
-
 #: osciloscope/gui/osc.cpp:83 osciloscope/gui/osc.cpp:185
 msgid "Connect && Upload"
 msgstr ""
@@ -842,10 +834,6 @@ msgstr ""
 
 #: osciloscope/gui/osc.cpp:247
 msgid "1s"
-msgstr ""
-
-#: osciloscope/gui/osc.cpp:253
-msgid "ETS"
 msgstr ""
 
 #: osciloscope/gui/osc.cpp:256 osciloscope/gui/osc.cpp:454
@@ -1551,14 +1539,6 @@ msgstr ""
 msgid "./data/signal/custom.signal"
 msgstr ""
 
-#: osciloscope/gui/osc.cpp:2640
-msgid "Generator 1"
-msgstr ""
-
-#: osciloscope/gui/osc.cpp:2798
-msgid "Generator 2"
-msgstr ""
-
 #: osciloscope/gui/osc.cpp:3022
 msgid "Heating:"
 msgstr ""
@@ -1577,14 +1557,6 @@ msgstr ""
 
 #: osciloscope/gui/osc.cpp:3177
 msgid "Axis"
-msgstr ""
-
-#: osciloscope/gui/osc.cpp:3180
-msgid "Grid"
-msgstr ""
-
-#: osciloscope/gui/osc.cpp:3189
-msgid "FFT Units"
 msgstr ""
 
 #: osciloscope/gui/osc.cpp:3192

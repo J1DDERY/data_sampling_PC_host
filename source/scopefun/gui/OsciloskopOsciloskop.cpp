@@ -28,6 +28,16 @@ Osciloskop(parent)
 
 }
 
+wxMenu* OsciloskopOsciloskop::getMenuSafe(int preferredIndex)
+{
+    wxMenuBar* mb = this->GetMenuBar();
+    if(!mb) return nullptr;
+    int cnt = mb->GetMenuCount();
+    if(preferredIndex < cnt) return mb->GetMenu(preferredIndex);
+    if(cnt > 0) return mb->GetMenu(cnt - 1);
+    return nullptr;
+}
+
 void OsciloskopOsciloskop::onActivate(wxActivateEvent& event)
 {
     if(once)
@@ -35,7 +45,33 @@ void OsciloskopOsciloskop::onActivate(wxActivateEvent& event)
         once = 0;
 
         #ifndef _DEBUG
-            m_menu4->Remove(m_menu4->FindItem("Software Simulator"));
+        // Safe remove: menu may not exist after GUI simplification
+        {
+            wxMenuBar* mb = this->GetMenuBar();
+            if(mb)
+            {
+                int cnt = mb->GetMenuCount();
+                for(int i = 0; i < cnt; ++i)
+                {
+                    wxString lbl = mb->GetMenuLabel(i);
+                    wxMenu* m = mb->GetMenu(i);
+                    if(m)
+                    {
+                        wxMenuItemList::const_iterator it;
+                        for(it = m->GetMenuItems().begin(); it != m->GetMenuItems().end(); ++it)
+                        {
+                            wxMenuItem* item = *it;
+                            if(item && item->GetItemLabel() == wxString("Software Simulator"))
+                            {
+                                m->Remove(item->GetId());
+                                goto removed_software_simulator;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        removed_software_simulator:
         #endif
 
         m_spinBtnXPos->SetRange(-1000000, 1000000);
@@ -79,7 +115,7 @@ void OsciloskopOsciloskop::onActivate(wxActivateEvent& event)
             String fileName = f.data().AsChar();
             int pos = fileName.pos("/Script/");
             fileName.remove(0, pos + 1);
-            wxMenu* menu = GetMenuBar()->GetMenu(6);
+            wxMenu* menu = getMenuSafe(6);
             wxMenuItem* menuItem = menu->AppendCheckItem(wxID_ANY, fileName.asChar(), wxEmptyString);
             Connect(menuItem->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(OsciloskopOsciloskop::MenuScriptSelection), (wxObject*)pOsciloscope->m_callback.Get(i), this);
             f = wxFindNextFile();
@@ -1047,15 +1083,10 @@ void OsciloskopOsciloskop::m_comboBoxTimeCaptureOnCombobox(wxCommandEvent& event
 
 void OsciloskopOsciloskop::m_checkBoxETSOnCheckBox(wxCommandEvent& event)
 {
-    pOsciloscope->window.horizontal.ETS = m_checkBoxETS->GetValue() ? 1 : 0;
-    sfSetEts(getHw(), pOsciloscope->window.horizontal.ETS);
+    // ETS support removed: always disable
+    pOsciloscope->window.horizontal.ETS = 0;
     pOsciloscope->transferData();
     SDL_AtomicSet(&pOsciloscope->clearRenderTarget,1);
-    // pOsciloscope->clearEts(pOsciloscope->window.horizontal.ETS);
-    // pOsciloscope->clearRenderTarget = !pOsciloscope->window.horizontal.ETS;
-    //  pOsciloscope->sim = pOsciloscope->GetServerSim();
-    // pOsciloscope->thread.setSimulateData(&pOsciloscope->sim);
-    // pOsciloscope->thread.function(afSetSimulateData);
 }
 
 void OsciloskopOsciloskop::m_checkBoxFullOnCheckBox(wxCommandEvent& event)

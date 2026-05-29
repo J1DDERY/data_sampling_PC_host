@@ -53,7 +53,6 @@ class Osciloskop : public wxFrame
 		wxMenu* m_menu1;
 		wxMenu* m_menu2;
 		wxMenu* m_menu3;
-		wxMenu* m_menu4;
 		wxMenu* m_menu5;
 		wxMenu* m_menu8;
 		wxMenu* m_menu7;
@@ -71,7 +70,6 @@ class Osciloskop : public wxFrame
 		wxPanel* m_panel251;
 		wxStaticText* m_staticText141;
 		wxChoice* m_comboBoxTimeCapture;
-		wxCheckBox* m_checkBoxETS;
 		wxCheckBox* m_checkBoxFull;
 		wxStaticText* m_staticText12;
 		wxTextCtrl* m_textCtrlTimePosition;
@@ -172,8 +170,6 @@ class Osciloskop : public wxFrame
 		virtual void m_menuItem6OnMenuSelection( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_menuItem8OnMenuSelection( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_menuItem9OnMenuSelection( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_menuItemSoftwareOnMenuSelection( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_menuItem11OnMenuSelection( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_menuItemReadEEPROMOnMenuSelection( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_menuItemWriteEEPROMOnMenuSelection( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_menuItem12OnMenuSelection( wxCommandEvent& event ) { event.Skip(); }
@@ -196,7 +192,6 @@ class Osciloskop : public wxFrame
 		virtual void m_buttonRedoOnButtonClick( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_comboBoxTimeControlOnCombobox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_comboBoxTimeCaptureOnCombobox( wxCommandEvent& event ) { event.Skip(); }
-		virtual void m_checkBoxETSOnCheckBox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_checkBoxFullOnCheckBox( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_textCtrlTimePositionOnTextEnter( wxCommandEvent& event ) { event.Skip(); }
 		virtual void m_spinBtnXPosOnSpinDown( wxSpinEvent& event ) { event.Skip(); }

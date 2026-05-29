@@ -356,7 +356,7 @@ void setMask(int idx, bool value)
 {
     int stage = pOsciloscope->window.trigger.stage;
     pOsciloscope->window.trigger.mask[stage][idx] = value;
-    sfSetDigitalMask(getHw(), (DigitalStage)stage, (DigitalBit)idx, (DigitalPattern)pOsciloscope->window.trigger.mask[stage][idx]);
+    // Digital trigger mask removed; no hardware API call
     pOsciloscope->transferData();
 }
 
@@ -364,7 +364,7 @@ void setMaskNoTransfer(int idx, bool value)
 {
     int stage = pOsciloscope->window.trigger.stage;
     pOsciloscope->window.trigger.mask[stage][idx] = value;
-    sfSetDigitalMask(getHw(), (DigitalStage)stage, (DigitalBit)idx, (DigitalPattern)pOsciloscope->window.trigger.mask[stage][idx]);
+    // Digital trigger mask removed; no hardware API call
 }
 
 void setPattern(int idx, wxChoice* comboBox)
@@ -378,7 +378,7 @@ void setPattern(int idx, wxChoice* comboBox)
         setMaskNoTransfer(idx, true);
         int stage = pOsciloscope->window.trigger.stage;
         pOsciloscope->window.trigger.pattern[stage][idx] = comboBox->GetSelection();
-        sfSetDigitalPattern(getHw(), (DigitalStage)stage, (DigitalBit)idx, (DigitalPattern)pOsciloscope->window.trigger.pattern[stage][idx]);
+        // Digital trigger pattern removed; no hardware API call
         pOsciloscope->transferData();
     }
 }
@@ -394,7 +394,7 @@ void setPatternNoTransfer(int idx, wxChoice* comboBox)
         setMaskNoTransfer(idx, true);
         int stage = pOsciloscope->window.trigger.stage;
         pOsciloscope->window.trigger.pattern[stage][idx] = comboBox->GetSelection();
-        sfSetDigitalPattern(getHw(), (DigitalStage)stage, (DigitalBit)idx, (DigitalPattern)pOsciloscope->window.trigger.pattern[stage][idx]);
+        // Digital trigger pattern removed; no hardware API call
     }
 }
 
@@ -488,7 +488,14 @@ void OsciloskopOsciloskop::loadWindow(int slot)
         slotName.remove(0, slotName.getLength() - 32);
         slotName.insert(0, "...");
     }
-    GetMenuBar()->GetMenu(6)->FindItemByPosition(slot)->SetItemLabel(slotName.asChar());
+    {
+        wxMenu* m = getMenuSafe(6);
+        if(m)
+        {
+            wxMenuItem* it = m->FindItemByPosition(slot);
+            if(it) it->SetItemLabel(slotName.asChar());
+        }
+    }
     loadSlot(pOsciloscope->window);
 }
 
@@ -528,8 +535,8 @@ void OsciloskopOsciloskop::setupUI(WndMain window)
     m_sliderTimeFrame->SetMax(frameCount);
     // FFTSize
     m_textCtrlTimeFFTSize->SetValue(wxString::FromAscii(pFormat->integerToString(window.horizontal.FFTSize)));
-    // ETS
-    m_checkBoxETS->SetValue(window.horizontal.ETS);
+    // ETS (control may not exist in this build)
+    // m_checkBoxETS may be absent; skip setting if it's not present
     ////////////////////////////////////////////////////////////////////////////////////////
     // channel 0
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -604,21 +611,16 @@ void OsciloskopOsciloskop::setupUI(WndMain window)
 int OsciloskopOsciloskop::getCurrentSlot()
 {
     int index = 0;
-    if(GetMenuBar()->GetMenu(6)->FindItemByPosition(0)->IsChecked())
     {
-        index = 0;
-    }
-    if(GetMenuBar()->GetMenu(6)->FindItemByPosition(1)->IsChecked())
-    {
-        index = 1;
-    }
-    if(GetMenuBar()->GetMenu(6)->FindItemByPosition(2)->IsChecked())
-    {
-        index = 2;
-    }
-    if(GetMenuBar()->GetMenu(6)->FindItemByPosition(3)->IsChecked())
-    {
-        index = 3;
+        wxMenu* m = getMenuSafe(6);
+        if(m)
+        {
+            for(int i = 0; i < 4; ++i)
+            {
+                wxMenuItem* it = m->FindItemByPosition(i);
+                if(it && it->IsChecked()) index = i;
+            }
+        }
     }
     return index;
 }

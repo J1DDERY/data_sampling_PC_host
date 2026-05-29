@@ -68,21 +68,6 @@ enum AnalogFlag
     CHANNEL_B_ACDC = BIT(4),
     CHANNEL_A_ACDC = BIT(5),
     CHANNEL_INTERLEAVE = BIT(6),
-    CHANNEL_ETS = BIT(7),
-};
-
-enum GeneratorType
-{
-    GENERATOR_CUSTOM,
-    GENERATOR_SIN,
-    GENERATOR_COS,
-    GENERATOR_TRIANGLE,
-    GENERATOR_RAMP_UP,
-    GENERATOR_RAMP_DOWN,
-    GENERATOR_SQUARE,
-    GENERATOR_DELTA,
-    GENERATOR_DC,
-    GENERATOR_NOISE,
 };
 
 enum ControllType1
@@ -113,41 +98,7 @@ enum CalibrateFreq
     CALIBRATE_2M,
 };
 
-enum DigitalPattern
-{
-    DIGITAL_PATTERN_0,
-    DIGITAL_PATTERN_1,
-    DIGITAL_PATTERN_RISING,
-    DIGITAL_PATTERN_FALLING,
-};
-
-enum DigitalStage
-{
-    DIGITAL_STAGE_0,
-    DIGITAL_STAGE_1,
-    DIGITAL_STAGE_2,
-    DIGITAL_STAGE_3,
-};
-
-enum DigitalBit
-{
-    DIGITAL_BIT_0,
-    DIGITAL_BIT_1,
-    DIGITAL_BIT_2,
-    DIGITAL_BIT_3,
-    DIGITAL_BIT_4,
-    DIGITAL_BIT_5,
-    DIGITAL_BIT_6,
-    DIGITAL_BIT_7,
-    DIGITAL_BIT_8,
-    DIGITAL_BIT_9,
-    DIGITAL_BIT_10,
-    DIGITAL_BIT_11,
-    DIGITAL_BIT_12,
-    DIGITAL_BIT_13,
-    DIGITAL_BIT_14,
-    DIGITAL_BIT_15,
-};
+/* Generator and Digital enums removed */
 
 
 /*----------------------------------------
@@ -176,7 +127,7 @@ enum DigitalBit
 #define SCOPEFUN_FIRMWARE_FPGA              (4*1024*1024)
 #define SCOPEFUN_EEPROM_BYTES               (256*1024)
 #define SCOPEFUN_EEPROM_FIRMWARE_NAME_BYTES (16)
-#define SCOPEFUN_GENERATOR                  32768
+#define SCOPEFUN_GENERATOR                  0 /* removed */
 
 /*----------------------------------------
       ScopeFun API - Errors
@@ -256,46 +207,10 @@ typedef struct
     ushort holdoffL;
     ushort sampleSizeH;
     ushort sampleSizeL;
-    ushort generatorType0;
-    ushort generatorVoltage0;
-    short  generatorOffset0;
-    ushort generatorDeltaH0;
-    ushort generatorDeltaL0;
-    ushort generatorSquareDuty0;
-    ushort generatorType1;
-    ushort generatorVoltage1;
-    short  generatorOffset1;
-    ushort generatorDeltaH1;
-    ushort generatorDeltaL1;
-    ushort generatorSquareDuty1;
-    ushort digitalPattern1a;
-    ushort digitalPattern1b;
-    ushort digitalMask1;
-    ushort digitalPattern2a;
-    ushort digitalPattern2b;
-    ushort digitalMask2;
-    ushort digitalPattern3a;
-    ushort digitalPattern3b;
-    ushort digitalMask3;
-    ushort digitalPattern4a;
-    ushort digitalPattern4b;
-    ushort digitalMask4;
-    ushort dt_delayMaxcnt1;
-    ushort dt_delayMaxcnt2;
-    ushort dt_delayMaxcnt3;
-    ushort dt_delayMaxcnt4;
-    ushort dt_control;
-    ushort digitalVoltage;
-    ushort digitalInputOutput;
-    ushort digitalOutputBit;
-    ushort digitalOutputMask;
-    ushort digitalClkDivideH;
-    ushort digitalClkDivideL;
+    // Generator and digital fields removed
     ushort average;
     ushort preTriggerH;
     ushort preTriggerL;
-    ushort generatorPhase0;
-    ushort generatorPhase1;
     ushort frameDataSetup;
     ushort reserved3;
     ushort reserved4;
@@ -321,8 +236,8 @@ typedef struct
 {
     SArrayMagic                 magic;
     SArrayDeviceTemp            deviceTemp;
-    SArrayETS                   etsDelay;
-    SArrayDigPatternCompleteCnt digitalPatternCompleteCnt;
+    SArrayETS                   etsDelay;                    /* restored ETS delay bytes */
+    SArrayDigPatternCompleteCnt digitalPatternCompleteCnt;   /* restored digital pattern complete count */
     SArrayDebug                 debug;
     SArrayPaddingBefore         paddBefore;
     SArrayHardware              hardware;
@@ -385,52 +300,7 @@ typedef struct
     SArrayFpga data;
 } SFpga;
 
-/*----------------------------------------
-   SGeneratorConfig
-----------------------------------------*/
-typedef struct
-{
-    short GeneratorCustomDataMap;
-    short GeneratorReserved02;
-    short GeneratorReserved03;
-    short GeneratorReserved04;
-    short GeneratorReserved05;
-    short GeneratorReserved06;
-    short GeneratorReserved07;
-    short GeneratorReserved08;
-    short GeneratorReserved09;
-    short GeneratorReserved10;
-    short GeneratorReserved11;
-    short GeneratorReserved12;
-    short GeneratorReserved13;
-    short GeneratorReserved14;
-    short GeneratorReserved15;
-    short GeneratorReserved16;
-    short GeneratorReserved17;
-    short GeneratorReserved18;
-    short GeneratorReserved19;
-    short GeneratorReserved20;
-    short GeneratorReserved21;
-    short GeneratorReserved22;
-    short GeneratorReserved23;
-    short GeneratorReserved24;
-    short GeneratorReserved25;
-    short GeneratorReserved26;
-    short GeneratorReserved27;
-    short GeneratorReserved28;
-    short GeneratorReserved29;
-    short GeneratorReserved30;
-    short GeneratorReserved31;
-    short GeneratorReserved32;
-} SGeneratorConfig;
-
-SCOPEFUN_ARRAY(SArrayGeneratorData, ushort, SCOPEFUN_GENERATOR);
-typedef struct
-{
-    uint                type;
-    uint                length;
-    SArrayGeneratorData data;
-} SGeneratorData;
+/* Generator config/data types removed */
 
 /*----------------------------------------
    ESimulateType
@@ -501,7 +371,6 @@ enum EDisplayAttribute
     daCHANNEL_B_ACDC   = 4,
     daCHANNEL_A_ACDC   = 5,
     daCHANNEL_INTERLEAVE = 6,
-    daCHANNEL_ETS = 7,
 };
 SCOPEFUN_ARRAY(SArrayDisplayAnalog0, float,  SCOPEFUN_DISPLAY);
 SCOPEFUN_ARRAY(SArrayDisplayAnalog1, float,  SCOPEFUN_DISPLAY);
@@ -518,9 +387,10 @@ typedef struct
     uint                 samples;
     uint                 captured;
     uint                 ppi;
-    uint                 ets;  //delay
+    // ets removed
     uint                 attr; //channel attributes
     uint                 digitalPatternCompleteCnt;
+    /* ETS-related fields removed */
 } SDisplay;
 
 /*----------------------------------------
@@ -574,7 +444,6 @@ typedef struct
     SCtxFrame         frame;
     EFunctionType     functionType;
     //SGeneratorConfig* genConfig;
-    uint              generatorCount;
     void*             pCallback;
     void*             pUserData;
     byte*             usb;
@@ -631,8 +500,7 @@ SCOPEFUN_CREATE(SUsb)
 SCOPEFUN_CREATE(SHardware)
 SCOPEFUN_CREATE(SFx3)
 SCOPEFUN_CREATE(SFpga)
-SCOPEFUN_CREATE(SGeneratorConfig)
-SCOPEFUN_CREATE(SGeneratorData)
+/* Generator config/data types removed */
 SCOPEFUN_CREATE(SEeprom)
 SCOPEFUN_CREATE(SFrameData)
 SCOPEFUN_CREATE(SFrameHeader)
@@ -651,8 +519,7 @@ SCOPEFUN_DELETE(SHardware)
 SCOPEFUN_DELETE(SFrameData)
 SCOPEFUN_DELETE(SFx3)
 SCOPEFUN_DELETE(SFpga)
-SCOPEFUN_DELETE(SGeneratorConfig)
-SCOPEFUN_DELETE(SGeneratorData)
+/* Generator types removed */
 SCOPEFUN_DELETE(SEeprom)
 SCOPEFUN_DELETE(SFrameData)
 SCOPEFUN_DELETE(SFrameHeader)
@@ -683,7 +550,7 @@ SCOPEFUN_API int sfHardwareConfig(SFContext* INOUT, SHardware* INOUT);
 SCOPEFUN_API int sfHardwareCapture(SFContext* INOUT, SFrameData* INOUT, int INPUT, int INPUT, SInt* INOUT);
 SCOPEFUN_API int sfHardwareUploadFx3(SFContext* INOUT, SFx3* INOUT);
 SCOPEFUN_API int sfHardwareUploadFpga(SFContext* INOUT, SFpga* INOUT);
-SCOPEFUN_API int sfHardwareUploadGenerator(SFContext* INOUT, SGeneratorConfig* INOUT, SGeneratorData* INOUT);
+/* Generator upload removed */
 SCOPEFUN_API int sfHardwareEepromRead(SFContext* INOUT, SEeprom* INOUT, int INPUT, int INPUT);
 SCOPEFUN_API int sfHardwareEepromReadFirmwareID(SFContext* INOUT, SEeprom* INOUT, int INPUT);
 SCOPEFUN_API int sfHardwareReadFpgaStatus(SFContext* ctx, SInt* INOUT);
@@ -740,7 +607,7 @@ SCOPEFUN_API int    sfSetDefault(SHardware* INOUT);
 SCOPEFUN_API int    sfSetFrameSize(SHardware*  INOUT, uint  INPUT);
 SCOPEFUN_API int    sfSetNumSamples(SHardware* INOUT, uint  INPUT);
 SCOPEFUN_API int    sfSetAnalogSwitchBit(SHardware* INOUT, int INPUT, int INPUT);
-SCOPEFUN_API int    sfSetEts(SHardware* INOUT, int INPUT);
+/* sfSetEts removed */
 SCOPEFUN_API int    sfSetYRangeScaleA(SHardware* INOUT, ushort INPUT, ushort INPUT);
 SCOPEFUN_API int    sfSetYPositionA(SHardware* INOUT, int INPUT);
 SCOPEFUN_API int    sfSetYRangeScaleB(SHardware* INOUT, ushort INPUT, ushort INPUT);
@@ -758,43 +625,11 @@ SCOPEFUN_API int    sfSetTriggerLevel(SHardware* INOUT, int INPUT);
 SCOPEFUN_API int    sfSetHoldoff(SHardware* INOUT, uint INPUT);
 SCOPEFUN_API int    sfSetAverage(SHardware* INOUT, int INPUT);
 
-// generator 0
-SCOPEFUN_API int    sfSetGeneratorType0(SHardware* INOUT, ushort INPUT);
-SCOPEFUN_API int    sfSetGeneratorOn0(SHardware* INOUT, int INPUT);
-SCOPEFUN_API int    sfSetGeneratorVoltage0(SHardware* INOUT, int INPUT);
-SCOPEFUN_API int    sfSetGeneratorOffset0(SHardware* INOUT, int INPUT);
-SCOPEFUN_API int    sfSetGeneratorFrequency0(SHardware* INOUT, double INPUT, float INPUT);
-SCOPEFUN_API int    sfSetGeneratorSquareDuty0(SHardware* INOUT, int INPUT);
-SCOPEFUN_API int    sfSetGeneratorPhase0(SHardware* INOUT, int INPUT);
-SCOPEFUN_API int    sfSetGeneratorDelta0(SHardware* INOUT, uint INPUT);
+/* Generator setters removed */
 
-// generator 1
-SCOPEFUN_API int    sfSetGeneratorType1(SHardware* INOUT, ushort INPUT);
-SCOPEFUN_API int    sfSetGeneratorOn1(SHardware* INOUT, int INPUT);
-SCOPEFUN_API int    sfSetGeneratorVoltage1(SHardware* INOUT, int INPUT);
-SCOPEFUN_API int    sfSetGeneratorOffset1(SHardware* INOUT, int INPUT);
-SCOPEFUN_API int    sfSetGeneratorFrequency1(SHardware* INOUT, double INPUT, float INPUT);
-SCOPEFUN_API int    sfSetGeneratorSquareDuty1(SHardware* INOUT, int INPUT);
-SCOPEFUN_API int    sfSetGeneratorPhase1(SHardware* INOUT, int INPUT);
-SCOPEFUN_API int    sfSetGeneratorDelta1(SHardware* INOUT, uint INPUT);
+/* Digital trigger setters removed */
 
-// digital trigger
-SCOPEFUN_API int    sfSetDigitalStart(SHardware* INOUT, int INPUT);
-SCOPEFUN_API int    sfSetDigitalMode(SHardware* INOUT, int INPUT);
-SCOPEFUN_API int    sfSetDigitalChannel(SHardware* INOUT, int INPUT);
-SCOPEFUN_API int    sfSetDigitalDelay(SHardware* INOUT, uint INPUT, ushort INPUT);
-SCOPEFUN_API int    sfSetDigitalMask(SHardware* INOUT, uint INPUT, uint INPUT, int INPUT);
-SCOPEFUN_API int    sfSetDigitalPattern(SHardware* INOUT, ushort INPUT, ushort INPUT, ushort INPUT);
-
-// digital GPIO
-SCOPEFUN_API int    sfSetDigitalVoltage(SHardware* INOUT, double INPUT, double INPUT);
-SCOPEFUN_API int    sfSetDigitalInputOutput(SHardware* INOUT, uint INPUT, uint INPUT);
-SCOPEFUN_API int    sfSetDigitalOutputBit(SHardware* INOUT, int INPUT, int INPUT);
-SCOPEFUN_API int    sfSetDigitalClockDivide(SHardware* INOUT, uint INPUT);
-SCOPEFUN_API int    sfSetDigitalPatternOutputEn(SHardware* INOUT, int INPUT);
-SCOPEFUN_API int    sfSetDigitalPatternOutputMode(SHardware* INOUT, int INPUT);
-SCOPEFUN_API int    sfSetDigitalPatternOutputRestart(SHardware* INOUT, int INPUT);
-SCOPEFUN_API int    sfSetDigitalPatternOutputRestartOnUpload(SHardware* INOUT, int INPUT);
+/* Digital GPIO setters removed */
 
 // data
 SCOPEFUN_API int    sfSetDataEncodingFormat(SHardware* INOUT, int INPUT);
@@ -807,7 +642,7 @@ SCOPEFUN_API int    sfSetDataEncodingFormat(SHardware* INOUT, int INPUT);
 SCOPEFUN_API uint   sfGetFrameSize(SHardware*  INPUT);
 SCOPEFUN_API uint   sfGetNumSamples(SHardware* INPUT);
 SCOPEFUN_API ushort sfGetAnalogSwitch(SHardware* INPUT);
-SCOPEFUN_API int    sfGetEts(SHardware* INPUT);
+/* sfGetEts removed */
 SCOPEFUN_API uint   sfGetControl(SHardware* INPUT);
 SCOPEFUN_API uint   sfGetYGainA(SHardware* INPUT);
 SCOPEFUN_API float  sfGetYScaleA(SHardware* INPUT);
@@ -826,44 +661,11 @@ SCOPEFUN_API uint   sfGetSampleSize(SHardware* INPUT);
 SCOPEFUN_API uint   sfGetHoldoff(SHardware* INPUT);
 SCOPEFUN_API int    sfGetAverage(SHardware* INPUT);
 
-// generator 0
-SCOPEFUN_API ushort sfGetGeneratorType0(SHardware* INPUT);
-SCOPEFUN_API int    sfGetGeneratorOn0(SHardware* INPUT);
-SCOPEFUN_API int    sfGetGeneratorVoltage0(SHardware* INPUT);
-SCOPEFUN_API int    sfGetGeneratorOffset0(SHardware* INPUT);
-SCOPEFUN_API double sfGetGeneratorFrequency0(SHardware* INPUT, float INPUT);
-SCOPEFUN_API int    sfGetGeneratorSquareDuty0(SHardware* INPUT);
-SCOPEFUN_API int    sfGetGeneratorPhase0(SHardware* INPUT);
-SCOPEFUN_API uint   sfGetGeneratorDelta0(SHardware* INOUT);
+/* Generator getters removed */
 
-// generator 1
-SCOPEFUN_API ushort sfGetGeneratorType1(SHardware* INPUT);
-SCOPEFUN_API int    sfGetGeneratorOn1(SHardware* INPUT);
-SCOPEFUN_API int    sfGetGeneratorVoltage1(SHardware* INPUT);
-SCOPEFUN_API int    sfGetGeneratorOffset1(SHardware* INPUT);
-SCOPEFUN_API double sfGetGeneratorFrequency1(SHardware* INPUT, float INPUT);
-SCOPEFUN_API int    sfGetGeneratorSquareDuty1(SHardware* INPUT);
-SCOPEFUN_API int    sfGetGeneratorPhase1(SHardware* INPUT);
-SCOPEFUN_API uint   sfGetGeneratorDelta1(SHardware* INOUT);
+/* Digital trigger getters removed */
 
-// digital trigger
-SCOPEFUN_API int    sfGetDigitalStart(SHardware* INPUT);
-SCOPEFUN_API int    sfGetDigitalMode(SHardware* INPUT);
-SCOPEFUN_API int    sfGetDigitalChannel(SHardware* INPUT);
-SCOPEFUN_API ushort sfGetDigitalDelay(SHardware* INPUT, ushort INPUT);
-SCOPEFUN_API int    sfGetDigitalMask(SHardware* INPUT, ushort INPUT, ushort INPUT);
-SCOPEFUN_API ushort sfGetDigitalPattern(SHardware* INPUT, ushort INPUT, ushort INPUT);
-
-// digital GPIO
-SCOPEFUN_API double sfGetDigitalVoltage(SHardware* INPUT, double INPUT);
-SCOPEFUN_API int    sfGetDigitalOutputBit(SHardware* INPUT, int INPUT);
-SCOPEFUN_API uint   sfGetDigitalClockDivide(SHardware* INPUT);
-SCOPEFUN_API int    sfGetDigitalInputOutput11to6(SHardware* INPUT);
-SCOPEFUN_API int    sfGetDigitalInputOutput5to0(SHardware* INPUT);
-SCOPEFUN_API int    sfGetDigitalPatternOutputEn(SHardware* INOUT);
-SCOPEFUN_API int    sfGetDigitalPatternOutputMode(SHardware* INOUT);
-SCOPEFUN_API int    sfGetDigitalPatternOutputRestart(SHardware* INOUT);
-SCOPEFUN_API int    sfGetDigitalPatternOutputRestartOnUpload(SHardware* INOUT);
+/* Digital GPIO getters removed */
 
 // data
 SCOPEFUN_API int    sfGetDataEncodingFormat(SHardware* INOUT);

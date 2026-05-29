@@ -236,46 +236,11 @@ PYBIND11_MODULE(scopefun, m)
         .def_readwrite("holdoffL",              &SHardware::holdoffL)
         .def_readwrite("sampleSizeH",           &SHardware::sampleSizeH)
         .def_readwrite("sampleSizeL",           &SHardware::sampleSizeL)
-        .def_readwrite("generatorType0",        &SHardware::generatorType0)
-        .def_readwrite("generatorVoltage0",     &SHardware::generatorVoltage0)
-        .def_readwrite("generatorOffset0",      &SHardware::generatorOffset0)
-        .def_readwrite("generatorDeltaH0",      &SHardware::generatorDeltaH0)
-        .def_readwrite("generatorDeltaL0",      &SHardware::generatorDeltaL0)
-        .def_readwrite("generatorSquareDuty0",  &SHardware::generatorSquareDuty0)
-        .def_readwrite("generatorType1",        &SHardware::generatorType1)
-        .def_readwrite("generatorVoltage1",     &SHardware::generatorVoltage1)
-        .def_readwrite("generatorOffset1",      &SHardware::generatorOffset1)
-        .def_readwrite("generatorDeltaH1",      &SHardware::generatorDeltaH1)
-        .def_readwrite("generatorDeltaL1",      &SHardware::generatorDeltaL1)
-        .def_readwrite("generatorSquareDuty1",  &SHardware::generatorSquareDuty1)
-        .def_readwrite("digitalPattern1a",      &SHardware::digitalPattern1a)
-        .def_readwrite("digitalPattern1b",      &SHardware::digitalPattern1b)
-        .def_readwrite("digitalMask1",          &SHardware::digitalMask1)
-        .def_readwrite("digitalPattern2a",      &SHardware::digitalPattern2a)
-        .def_readwrite("digitalPattern2b",      &SHardware::digitalPattern2b)
-        .def_readwrite("digitalMask2",          &SHardware::digitalMask2)
-        .def_readwrite("digitalPattern3a",      &SHardware::digitalPattern3a)
-        .def_readwrite("digitalPattern3b",      &SHardware::digitalPattern3b)
-        .def_readwrite("digitalMask3",          &SHardware::digitalMask3)
-        .def_readwrite("digitalPattern4a",      &SHardware::digitalPattern4a)
-        .def_readwrite("digitalPattern4b",      &SHardware::digitalPattern4b)
-        .def_readwrite("digitalMask4",          &SHardware::digitalMask4)
-        .def_readwrite("dt_delayMaxcnt1",       &SHardware::dt_delayMaxcnt1)
-        .def_readwrite("dt_delayMaxcnt2",       &SHardware::dt_delayMaxcnt2)
-        .def_readwrite("dt_delayMaxcnt3",       &SHardware::dt_delayMaxcnt3)
-        .def_readwrite("dt_delayMaxcnt4",       &SHardware::dt_delayMaxcnt4)
-        .def_readwrite("dt_control",            &SHardware::dt_control)
-        .def_readwrite("digitalVoltage",        &SHardware::digitalVoltage)
-        .def_readwrite("digitalInputOutput",    &SHardware::digitalInputOutput)
-        .def_readwrite("digitalOutputBit",      &SHardware::digitalOutputBit)
-        .def_readwrite("digitalOutputMask",     &SHardware::digitalOutputMask)
-        .def_readwrite("digitalClkDivideH",     &SHardware::digitalClkDivideH)
-        .def_readwrite("digitalClkDivideL",     &SHardware::digitalClkDivideL)
+        /* Generator and digital hardware fields removed from Python bindings */
         .def_readwrite("average",               &SHardware::average)
         .def_readwrite("preTriggerH",           &SHardware::preTriggerH)
         .def_readwrite("preTriggerL",           &SHardware::preTriggerL)
-        .def_readwrite("generatorPhase0",       &SHardware::generatorPhase0)
-        .def_readwrite("generatorPhase1",       &SHardware::generatorPhase1)
+        /* generatorPhase fields removed */
         .def_readwrite("reserved3",             &SHardware::reserved3)
         .def_readwrite("reserved4",             &SHardware::reserved4)
         .def_readwrite("reserved5",             &SHardware::reserved5);
@@ -285,8 +250,7 @@ PYBIND11_MODULE(scopefun, m)
         .def(py::init<>())
         .def_readwrite("magic",                      &SFrameHeader::magic)
         .def_readwrite("deviceTemp",                 &SFrameHeader::deviceTemp)
-        .def_readwrite("etsDelay",                   &SFrameHeader::etsDelay)
-        .def_readwrite("digitalPatternCompleteCnt",  &SFrameHeader::digitalPatternCompleteCnt)
+        /* etsDelay and digital pattern counts removed from SFrameHeader */
         .def_readwrite("debug",                      &SFrameHeader::debug)
         .def_readwrite("paddBefore",                 &SFrameHeader::paddBefore)
         .def_readwrite("hardware",                   &SFrameHeader::hardware)
@@ -327,48 +291,7 @@ PYBIND11_MODULE(scopefun, m)
         .def_readwrite("data", &SFpga::data);
     //SFpga;
 
-    py::class_<SGeneratorConfig>(m, "SGeneratorConfig")
-        .def(py::init<>())
-        .def_readwrite("GeneratorCustomDataMap",  &SGeneratorConfig::GeneratorCustomDataMap)
-        .def_readwrite("GeneratorReserved02",     &SGeneratorConfig::GeneratorReserved02)
-        .def_readwrite("GeneratorReserved03",     &SGeneratorConfig::GeneratorReserved03)
-        .def_readwrite("GeneratorReserved04",     &SGeneratorConfig::GeneratorReserved04)
-        .def_readwrite("GeneratorReserved05",     &SGeneratorConfig::GeneratorReserved05)
-        .def_readwrite("GeneratorReserved06",     &SGeneratorConfig::GeneratorReserved06)
-        .def_readwrite("GeneratorReserved07",     &SGeneratorConfig::GeneratorReserved07)
-        .def_readwrite("GeneratorReserved08",     &SGeneratorConfig::GeneratorReserved08)
-        .def_readwrite("GeneratorReserved09",     &SGeneratorConfig::GeneratorReserved09)
-        .def_readwrite("GeneratorReserved10",     &SGeneratorConfig::GeneratorReserved10)
-        .def_readwrite("GeneratorReserved11",     &SGeneratorConfig::GeneratorReserved11)
-        .def_readwrite("GeneratorReserved12",     &SGeneratorConfig::GeneratorReserved12)
-        .def_readwrite("GeneratorReserved13",     &SGeneratorConfig::GeneratorReserved13)
-        .def_readwrite("GeneratorReserved14",     &SGeneratorConfig::GeneratorReserved14)
-        .def_readwrite("GeneratorReserved15",     &SGeneratorConfig::GeneratorReserved15)
-        .def_readwrite("GeneratorReserved16",     &SGeneratorConfig::GeneratorReserved16)
-        .def_readwrite("GeneratorReserved17",     &SGeneratorConfig::GeneratorReserved17)
-        .def_readwrite("GeneratorReserved18",     &SGeneratorConfig::GeneratorReserved18)
-        .def_readwrite("GeneratorReserved19",     &SGeneratorConfig::GeneratorReserved19)
-        .def_readwrite("GeneratorReserved20",     &SGeneratorConfig::GeneratorReserved20)
-        .def_readwrite("GeneratorReserved21",     &SGeneratorConfig::GeneratorReserved21)
-        .def_readwrite("GeneratorReserved22",     &SGeneratorConfig::GeneratorReserved22)
-        .def_readwrite("GeneratorReserved23",     &SGeneratorConfig::GeneratorReserved23)
-        .def_readwrite("GeneratorReserved24",     &SGeneratorConfig::GeneratorReserved24)
-        .def_readwrite("GeneratorReserved25",     &SGeneratorConfig::GeneratorReserved25)
-        .def_readwrite("GeneratorReserved26",     &SGeneratorConfig::GeneratorReserved26)
-        .def_readwrite("GeneratorReserved27",     &SGeneratorConfig::GeneratorReserved27)
-        .def_readwrite("GeneratorReserved28",     &SGeneratorConfig::GeneratorReserved28)
-        .def_readwrite("GeneratorReserved29",     &SGeneratorConfig::GeneratorReserved29)
-        .def_readwrite("GeneratorReserved30",     &SGeneratorConfig::GeneratorReserved30)
-        .def_readwrite("GeneratorReserved31",     &SGeneratorConfig::GeneratorReserved31)
-        .def_readwrite("GeneratorReserved32",     &SGeneratorConfig::GeneratorReserved32);
-    //
-
-    py::class_<SGeneratorData>(m, "SGeneratorData")
-        .def(py::init<>())
-        .def_readwrite("type",   &SGeneratorData::type)      //AWG1, AWG2, Digital
-        .def_readwrite("length", &SGeneratorData::length)    //Number of custom samples
-        .def_readwrite("data",   &SGeneratorData::data);     //samples values
-    //SGeneratorData; */
+      /* Generator types removed from Python API */
 
     py::class_<SUsb>(m, "SUsb")
         .def(py::init<>())
@@ -392,9 +315,7 @@ PYBIND11_MODULE(scopefun, m)
         .def_readwrite("samples",  &SDisplay::samples)
         .def_readwrite("captured", &SDisplay::captured)
         .def_readwrite("ppi",      &SDisplay::ppi)
-        .def_readwrite("ets",      &SDisplay::ets)
-        .def_readwrite("attr",     &SDisplay::attr)
-        .def_readwrite("digitalPatternCompleteCnt",  &SDisplay::digitalPatternCompleteCnt);
+      .def_readwrite("attr",     &SDisplay::attr);
     //SDisplay;
 
     /*----------------------------------------
@@ -432,7 +353,6 @@ PYBIND11_MODULE(scopefun, m)
         .def_readwrite("simulateData",   &SFContext::simulateData)
         .def_readwrite("frame",          &SFContext::frame)
         .def_readwrite("functionType",   &SFContext::functionType)
-        .def_readwrite("generatorCount", &SFContext::generatorCount)
         .def_readwrite("pCallback",      &SFContext::pCallback)
         .def_readwrite("pUserData",      &SFContext::pUserData)
         .def_readwrite("usb",            &SFContext::usb);
@@ -469,21 +389,7 @@ PYBIND11_MODULE(scopefun, m)
         });
     //SArrayDeviceTemp
 
-    py::class_<SArrayETS>(m, "SArrayETS")
-        .def(py::init())
-        .def_property_readonly("bytes", [](py::object& obj) {
-            SArrayETS& o = obj.cast<SArrayETS&>();
-                return py::array{4, o.bytes, obj};
-        });
-    //SArrayETS
-
-    py::class_<SArrayDigPatternCompleteCnt>(m, "SArrayDigPatternCompleteCnt")
-        .def(py::init())
-        .def_property_readonly("bytes", [](py::object& obj) {
-            SArrayDigPatternCompleteCnt& o = obj.cast<SArrayDigPatternCompleteCnt&>();
-                return py::array{4, o.bytes, obj};
-        });
-    //SArrayDigPatternCompleteCnt
+    /* SArrayETS and SArrayDigPatternCompleteCnt removed from Python bindings */
 
     py::class_<SArrayDebug>(m, "SArrayDebug")
         .def(py::init())
@@ -565,13 +471,7 @@ PYBIND11_MODULE(scopefun, m)
         });
     //SArrayFpga
 
-    py::class_<SArrayGeneratorData>(m, "SArrayGeneratorData")
-        .def(py::init())
-        .def_property_readonly("bytes", [](py::object& obj) {
-            SArrayGeneratorData& o = obj.cast<SArrayGeneratorData&>();
-                return py::array{SCOPEFUN_GENERATOR, o.bytes, obj};
-        });
-    //SArrayGeneratorData
+      /* SArrayGeneratorData removed */
 
     m.def("sfCreateSFloat",           &sfCreateSFloat);
     m.def("sfCreateSInt",             &sfCreateSInt);
@@ -581,8 +481,7 @@ PYBIND11_MODULE(scopefun, m)
     m.def("sfCreateSHardware",        &sfCreateSHardware);
     m.def("sfCreateSFx3",             &sfCreateSFx3);
     m.def("sfCreateSFpga",            &sfCreateSFpga);
-    m.def("sfCreateSGeneratorConfig", &sfCreateSGeneratorConfig);
-    m.def("sfCreateSGeneratorData",   &sfCreateSGeneratorData);
+      /* sfCreate SGenerator removed */
     m.def("sfCreateSEeprom",          &sfCreateSEeprom);
     m.def("sfCreateSFrameData",       &sfCreateSFrameData);
     m.def("sfCreateSFrameHeader",     &sfCreateSFrameHeader);
@@ -603,10 +502,7 @@ PYBIND11_MODULE(scopefun, m)
           py::arg("SFx3"));
     m.def("sfDeleteSFpga",        &sfDeleteSFpga,
           py::arg("SFpga"));
-    m.def("sfDeleteSGeneratorConfig",  &sfDeleteSGeneratorConfig,
-          py::arg("SGeneratorConfig"));
-    m.def("sfDeleteSGeneratorData",    &sfDeleteSGeneratorData,
-          py::arg("SGeneratorData"));
+    /* sfDelete SGenerator removed */
     m.def("sfDeleteSEeprom",      &sfDeleteSEeprom,
           py::arg("SEeprom"));
     m.def("sfDeleteSFrameData",   &sfDeleteSFrameData,
@@ -682,10 +578,7 @@ PYBIND11_MODULE(scopefun, m)
           py::arg("ctx"),
           py::arg("fpga"));
 
-    m.def("sfHardwareUploadGenerator", &sfHardwareUploadGenerator, "Load generator configuration and custom data samples",
-          py::arg("ctx"),
-          py::arg("genConfig"),
-          py::arg("genData"));
+      /* sfHardwareUploadGenerator removed */
 
     m.def("sfHardwareEepromRead", &sfHardwareEepromRead, "Read data bytes from EEPROM",
           py::arg("ctx"),
@@ -753,9 +646,7 @@ PYBIND11_MODULE(scopefun, m)
           py::arg("header"),
           py::arg("hw"));
 
-    m.def("sfGetHeaderEts", &sfGetHeaderEts, "Read ETS delay from header buffer",
-          py::arg("header"),
-          py::arg("ets"));
+      /* sfGetHeaderEts removed */
 
     m.def("sfGetHeaderTemperature", &sfGetHeaderTemperature, "Read FPGA temperature from header buffer",
           py::arg("header"),
@@ -802,9 +693,7 @@ PYBIND11_MODULE(scopefun, m)
           py::arg("bit"),
           py::arg("value"));
 
-    m.def("sfSetEts", &sfSetEts, "Set ETS enabled bit in SHardware struct",
-          py::arg("hw"),
-          py::arg("enable"));
+      /* sfSetEts removed */
 
     m.def("sfSetYRangeScaleA", &sfSetYRangeScaleA, "Set channel 1 gain in SHardware struct",
           py::arg("hw"),
@@ -879,147 +768,25 @@ PYBIND11_MODULE(scopefun, m)
         Generator AWG 1
     ----------------------------------------*/
 
-    m.def("sfSetGeneratorType0", &sfSetGeneratorType0, "Set AWG1 type in SHardware struct",
-          py::arg("hw"),
-          py::arg("type"));
-
-    m.def("sfSetGeneratorOn0", &sfSetGeneratorOn0, "Set AWG1 on/off bit in SHardware struct",
-          py::arg("hw"),
-          py::arg("onoff"));
-
-    m.def("sfSetGeneratorVoltage0", &sfSetGeneratorVoltage0, "Set AWG1 amplitude in SHardware struct",
-          py::arg("hw"),
-          py::arg("volt"));
-
-    m.def("sfSetGeneratorOffset0", &sfSetGeneratorOffset0, "Set AWG1 offset in SHardware struct",
-          py::arg("hw"),
-          py::arg("offset"));
-
-    m.def("sfSetGeneratorFrequency0", &sfSetGeneratorFrequency0, "Set AWG1 frequency in SHardware struct",
-          py::arg("hw"),
-          py::arg("freq"),
-          py::arg("fs"));
-
-    m.def("sfSetGeneratorSquareDuty0", &sfSetGeneratorSquareDuty0, "Set AWG1 square wave duty value in SHardware struct",
-          py::arg("hw"),
-          py::arg("duty"));
-
-    m.def("sfSetGeneratorPhase0", &sfSetGeneratorPhase0, "Set AWG1 phase",
-          py::arg("hw"),
-          py::arg("phase"));
-
-    m.def("sfSetGeneratorDelta0", &sfSetGeneratorDelta0, "Set AWG1 delta",
-          py::arg("hw"),
-          py::arg("delta"));
+    /* Generator AWG1 bindings removed */
 
     /*----------------------------------------
         Generator AWG 2
     ----------------------------------------*/
 
-    m.def("sfSetGeneratorType1", &sfSetGeneratorType1, "Set AWG2 type in SHardware struct",
-          py::arg("hw"),
-          py::arg("type"));
-
-    m.def("sfSetGeneratorOn1", &sfSetGeneratorOn1, "Set AWG2 on/off bit in SHardware struct",
-          py::arg("hw"),
-          py::arg("onoff"));
-
-    m.def("sfSetGeneratorVoltage1", &sfSetGeneratorVoltage1, "Set AWG2 amplitude in SHardware struct",
-          py::arg("hw"),
-          py::arg("volt"));
-
-    m.def("sfSetGeneratorOffset1", &sfSetGeneratorOffset1, "Set AWG2 offset in SHardware struct",
-          py::arg("hw"),
-          py::arg("perc"));
-
-    m.def("sfSetGeneratorFrequency1", &sfSetGeneratorFrequency1, "Set AWG2 frequency in SHardware struct",
-          py::arg("hw"),
-          py::arg("freq"),
-          py::arg("fs"));
-
-    m.def("sfSetGeneratorSquareDuty1", &sfSetGeneratorSquareDuty1, "Set AWG2 square wave duty value in SHardware struct",
-          py::arg("hw"),
-          py::arg("duty"));
-
-    m.def("sfSetGeneratorPhase1", &sfSetGeneratorPhase1, "Set AWG2 phase",
-          py::arg("hw"),
-          py::arg("phase"));
-
-    m.def("sfSetGeneratorDelta1", &sfSetGeneratorDelta1, "Set AWG2 delta",
-          py::arg("hw"),
-          py::arg("delta"));
+    /* Generator AWG2 bindings removed */
 
     /*----------------------------------------
         Digital channels
     ----------------------------------------*/
 
-    m.def("sfSetDigitalVoltage", &sfSetDigitalVoltage, "Set digital channels voltage level in SHardware struct",
-          py::arg("hw"),
-          py::arg("volt"),
-          py::arg("kDigital"));
-
-    m.def("sfSetDigitalInputOutput", &sfSetDigitalInputOutput, "Set digital channels direction bits in SHardware struct",
-          py::arg("hw"),
-          py::arg("inout15"),
-          py::arg("inout7"));
-
-    m.def("sfSetDigitalOutputBit", &sfSetDigitalOutputBit, "Set digital channels output bits in SHardware struct",
-          py::arg("hw"),
-          py::arg("bit"),
-          py::arg("onoff"));
-
-    m.def("sfSetDigitalClockDivide", &sfSetDigitalClockDivide, "Set digital channels clock divider in SHardware struct",
-          py::arg("hw"),
-          py::arg("divider"));
-
-    m.def("sfSetDigitalPatternOutputEn", &sfSetDigitalPatternOutputEn, "Set digital pattern output enable bit in SHardware struct",
-          py::arg("hw"),
-          py::arg("outputEnable"));
-
-    m.def("sfSetDigitalPatternOutputMode", &sfSetDigitalPatternOutputMode, "Set digital pattern output mode (0-loop, 1-single burst)",
-          py::arg("hw"),
-          py::arg("outputEnable"));
-
-    m.def("sfSetDigitalPatternOutputRestart", &sfSetDigitalPatternOutputRestart, "Set digital pattern output restart bit in SHardware struct",
-          py::arg("hw"),
-          py::arg("outputRestart"));
-
-    m.def("sfSetDigitalPatternOutputRestartOnUpload", &sfSetDigitalPatternOutputRestartOnUpload, "Set digital pattern output restartOnUpload bit in SHardware struct",
-          py::arg("hw"),
-          py::arg("outputRestartOnUpload"));
+    /* Digital GPIO bindings removed */
 
     /*----------------------------------------
         Digital trigger
     ----------------------------------------*/
 
-    m.def("sfSetDigitalStart", &sfSetDigitalStart, "Set digital trigger channels start stage in SHardware struct",
-          py::arg("hw"),
-          py::arg("start"));
-
-    m.def("sfSetDigitalMode", &sfSetDigitalMode, "Set digital channels trigger mode in SHardware struct (serial / parallel)",
-          py::arg("hw"),
-          py::arg("mode"));
-
-    m.def("sfSetDigitalChannel", &sfSetDigitalChannel, "Select digital channels trigger source in SHardware struct",
-          py::arg("hw"),
-          py::arg("channel"));
-
-    m.def("sfSetDigitalDelay", &sfSetDigitalDelay, "Select digital channels trigger delay in SHardware struct",
-          py::arg("hw"),
-          py::arg("stage"),
-		  py::arg("delay"));
-
-    m.def("sfSetDigitalMask", &sfSetDigitalMask, "Select digital channels trigger mask in SHardware struct",
-          py::arg("hw"),
-          py::arg("stage"),
-          py::arg("bit"),
-		  py::arg("value"));
-
-    m.def("sfSetDigitalPattern", &sfSetDigitalPattern, "Select digital channels trigger pattern in SHardware struct",
-          py::arg("hw"),
-          py::arg("stage"),
-          py::arg("bit"),
-		  py::arg("pattern"));
+    /* Digital trigger bindings removed */
 
     /*----------------------------------------
         Frame Data Encoding
@@ -1042,8 +809,7 @@ PYBIND11_MODULE(scopefun, m)
     m.def("sfGetAnalogSwitch", &sfGetAnalogSwitch, "Read analog switch bits from SHardware struct",
           py::arg("hw"));
 
-    m.def("sfGetEts", &sfGetEts, "Read ETS bit from SHardware struct",
-          py::arg("hw"));
+      /* sfGetEts removed */
 
     m.def("sfGetControl", &sfGetControl, "Read hardware control value from SHardware struct",
           py::arg("hw"));
@@ -1097,119 +863,25 @@ PYBIND11_MODULE(scopefun, m)
     m.def("sfGetHoldoff", &sfGetHoldoff, "Read hodoff from SHardware struct",
           py::arg("hw"));
 
-    m.def("sfGetDigitalStart", &sfGetDigitalStart, "Read digital channels trigger start stage from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetDigitalMode", &sfGetDigitalMode, "Read digital channels trigger mode from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetDigitalChannel", &sfGetDigitalChannel, "Read digital channels trigger source from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetDigitalDelay", &sfGetDigitalDelay, "Read digital channels trigger delay from SHardware struct",
-          py::arg("hw"),
-          py::arg("stage"));
-
-    m.def("sfGetDigitalMask", &sfGetDigitalMask, "Read digital channels trigger mask from SHardware struct",
-          py::arg("hw"),
-          py::arg("stage"),
-          py::arg("bit"));
+    /* Digital getters removed */
 
     /*----------------------------------------
         Get Generator AWG 1
     ----------------------------------------*/
 
-    m.def("sfGetGeneratorType0", &sfGetGeneratorType0, "Read AWG1 type from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetGeneratorOn0", &sfGetGeneratorOn0, "Read AWG1 enable bit from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetGeneratorVoltage0", &sfGetGeneratorVoltage0, "Read AWG1 amplitude from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetGeneratorOffset0", &sfGetGeneratorOffset0, "Read AWG1 offset from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetGeneratorFrequency0", &sfGetGeneratorFrequency0, "Read AWG1 frequency from SHardware struct",
-          py::arg("hw"),
-		  py::arg("fs"));
-
-    m.def("sfGetGeneratorSquareDuty0", &sfGetGeneratorSquareDuty0, "Read AWG1 square wave duty from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetGeneratorPhase0", &sfGetGeneratorPhase0, "Read AWG1 phase value from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetGeneratorDelta0", &sfGetGeneratorDelta0, "Read AWG1 delta value from SHardware struct",
-          py::arg("hw"));
+    /* Generator AWG1 getters removed */
 
     /*----------------------------------------
         Get Generator AWG 2
     ----------------------------------------*/
 
-    m.def("sfGetGeneratorType1", &sfGetGeneratorType1, "Read AWG2 type from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetGeneratorOn1", &sfGetGeneratorOn1, "Read AWG2 enable bit from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetGeneratorVoltage1", &sfGetGeneratorVoltage1, "Read AWG2 amplitude from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetGeneratorOffset1", &sfGetGeneratorOffset1, "Read AWG2 offset from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetGeneratorFrequency1", &sfGetGeneratorFrequency1, "Read AWG2 frequency from SHardware struct",
-          py::arg("hw"),
-		  py::arg("fs"));
-
-    m.def("sfGetGeneratorSquareDuty1", &sfGetGeneratorSquareDuty1, "Read AWG2 square wave duty from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetGeneratorPhase1", &sfGetGeneratorPhase1, "Read AWG2 phase value from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetGeneratorDelta1", &sfGetGeneratorDelta1, "Read AWG2 delta value from SHardware struct",
-          py::arg("hw"));
+    /* Generator AWG2 getters removed */
 
     /*----------------------------------------
         Get Digital setup
     ----------------------------------------*/
 
-    m.def("sfGetDigitalVoltage", &sfGetDigitalVoltage, "Read digital channels voltage from SHardware struct",
-          py::arg("hw"),
-		  py::arg("kDigital"));
-
-    m.def("sfGetDigitalInputOutput11to6", &sfGetDigitalInputOutput11to6, "Read digital direction (channels 11 .. 6) from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetDigitalInputOutput5to0", &sfGetDigitalInputOutput5to0, "Read digital direction (channels 5 .. 0) from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetDigitalOutputBit", &sfGetDigitalOutputBit, "Read digital channels output level from SHardware struct",
-          py::arg("hw"),
-          py::arg("bit"));
-
-    m.def("sfGetDigitalClockDivide", &sfGetDigitalClockDivide, "Read digital channels clock divider from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetDigitalPattern", &sfGetDigitalPattern, "Read digital channels trigger pattern from SHardware struct",
-          py::arg("hw"),
-          py::arg("stage"),
-          py::arg("bit"));
-
-    m.def("sfGetDigitalPatternOutputEn", &sfGetDigitalPatternOutputEn, "Read digital pattern output enable bit from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetDigitalPatternOutputMode", &sfGetDigitalPatternOutputMode, "Read digital pattern output mode (0-loop, 1-single burst)",
-          py::arg("hw"));
-
-    m.def("sfGetDigitalPatternOutputRestart", &sfGetDigitalPatternOutputRestart, "Read digital pattern output restart bit from SHardware struct",
-          py::arg("hw"));
-
-    m.def("sfGetDigitalPatternOutputRestartOnUpload", &sfGetDigitalPatternOutputRestartOnUpload, "Read digital pattern output restartOnUpload bit from SHardware struct",
-          py::arg("hw"));
+    /* Digital getters removed */
 
     m.def("sfGetAverage", &sfGetAverage, "Read averaging bit status SHardware struct",
           py::arg("hw"));

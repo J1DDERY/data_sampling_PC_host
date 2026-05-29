@@ -1,8 +1,13 @@
 /sfExe/*
 /sfSrc/*
 /bin/*.exe
+/ScopeFun-*.exe
+/ScopeFun-*.exe.sha512
 /build/*
 /Build/*
+/_CPack_Packages/
+/_stage/
+/_stage2/
 /lib/libusb-1.0.25/Build/*
 /lib/libusb-1.0.25/src/*
 /lib/libusb-1.0.25/tmp/*

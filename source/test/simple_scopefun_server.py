@@ -136,18 +136,7 @@ def sethw(freq,xrange,VdivCh1,VdivCh2):
 	hardware2config.holdoffL              = 0
 	hardware2config.sampleSizeH           = 0
 	hardware2config.sampleSizeL           = 10000
-	hardware2config.generatorType0        = 257
-	hardware2config.generatorVoltage0     = 1750 # AWG voltage (mV)
-	hardware2config.generatorOffset0      = 2
-	hardware2config.generatorDeltaH0      = genDeltaH
-	hardware2config.generatorDeltaL0      = genDeltaL
-	hardware2config.generatorSqueareDuty0 = 0
-	hardware2config.generatorType1        = 257
-	hardware2config.generatorVoltage1     = 1500
-	hardware2config.generatorOffset1      = 2
-	hardware2config.generatorDeltaH1      = genDeltaH
-	hardware2config.generatorDeltaL1      = genDeltaL
-	hardware2config.generatorSqueareDuty1 = 0
+    # generator settings removed
 	#hardware2config.average               = 768 #enable averaging on both channels
 	ret = scopefunapi.sfHardwareConfig2(ctx,hardware2config) ###
 	return 0
