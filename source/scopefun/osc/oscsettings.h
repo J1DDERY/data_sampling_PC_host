@@ -57,9 +57,9 @@ public:
     double referenceExitPercentage;
     double referenceOffsetMaxValue;
     double referenceOffsetMinValue;
+    int    referenceGenerator;
     double referenceGeneratorMaxValue;
     double referenceGeneratorMinValue;
-    int    referenceGenerator;
     double referenceGeneratorVoltagePerStep;
     ushort referenceGainValue[vcLast];
     double referenceGainVoltage[vcLast];

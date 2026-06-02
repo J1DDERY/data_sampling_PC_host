@@ -20,6 +20,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #include <scopefun/gui/OsciloskopTools.h>
+#include <stdio.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -43,38 +44,64 @@ int SDLCALL AutoDetectUsb(void* ptr)
     if (!ptr)
         return 1;
 
+    printf("[AutoDetectUsb] Thread started.\n");
+    int lastState = -1;
+
     while(true)
     {
-        //TODO: AutoDetectUsb
-
         pOsciloscope->thread.function(EThreadApiFunction::afIsOpened);
         pOsciloscope->thread.wait();
 
         pOsciloscope->thread.function(EThreadApiFunction::afReadFpgaStatus);
         pOsciloscope->thread.wait();
 
-        // usb
-        if (!pOsciloscope->thread.isOpen())
+        int isOpen = pOsciloscope->thread.isOpen();
+        int isFpga = pOsciloscope->thread.isFpga();
+        int isCal  = pOsciloscope->thread.isCalibrated();
+
+        int state = (isOpen ? 1 : 0) | ((isFpga ? 1 : 0) << 1) | ((isCal ? 1 : 0) << 2);
+        if (state != lastState)
         {
+            printf("[AutoDetectUsb] open=%d fpga=%d calibrated=%d\n", isOpen, isFpga, isCal);
+            lastState = state;
+        }
+
+        // usb
+        if (!isOpen)
+        {
+            printf("[AutoDetectUsb] USB not open, attempting openUSB...\n");
             pOsciloscope->thread.openUSB(pOsciloscope->settings.getHardware(), 0);
         }
         else // fpga
         {
-            if (!pOsciloscope->thread.isFpga())
+            if (!isFpga)
             {
+                printf("[AutoDetectUsb] FPGA not ready, uploading FPGA firmware...\n");
                 pOsciloscope->thread.uploadFpga(pOsciloscope->settings.getHardware());
                 pOsciloscope->thread.function(EThreadApiFunction::afReadFpgaStatus);
                 pOsciloscope->thread.wait();
             }
             else
             {
-                if (!pOsciloscope->thread.isCalibrated())
+                if (!isCal)
                 {
+                    printf("[AutoDetectUsb] Reading calibration from EEPROM...\n");
                     pOsciloscope->thread.useEepromCalibration(pOsciloscope->settings.getHardware());
                     pOsciloscope->thread.wait();
                 }
                 else
                 {
+                    static int firstTime = 1;
+                    if (firstTime)
+                    {
+                        printf("[AutoDetectUsb] All ready — enabling capture.\n");
+                        firstTime = 0;
+                        // 自动切换到 PLAY 模式，启动采集线程
+                        SDL_AtomicSet(&pOsciloscope->signalMode, SIGNAL_MODE_PLAY);
+                        pOsciloscope->window.horizontal.Mode = SIGNAL_MODE_PLAY;
+                        // 发送硬件配置
+                        pOsciloscope->transferData();
+                    }
                     pOsciloscope->UndoRedoOnOff(1);
                 }
             }

@@ -613,10 +613,8 @@ void OsciloskopOsciloskop::m_menuItem22OnMenuSelection(wxCommandEvent& event)
 {
     pOsciloscope->window.fftDigital.raise(VIEW_SELECT_FFT_3D);
     pOsciloscope->window.fftDigital.lower(VIEW_SELECT_FFT_2D);
-    pOsciloscope->window.fftDigital.lower(VIEW_SELECT_DIGITAL);
     GetMenuBar()->GetMenu(1)->FindItemByPosition(2)->Check(1);
     GetMenuBar()->GetMenu(1)->FindItemByPosition(3)->Check(0);
-    GetMenuBar()->GetMenu(1)->FindItemByPosition(4)->Check(0);
     pOsciloscope->fftCameraSetup(1);
 }
 
@@ -624,21 +622,18 @@ void OsciloskopOsciloskop::m_menuItem23OnMenuSelection(wxCommandEvent& event)
 {
     pOsciloscope->window.fftDigital.lower(VIEW_SELECT_FFT_3D);
     pOsciloscope->window.fftDigital.raise(VIEW_SELECT_FFT_2D);
-    pOsciloscope->window.fftDigital.lower(VIEW_SELECT_DIGITAL);
     GetMenuBar()->GetMenu(1)->FindItemByPosition(2)->Check(0);
     GetMenuBar()->GetMenu(1)->FindItemByPosition(3)->Check(1);
-    GetMenuBar()->GetMenu(1)->FindItemByPosition(4)->Check(0);
     pOsciloscope->fftCameraSetup(0);
 }
 
 void OsciloskopOsciloskop::m_menuItem6OnMenuSelection(wxCommandEvent& event)
 {
+    // Digital view removed. Defaulting to FFT 2D view instead.
     pOsciloscope->window.fftDigital.lower(VIEW_SELECT_FFT_3D);
-    pOsciloscope->window.fftDigital.lower(VIEW_SELECT_FFT_2D);
-    pOsciloscope->window.fftDigital.raise(VIEW_SELECT_DIGITAL);
+    pOsciloscope->window.fftDigital.raise(VIEW_SELECT_FFT_2D);
     GetMenuBar()->GetMenu(1)->FindItemByPosition(2)->Check(0);
-    GetMenuBar()->GetMenu(1)->FindItemByPosition(3)->Check(0);
-    GetMenuBar()->GetMenu(1)->FindItemByPosition(4)->Check(1);
+    GetMenuBar()->GetMenu(1)->FindItemByPosition(3)->Check(1);
     pOsciloscope->fftCameraSetup(0);
 }
 
@@ -1052,8 +1047,7 @@ void OsciloskopOsciloskop::m_comboBoxTimeCaptureOnCombobox(wxCommandEvent& event
 
 void OsciloskopOsciloskop::m_checkBoxETSOnCheckBox(wxCommandEvent& event)
 {
-    // ETS support removed: always disable
-    pOsciloscope->window.horizontal.ETS = 0;
+    // ETS support removed
     pOsciloscope->transferData();
     SDL_AtomicSet(&pOsciloscope->clearRenderTarget,1);
 }
@@ -1340,21 +1334,7 @@ void OsciloskopOsciloskop::m_checkBoxAvg01OnCheckBox(wxCommandEvent& event)
     pOsciloscope->transferData();
 }
 
-void OsciloskopOsciloskop::m_toggleBtnDigitalPatternOutputEnableOnToggle(wxCommandEvent& event)
-{
-}
-
-void OsciloskopOsciloskop::m_comboBoxDigitalPatternModeOnCombobox(wxCommandEvent& event)
-{
-}
-
-void OsciloskopOsciloskop::m_buttonDigitalPatternRestartOnButtonClick(wxCommandEvent& event)
-{
-}
-
-void OsciloskopOsciloskop::m_checkBoxDigitalPatternRestartOnUploadOnCheckBox(wxCommandEvent& event)
-{
-}
+// Digital pattern output handlers removed
 
 void OsciloskopOsciloskop::m_textCtrlCh0PositionOnTextEnter(wxCommandEvent& event)
 {

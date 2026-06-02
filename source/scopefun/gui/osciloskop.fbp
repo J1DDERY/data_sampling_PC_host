@@ -50,7 +50,7 @@
       <property name="minimum_size">-1,-1</property>
       <property name="name">Osciloskop</property>
       <property name="pos"></property>
-      <property name="size">612,616</property>
+      <property name="size">612,639</property>
       <property name="style">wxDEFAULT_FRAME_STYLE</property>
       <property name="subclass">; </property>
       <property name="title">Oscilloscope</property>
@@ -2775,7 +2775,7 @@
                     <object class="notebookpage" expanded="false">
                       <property name="bitmap"></property>
                       <property name="label">Channel 1</property>
-                      <property name="select">0</property>
+                      <property name="select">1</property>
                       <object class="wxPanel" expanded="false">
                         <property name="BottomDockable">1</property>
                         <property name="LeftDockable">1</property>
@@ -2953,7 +2953,7 @@
                                   <property name="pin_button">1</property>
                                   <property name="pos"></property>
                                   <property name="resize">Resizable</property>
-                                  <property name="selection">0</property>
+                                  <property name="selection">6</property>
                                   <property name="show">1</property>
                                   <property name="size"></property>
                                   <property name="style"></property>
@@ -3147,7 +3147,7 @@
                                   <property name="pin_button">1</property>
                                   <property name="pos"></property>
                                   <property name="resize">Resizable</property>
-                                  <property name="selection">0</property>
+                                  <property name="selection">1</property>
                                   <property name="show">1</property>
                                   <property name="size"></property>
                                   <property name="style"></property>
@@ -3947,7 +3947,7 @@
                                   <property name="pin_button">1</property>
                                   <property name="pos"></property>
                                   <property name="resize">Resizable</property>
-                                  <property name="selection">0</property>
+                                  <property name="selection">6</property>
                                   <property name="show">1</property>
                                   <property name="size"></property>
                                   <property name="style"></property>
@@ -4763,7 +4763,7 @@
                     <object class="notebookpage" expanded="false">
                       <property name="bitmap"></property>
                       <property name="label">Function</property>
-                      <property name="select">1</property>
+                      <property name="select">0</property>
                       <object class="wxPanel" expanded="false">
                         <property name="BottomDockable">1</property>
                         <property name="LeftDockable">1</property>
@@ -5563,7 +5563,7 @@
                                   <property name="pin_button">1</property>
                                   <property name="pos"></property>
                                   <property name="resize">Resizable</property>
-                                  <property name="selection">0</property>
+                                  <property name="selection">3</property>
                                   <property name="show">1</property>
                                   <property name="size"></property>
                                   <property name="style"></property>

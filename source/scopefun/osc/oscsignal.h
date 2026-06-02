@@ -41,7 +41,6 @@ enum SignalMode
     SIGNAL_MODE_PLAY,
     SIGNAL_MODE_PAUSE,
     SIGNAL_MODE_CAPTURE,
-    SIGNAL_MODE_SIMULATE_DEPRECATED,  // removed — was SIMULATE
     SIGNAL_MODE_CLEAR,
 };
 
@@ -55,17 +54,6 @@ enum FrameAttribute
     FRAME_ATTRIBUTE_HIDE_SIGNAL      = 1,
     FRAME_ATTRIBUTE_TRIGGERED_LED    = 2,
     FRAME_ATTRIBUTE_ROLL_DISPLAY     = 4,
-};
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// EtsAttribute
-//
-////////////////////////////////////////////////////////////////////////////////
-enum Etsttribute
-{
-    ETS_CLEAR = 1,
-    ETS_PAUSE = 2,
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,9 +75,6 @@ public:
     Array<byte, NUM_SAMPLES>    attr;
     Array<ishort, NUM_SAMPLES>  analog[2];
     Array<byte, 2464>          debug;
-public:
-    uint                       ets;
-    uint                       etsAttr;
 public:
     OsciloscopeFrame();
 public:
@@ -207,7 +192,6 @@ public:
     int OnConfigure(SHardware* hw);
     int OnInit(SFContext* ctx);
     int OnFunction(ishort ch0, ishort ch1, ishort* fun);
-    int OnUpload(SGenerator* gen, uint* sampleCount);
 public:
     int LuaError(const char* str);
     int LuaPrint(const char* str);

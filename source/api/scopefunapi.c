@@ -406,12 +406,18 @@ SCOPEFUN_API int sfHardwareOpen(SFContext* ctx, SUsb* cfg, int version)
         cMemCpy((char*)&id, (char*)&cfg->guid, sizeof(struct UsbGuid));
         usbDevice* deviceList[4] = { 0 };
         usbFxxGuidVidPid(pUsbCtx, id, cfg->idVendor, cfg->idProduct, cfg->idSerial);
+        printf("[sfHardwareOpen] VID=0x%04X PID=0x%04X serial=%d\n", cfg->idVendor, cfg->idProduct, cfg->idSerial);
         int ret = PUREUSB_SUCCESS;
         ret += usbFxxFreeList(pUsbCtx);
         ret += usbFxxFindList(pUsbCtx, deviceList, 4);
         ret += usbFxxOpenNormal(pUsbCtx, deviceList, 4);
+        printf("[sfHardwareOpen] ret=%d (0=success)\n", ret);
         result = apiResult(ret);
         pUsbCtx->version = version;
+    }
+    else
+    {
+        printf("[sfHardwareOpen] ERROR: ctx->api.active == 0\n");
     }
     apiUnlock(ctx);
     return result;
@@ -459,7 +465,9 @@ SCOPEFUN_API int sfHardwareConfig(SFContext* ctx, SHardware* hw)
         struct UsbContext* pUsbCtx = (struct UsbContext*)ctx->usb;
         int swap = 1;
         int transfered = 0;
+        printf("[sfHardwareConfig] sending %zu bytes to EP2...\n", sizeof(SHardware));
         int ret = usbFxxTransferDataOut(pUsbCtx, 2, (char*)hw, sizeof(SHardware), swap, ctx->api.timeout, &transfered);
+        printf("[sfHardwareConfig] ret=%d transfered=%d\n", ret, transfered);
         result = apiResult(ret);
         if(ctx->pCallback)
         { ((SCallback*)ctx->pCallback)->onConfigure(hw); }
@@ -470,7 +478,7 @@ SCOPEFUN_API int sfHardwareConfig(SFContext* ctx, SHardware* hw)
 
 SCOPEFUN_API int sfHardwareCapture(SFContext* ctx, SFrameData* buffer, int len, int offset, SInt* received)
 {
-    int debug = 0;
+    int debug = 1;  // 启用USB传输调试日志
     int result = SCOPEFUN_FAILURE;
     apiLock(ctx);
     uint size = apiMin(len, SCOPEFUN_FRAME_MEMORY);
@@ -532,7 +540,9 @@ SCOPEFUN_API int sfHardwareEepromRead(SFContext* ctx, SEeprom* eeprom, int size,
     if(ctx->api.active > 0)
     {
         struct UsbContext* pUsbCtx = (struct UsbContext*)ctx->usb;
+        printf("[sfHardwareEepromRead] size=%d offset=%d\n", size, adress);
         int ret = usbFx3ReadEEPROM(pUsbCtx, (byte*)&eeprom->data.bytes[0], size, adress);
+        printf("[sfHardwareEepromRead] ret=%d\n", ret);
         result = apiResult(ret);
     }
     apiUnlock(ctx);
@@ -561,6 +571,7 @@ SCOPEFUN_API int sfHardwareReadFpgaStatus(SFContext* ctx, SInt* fpga)
    {
       struct UsbContext* pUsbCtx = (struct UsbContext*)ctx->usb;
       int ret = usbFx3ReadFpgaStatus(pUsbCtx, &fpga->value );
+      printf("[sfHardwareReadFpgaStatus] ret=%d fpgaStatus=%d\n", ret, fpga->value);
       result = apiResult(ret);
    }
    apiUnlock(ctx);
@@ -804,7 +815,7 @@ SCOPEFUN_API int sfSimulate(SFContext* ctx, SHardware* hw, SInt* received, SInt*
 SCOPEFUN_API int sfFrameCapture(SFContext* ctx, SInt* received, SInt* frameSize)
 {
     apiLock(ctx);
-    int debug = 0;
+    int debug = 1;
     int ret= 0;
     // start capture (frame header)
     if (ctx->frame.received == 0)

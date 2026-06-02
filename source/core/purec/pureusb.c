@@ -263,7 +263,7 @@ int usbFx3ReadFpgaStatus(UsbContext* ctx, int* buffer)
          2,
          100000);
       *buffer = data[0];
-      if (read == 1)
+      if (read >= 1)
       {
          return PUREUSB_SUCCESS;
       }

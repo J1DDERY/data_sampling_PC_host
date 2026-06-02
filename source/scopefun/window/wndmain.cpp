@@ -452,7 +452,7 @@ void WndMain::Default()
     function.Default();
     horizontal.Default();
     trigger.Default();
-    fftDigital.raise(VIEW_SELECT_DIGITAL);
+    fftDigital.raise(VIEW_SELECT_OSC_2D);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

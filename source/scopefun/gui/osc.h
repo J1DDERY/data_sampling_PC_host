@@ -266,7 +266,7 @@ class Osciloskop : public wxFrame
 		wxMenuItem* m_menuItemEraseECalibration;
 		wxMenuItem* m_menuItemDebug;
 
-		Osciloskop( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Oscilloscope"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 612,616 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+		Osciloskop( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Oscilloscope"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 612,639 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 
 		~Osciloskop();
 

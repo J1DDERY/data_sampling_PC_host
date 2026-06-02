@@ -35,7 +35,6 @@ enum ViewSelect
     VIEW_SELECT_OSC_2D  = BIT(1),
     VIEW_SELECT_FFT_3D  = BIT(2),
     VIEW_SELECT_FFT_2D  = BIT(3),
-    VIEW_SELECT_DIGITAL = BIT(4),
 };
 
 ////////////////////////////////////////////////////////////////////////////////

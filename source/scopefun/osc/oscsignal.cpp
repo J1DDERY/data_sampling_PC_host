@@ -56,7 +56,6 @@ uint ScopeFunCaptureBuffer::save(const char* path)
     // get
     sfGetHeader(ctx, frameData, frameHeader);
     sfGetHeaderHardware(frameHeader, frameHardware);
-    sfGetHeaderEts(frameHeader, &frameEts);
     sfGetHeaderTemperature(frameHeader, &frameTemperature);
     // frame
     FORMAT("frame.index,%d\n", (frameIndex%frameCount) );
@@ -71,8 +70,6 @@ uint ScopeFunCaptureBuffer::save(const char* path)
     SDL_RWwrite(sfFile, &formatBuffer, SDL_strlen(formatBuffer), 1);
     // header
     FORMAT("header.magic,%08x\n", *(uint*)&frameHeader->magic.bytes[0]);
-    SDL_RWwrite(sfFile, &formatBuffer, SDL_strlen(formatBuffer), 1);
-    FORMAT("header.etsDelay,%d\n", *(char*)&frameHeader->etsDelay.bytes[0]);
     SDL_RWwrite(sfFile, &formatBuffer, SDL_strlen(formatBuffer), 1);
     FORMAT("header.crc,%02x\n", *(unsigned char*)&frameHeader->crc.bytes[0]);
     SDL_RWwrite(sfFile, &formatBuffer, SDL_strlen(formatBuffer), 1);
@@ -202,10 +199,6 @@ uint ScopeFunCaptureBuffer::load(const char* path)
     uint magic = 0;
     SDL_sscanf(&headerArray[6][0], "header.magic,%08x\n", &magic);
     *(uint*)&frameHeader->magic.bytes[0] = magic;
-    // "header.etsDelay,%c\n"
-    int etsDelay = 0;
-    SDL_sscanf(&headerArray[7][0], "header.etsDelay,%02x\n", &etsDelay);
-    frameHeader->etsDelay.bytes[0] = etsDelay;
     // "header.crc,%c\n"
     int crc = 0;
     SDL_sscanf(&headerArray[8][0], "header.crc,%d\n", &crc);
@@ -382,9 +375,6 @@ bool OsciloscopeFrame::captureHeader(byte* src, uint size, ularge captureStart, 
     {
         return false;
     }
-    // ets
-    int index = clamp<int>(pOsciloscope->settings.getHardware()->fpgaEtsIndex, 0, debug.getCount() - 1);
-    ets = debug[index];
     // trigger
     triggerTime = *(ularge*)(src + 2);
     if(triggerTime == 0)
@@ -1080,51 +1070,6 @@ int LuaOnFunction(lua_State* L, ishort ch0, ishort ch1, ishort* fun)
    return 0;
 }
 
-int LuaOnUpload(lua_State* L, SGenerator* gen, uint* sampleCount)
-{
-   if (!L) { return 0; }
-
-   try
-   {
-      // push function
-      if (lua_getglobal(L, "onUpload") == LUA_TFUNCTION)
-      {
-         // push parameters
-         SWIG_Lua_NewPointerObj(L, gen, SWIGTYPE_p_SGenerator, 0);
-
-         // execute
-         if (lua_pcall(L, 1, 2, 0) != LUA_OK)
-         {
-            LuaOnError(L);
-         }
-         else
-         {
-            // pop parameters
-            SWIG_Lua_ConvertPtr(L, -2, (void**)&gen, SWIGTYPE_p_SGenerator, 0);
-
-            for (int i = 0; i < SCOPEFUN_GENERATOR; i++)
-            {
-               gen->digital.bytes[i] = endianSwap16(gen->digital.bytes[i]);
-            }
-
-            *sampleCount = lua_tointeger(L, -1);
-            lua_pop(L, 2);
-         }
-      }
-      else
-      {
-         lua_pop(L, 1);
-         LuaOnPrint(L, "function is missing: onUpload(gen)");
-      }
-   }
-   catch (std::exception msg)
-   {
-      LuaOnPrint(L, msg.what());
-   }
-   lua_gc(L, LUA_GCCOLLECT, 0);
-   return 0;
-}
-
 OsciloscopeScript::OsciloscopeScript(int index)
 {
     m_arrayIdx = index;
@@ -1198,17 +1143,6 @@ int OsciloscopeScript::OnInit(SFContext* ctx)
     ret = LuaOnInit(m_luaState, ctx);
     SDL_AtomicUnlock(&m_spinLock);
     return ret;
-}
-
-int OsciloscopeScript::OnUpload(SGenerator* gen, uint* sampleCount)
-{
-   if (!SDL_AtomicGet(&m_active))
-      return 0;
-   int ret = 0;
-   SDL_AtomicLock(&m_spinLock);
-   ret = LuaOnUpload(m_luaState, gen, sampleCount);
-   SDL_AtomicUnlock(&m_spinLock);
-   return ret;
 }
 
 int OsciloscopeScript::LuaPrint(const char* str)
@@ -1370,14 +1304,7 @@ int callFunction(ishort ch0, ishort ch1, ishort* fun)
    return 0;
 }
 
-int callUpload(SGenerator* gen, uint* sampelCount)
-{
-   for (int i = 0; i < pOsciloscope->m_callback.Count(); i++)
-   {
-      pOsciloscope->m_callback.Get(i)->OnUpload(gen, sampelCount);
-   }
-   return 0;
-}
+// callUpload removed (generator backend removed)
 
 int callConfigure(SHardware* hw)
 {

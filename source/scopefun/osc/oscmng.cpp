@@ -859,12 +859,14 @@ int OsciloscopeManager::watchdogCheck()
             CORE_MESSAGE("%s", "Watchdog: frame state reset");
         }
 
-        // Reset USB on repeated hangs
+        // 禁止USB复位：FX3固件在RAM中，USB复位会丢失固件
+        // 导致设备回退到bootloader模式，无法再次连接
+        // 改为仅仅重置frame状态，等待下一次捕获
         if (stuckCount > 2)
         {
-            CORE_MESSAGE("%s", "Watchdog: attempting USB reset...");
+            CORE_MESSAGE("%s", "Watchdog: USB reset disabled (would lose FX3 firmware). Resetting frame state only.");
             SDL_AtomicSet(&debugStuckCount, 0);
-            pOsciloscope->thread.function(EThreadApiFunction::afResetUsb);
+            //pOsciloscope->thread.function(EThreadApiFunction::afResetUsb);
         }
         return 1; // stuck, recovered
     }
@@ -3486,6 +3488,13 @@ int SDLCALL CaptureDataThreadFunction(void* data)
 
             if (!isOpen || !isFpga)
             {
+                static int lastWaitLog = 0;
+                int now = (int)SDL_GetTicks();
+                if (now - lastWaitLog > 3000)
+                {
+                    printf("[CaptureData] Waiting: open=%d fpga=%d\n", isOpen, isFpga);
+                    lastWaitLog = now;
+                }
                 pOsciloscope->watchdogPing();
                 SDL_Delay(100);
                 continue;

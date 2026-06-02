@@ -86,6 +86,20 @@ public:
     {
         try
         {
+            // 分配控制台窗口以便 printf/调试输出可见
+            #if defined(PLATFORM_WIN) || defined(PLATFORM_MINGW)
+            if (AttachConsole(ATTACH_PARENT_PROCESS) || AllocConsole())
+            {
+                FILE* fpstdout = nullptr;
+                freopen_s(&fpstdout, "CONOUT$", "w", stdout);
+                FILE* fpstderr = nullptr;
+                freopen_s(&fpstderr, "CONOUT$", "w", stderr);
+                setvbuf(stdout, NULL, _IONBF, 0);
+                setvbuf(stderr, NULL, _IONBF, 0);
+                printf("[ScopeFun] Console attached. Debug output enabled.\n");
+            }
+            #endif
+
             // init
             if(!wxApp::OnInit())
             {
