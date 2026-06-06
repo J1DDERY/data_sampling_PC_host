@@ -192,15 +192,16 @@ void OsciloskopOsciloskop::onActivate(wxActivateEvent& event)
         if(!writeOk)
         // disable items that require disk write permissions
         {
-            wxMenuItem* item3 = m_menu5->FindItemByPosition(3); // Autocalibrate
-            if(item3)
-            { item3->Enable(false); }
-            wxMenuItem* item5 = m_menu5->FindItemByPosition(5); // Write Calibration
-            if(item5)
-            { item5->Enable(false); }
-            wxMenuItem* item6 = m_menu5->FindItemByPosition(6); // Read Calibration
-            if(item6)
-            { item6->Enable(false); }
+            // [校准菜单项] 已从界面移除，恢复时需取消注释以下代码
+            // wxMenuItem* item3 = m_menu5->FindItemByPosition(3); // Autocalibrate
+            // if(item3)
+            // { item3->Enable(false); }
+            // wxMenuItem* item5 = m_menu5->FindItemByPosition(5); // Write Calibration
+            // if(item5)
+            // { item5->Enable(false); }
+            // wxMenuItem* item6 = m_menu5->FindItemByPosition(6); // Read Calibration
+            // if(item6)
+            // { item6->Enable(false); }
         }
         // TODO: WindowDebug (Hide Factory Items)
         if(pOsciloscope->settings.getSettings()->windowDebug != 2)
@@ -211,7 +212,7 @@ void OsciloskopOsciloskop::onActivate(wxActivateEvent& event)
             m_menu5->Remove(m_separator411);
             m_menu5->Remove(m_menuItemResetEEPROM);
             m_menu5->Remove(m_menuItemFactoryWriteEEPROM);
-            m_menu5->Remove(m_menuItemEraseECalibration);
+            // m_menu5->Remove(m_menuItemEraseECalibration);  // 取消注释以恢复
             m_menu5->Remove(m_menuItemFactoryLoadFX3Ram);
         }
 

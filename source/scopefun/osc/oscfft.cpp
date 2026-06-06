@@ -19,6 +19,15 @@
 //    along with this ScopeFun Oscilloscope.  If not, see <http://www.gnu.org/licenses/>.
 //
 ////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// oscfft.cpp - FFT频谱分析引擎
+// 功能：使用kiss_fft库实现快速傅里叶变换，包括：
+//   - 离散傅里叶变换 (DFT) 计算
+//   - 快速傅里叶变换 (FFT) 计算
+//   - 单边频谱幅值计算
+//   - 频域数据到渲染格式的转换
+//   依赖: kiss_fft 第三方库
+//==============================================================================
 #include<scopefun/ScopeFun.h>
 
 CORE_INLINE float complexMultiplyReal(float aRe, float aIm, float bRe, float bIm)

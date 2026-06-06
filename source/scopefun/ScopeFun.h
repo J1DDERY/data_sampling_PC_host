@@ -19,33 +19,42 @@
 //    along with this ScopeFun Oscilloscope.  If not, see <http://www.gnu.org/licenses/>.
 //
 ////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// ScopeFun.h - 示波器应用程序主头文件
+// 功能：聚合所有核心模块的头文件，作为整个应用程序的编译包含入口。
+//       包含引擎核心(core)、硬件API(scopefunapi)以及示波器各功能模块。
+//==============================================================================
 #ifndef __OSCILOSCOPE__
 #define __OSCILOSCOPE__
 
-// engine
+//==============================================================================
+// 引擎核心 - 包含基础类型、数学库、内存管理、管理器框架等
+//==============================================================================
 #include <core/core.h>
 
-// api
+//==============================================================================
+// 硬件API - C接口，提供与ScopeFun硬件设备通信的低层函数
+//==============================================================================
 extern "C" {
 #include <api/scopefunapi.h>
 }
 
-// osciloscope
-#include <scopefun/window/tool.h>
-#include <scopefun/osc/oscsignal.h>
-#include <scopefun/osc/oscfile.h>
-#include <scopefun/osc/oscsettings.h>
-#include <scopefun/osc/oscfft.h>
-#include <scopefun/osc/oscrender.h>
-#include <scopefun/window/wnddisplay.h>
-#include <scopefun/window/wndshadow.h>
-#include <scopefun/window/wndmain.h>
-#include <scopefun/osc/osccontrol.h>
-#include <scopefun/osc/oscmng.h>
+//==============================================================================
+// 示波器各功能模块
+//==============================================================================
+#include <scopefun/window/tool.h>       // 工具函数（单位转换、时间格式等）
+#include <scopefun/osc/oscsignal.h>     // 信号处理（数据捕获、缓冲、历史记录）
+#include <scopefun/osc/oscfile.h>       // 文件操作（保存/加载波形数据）
+#include <scopefun/osc/oscsettings.h>   // 设置管理（JSON格式读写配置）
+#include <scopefun/osc/oscfft.h>        // FFT频谱分析
+#include <scopefun/osc/oscrender.h>     // 波形渲染（2D/3D OpenGL渲染）
+#include <scopefun/window/wnddisplay.h> // 显示设置窗口
+#include <scopefun/window/wndshadow.h>  // 阴影窗口
+#include <scopefun/window/wndmain.h>    // 主窗口（UI布局与交互逻辑）
+#include <scopefun/osc/osccontrol.h>    // 控制逻辑（触发、时基、通道控制）
+#include <scopefun/osc/oscmng.h>        // 示波器管理器（线程管理、主循环）
 
 #endif
 ////////////////////////////////////////////////////////////////////////////////
-//
-//
-//
+// 文件结束 - ScopeFun.h
 ////////////////////////////////////////////////////////////////////////////////

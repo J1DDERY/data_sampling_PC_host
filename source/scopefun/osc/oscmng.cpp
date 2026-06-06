@@ -19,6 +19,16 @@
 //    along with this ScopeFun Oscilloscope.  If not, see <http://www.gnu.org/licenses/>.
 //
 ////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// oscmng.cpp - 示波器核心管理器实现
+// 功能：示波器引擎的核心管理模块，包括：
+//   - OsciloscopeManager 管理器（MANAGER_REGISTER）
+//   - 渲染线程管理（RenderThreadFunction）
+//   - 数据捕获缓冲（CaptureBuffer/CaptureFrame/CapturePacket）
+//   - 硬件通信线程（ThreadApi - USB/固件/EEPROM操作）
+//   - 波形历史记录（HistoryRing）
+//   - 上下文数据交换（OscContext）
+//==============================================================================
 #include<scopefun/ScopeFun.h>
 
 
@@ -26,25 +36,29 @@
 // defines
 ////////////////////////////////////////////////////////////////////////////////
 // #define MOUSE_DEBUG
-#define MAXIMUM_HISTORY_SIZE  (4*GIGABYTE - 1)
-#define MINIMUM_HISTORY_COUNT 8
+#define MAXIMUM_HISTORY_SIZE  (4*GIGABYTE - 1)    // 历史记录最大内存 (4GB-1)
+#define MINIMUM_HISTORY_COUNT 8                     // 最小历史记录帧数
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
 ////////////////////////////////////////////////////////////////////////////////
-MANAGER_REGISTER(Osciloscope);
+MANAGER_REGISTER(Osciloscope);                      // 注册示波器管理器
 
-int SDLCALL RenderThreadFunction(void* data);
-void SetupUI(WndMain& window);
+int SDLCALL RenderThreadFunction(void* data);        // 渲染线程入口函数
+void SetupUI(WndMain& window);                       // UI初始化函数
 
 ////////////////////////////////////////////////////////////////////////////////
 // variables
 ////////////////////////////////////////////////////////////////////////////////
 
+//==============================================================================
+// OscFileThread - 文件读写线程
+// 在独立线程中执行波形数据保存/加载操作，避免阻塞主线程
+//==============================================================================
 OscFileThread::OscFileThread()
 {
-    SDL_AtomicSet(&atomic, 0);
-    thread = 0;
+    SDL_AtomicSet(&atomic, 0);                       // 线程运行标志
+    thread = 0;                                       // 线程句柄
 }
 
 int OscFileThread::isRunning()
@@ -54,7 +68,7 @@ int OscFileThread::isRunning()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// OsciloscopeGrid
+// OsciloscopeGrid - 示波器网格坐标系统
 //
 ////////////////////////////////////////////////////////////////////////////////
 void OsciloscopeGrid::set(float x, float y)
@@ -69,7 +83,8 @@ void OsciloscopeGrid::set(float x, float y)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// OsciloscopeCamera
+// OsciloscopeCamera - 3D摄像机控制
+// 管理3D示波器视图的缩放(zoom)和旋转(theta, phi角度)
 //
 ////////////////////////////////////////////////////////////////////////////////
 OsciloscopeCamera::OsciloscopeCamera()
@@ -81,7 +96,8 @@ OsciloscopeCamera::OsciloscopeCamera()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// OscContext
+// OscContext - 线程安全的上下文数据交换
+// 使用SDL原子锁在多线程间安全传输显示数据
 //
 ////////////////////////////////////////////////////////////////////////////////
 OscContext::OscContext()
@@ -104,47 +120,49 @@ void OscContext::getDisplay(SDisplay* dis)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// ThreadApi
+// ThreadApi - 硬件通信线程
+// 管理USB设备连接、固件上传、校准读取等硬件操作的状态原子变量
+// 所有状态通过SDL原子操作确保线程安全
 //
 ////////////////////////////////////////////////////////////////////////////////
 ThreadApi::ThreadApi()
 {
-    timeout = 1000;
+    timeout = 1000;                                   // USB通信超时 (ms)
     lock = 0;
-    SDL_AtomicSet(&sync, 0);
+    SDL_AtomicSet(&sync, 0);                          // 同步标志
     wait();
-    SDL_AtomicSet(&open, 0);
+    SDL_AtomicSet(&open, 0);                          // 设备打开标志
     wait();
-    SDL_AtomicSet(&fpga, 0);
+    SDL_AtomicSet(&fpga, 0);                          // FPGA已配置标志
     wait();
-    SDL_AtomicSet(&calibrated, 0);
+    SDL_AtomicSet(&calibrated, 0);                    // 已校准标志
     wait();
-    SDL_AtomicSet(&vid, 0);
+    SDL_AtomicSet(&vid, 0);                           // USB供应商ID
     wait();
-    SDL_AtomicSet(&pid, 0);
+    SDL_AtomicSet(&pid, 0);                           // USB产品ID
     wait();
-    SDL_AtomicSet(&sid, 0);
+    SDL_AtomicSet(&sid, 0);                           // USB序列号
     wait();
-    SDL_AtomicSet(&version, HARDWARE_VERSION);
+    SDL_AtomicSet(&version, HARDWARE_VERSION);         // 硬件版本
     wait();
-    SDL_AtomicSet(&header, 0);
+    SDL_AtomicSet(&header, 0);                        // 帧头就绪标志
     wait();
-    SDL_AtomicSet(&data, 0);
+    SDL_AtomicSet(&data, 0);                          // 帧数据就绪标志
     wait();
-    SDL_AtomicSet(&packet, 0);
+    SDL_AtomicSet(&packet, 0);                        // 数据包就绪标志
     wait();
-    SDL_memset(&usbData, 0, sizeof(SUsb));
+    SDL_memset(&usbData, 0, sizeof(SUsb));             // USB数据缓冲区
     usbSize = 0;
-    SDL_memset(&fx3Data, 0, sizeof(SFx3));
+    SDL_memset(&fx3Data, 0, sizeof(SFx3));             // FX3固件数据
     fx3Size = 0;
-    SDL_memset(&fpgaData, 0, sizeof(SFpga));
+    SDL_memset(&fpgaData, 0, sizeof(SFpga));            // FPGA固件数据
     fpgaSize = 0;
-    SDL_memset(&eepromData, 0, sizeof(SEeprom));
+    SDL_memset(&eepromData, 0, sizeof(SEeprom));        // EEPROM数据
     eepromSize   = 0;
     eepromOffset = 0;
     wait();
-    SDL_memset(&displayData, 0, sizeof(SDisplay));
-    SDL_memset(&config, 0, sizeof(SHardware));
+    SDL_memset(&displayData, 0, sizeof(SDisplay));      // 显示数据
+    SDL_memset(&config, 0, sizeof(SHardware));          // 硬件配置
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -314,9 +314,9 @@ if(SCOPEFUN_WINDOWS)
         target_link_libraries(ScopeFun PRIVATE -static-libgcc -static-libstdc++ -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic
         # mingw
         mingw32.a
-        # libs
+        # libs (使用 --whole-archive 确保 SDL2 静态库的所有符号都被链接)
+        -Wl,--whole-archive ${SCOPEFUN_LIB_SDL2} -Wl,--no-whole-archive
         ${SCOPEFUN_LIB_USB}
-        ${SCOPEFUN_LIB_SDL2}
         ${SCOPEFUN_LIB_WX}
         # system
         opengl32.a

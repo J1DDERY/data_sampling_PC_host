@@ -19,34 +19,48 @@
 //    along with this ScopeFun Oscilloscope.  If not, see <http://www.gnu.org/licenses/>.
 //
 ////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// scopefunapi.h - ScopeFun 硬件通信 API 头文件（C接口）
+// 功能：定义与 ScopeFun USB 示波器硬件通信所需的数据结构、
+//       类型定义、枚举常量、帧格式和接口函数声明。
+//       包括硬件控制寄存器、校准数据、固件升级等。
+//==============================================================================
 #ifndef SCOPEFUN_API_HEADER
 #define SCOPEFUN_API_HEADER
 
 
-/*----------------------------------------
-      ScopeFun API - Types
-----------------------------------------*/
-typedef unsigned char      byte;
-typedef short              ishort;
-typedef unsigned short     ushort;
-typedef int                iint;
-typedef unsigned int       uint;
-typedef long long          ilarge;
-typedef unsigned long long ularge;
+//==============================================================================
+// 基础类型定义 - 确保跨平台字节宽度一致性
+//==============================================================================
+typedef unsigned char      byte;       // 无符号8位
+typedef short              ishort;     // 有符号16位
+typedef unsigned short     ushort;     // 无符号16位
+typedef int                iint;       // 有符号32位
+typedef unsigned int       uint;       // 无符号32位
+typedef long long          ilarge;     // 有符号64位
+typedef unsigned long long ularge;     // 无符号64位
 
-/*----------------------------------------
-   version
-----------------------------------------*/
-#define HARDWARE_VERSION 2
+//==============================================================================
+// 硬件版本号
+//==============================================================================
+#define HARDWARE_VERSION 2             // 当前支持的硬件版本
 
-/*----------------------------------------
-   bit
-----------------------------------------*/
-#define BIT(index) (1<<index)
+//==============================================================================
+// 位掩码生成宏
+//==============================================================================
+#define BIT(index) (1<<index)          // 将索引转换为位掩码值
 
-/*----------------------------------------
-   Control
------------------------------------------*/
+//==============================================================================
+// 模拟通道功能枚举 - 定义两通道间的运算方式
+//   MEDIUM       : 取平均值 (ch0+ch1)/2
+//   SUB_CH0_CH1  : ch0 - ch1
+//   SUB_CH1_CH0  : ch1 - ch0
+//   ADD          : ch0 + ch1
+//   MIN          : 取最小值
+//   MAX          : 取最大值
+//   CUSTOM       : 用户自定义（Lua脚本）
+//   UPLOADED     : 已上传的自定义函数
+//==============================================================================
 enum AnalogFunction
 {
     ANALOG_FUNCTION_MEDIUM = 0,
@@ -59,6 +73,16 @@ enum AnalogFunction
     ANALOG_FUNCTION_UPLOADED,
 };
 
+//==============================================================================
+// 模拟通道属性标志位
+//   CHANNEL_ATTR_B     : 通道B属性
+//   CHANNEL_ATTR_A     : 通道A属性
+//   CHANNEL_B_GROUND   : 通道B接地
+//   CHANNEL_A_GROUND   : 通道A接地
+//   CHANNEL_B_ACDC     : 通道B AC/DC耦合
+//   CHANNEL_A_ACDC     : 通道A AC/DC耦合
+//   CHANNEL_INTERLEAVE : 通道交织模式
+//==============================================================================
 enum AnalogFlag
 {
     CHANNEL_ATTR_B = BIT(0),
@@ -70,6 +94,14 @@ enum AnalogFlag
     CHANNEL_INTERLEAVE = BIT(6),
 };
 
+//==============================================================================
+// 控制类型1 - FPGA/CPLD 控制寄存器命令
+//   SHUTDOWN : 关闭
+//   RESET    : 复位 (0x0A5A)
+//   TEST     : 测试模式 (0x0640)
+//   WAKEUP   : 唤醒 (0x0003)
+//   NORMAL   : 正常工作 (0x0600)
+//==============================================================================
 enum ControllType1
 {
     CONTROLL1_SHUTDOWN = 0x0000,
@@ -79,33 +111,41 @@ enum ControllType1
     CONTROLL1_NORMAL = 0x0600,
 };
 
+//==============================================================================
+// 控制类型2 - 辅助控制寄存器命令
+//==============================================================================
 enum ControllType2
 {
-    CONTROLL2_NORMAL = 0x0000,
-    CONTROLL2_TEST = 0x0002,
-    CONTROLL2_RESET = 0x0004,
+    CONTROLL2_NORMAL = 0x0000,          // 正常模式
+    CONTROLL2_TEST = 0x0002,            // 测试模式
+    CONTROLL2_RESET = 0x0004,           // 复位
 };
 
+//==============================================================================
+// 校准频率枚举 - 用于自校准的测试信号频率
+//==============================================================================
 enum CalibrateFreq
 {
-    CALIBRATE_1K,
-    CALIBRATE_5K,
-    CALIBRATE_10K,
-    CALIBRATE_100K,
-    CALIBRATE_200K,
-    CALIBRATE_500K,
-    CALIBRATE_1M,
-    CALIBRATE_2M,
+    CALIBRATE_1K,                       // 1kHz
+    CALIBRATE_5K,                       // 5kHz
+    CALIBRATE_10K,                      // 10kHz
+    CALIBRATE_100K,                     // 100kHz
+    CALIBRATE_200K,                     // 200kHz
+    CALIBRATE_500K,                     // 500kHz
+    CALIBRATE_1M,                       // 1MHz
+    CALIBRATE_2M,                       // 2MHz
 };
 
 /* Generator and Digital enums removed */
 
 
-/*----------------------------------------
-
-      ScopeFun API - Frame Constants
-
-----------------------------------------*/
+//==============================================================================
+// 数据帧常量定义
+//   FRAME_HEADER  : 帧头大小 (1024字节)
+//   FRAME_DATA    : 帧数据最大容量 (500MB)
+//   FRAME_PACKET  : 数据包大小 (1MB)
+//   FRAME_MEMORY  : 帧内存分配大小 (512MB)
+//==============================================================================
 #define SCOPEFUN_FRAME_HEADER                  (1024)
 #define SCOPEFUN_FRAME_DATA           (512*1000*1000)
 #define SCOPEFUN_FRAME_PACKET             (1024*1024)
@@ -113,21 +153,27 @@ enum CalibrateFreq
 #define SCOPEFUN_FRAME_MEMORY         (512*1024*1024)
 #define SCOPEFUN_FRAME_PACKET             (1024*1024)
 
-/*----------------------------------------
-
-      ScopeFun API - Constants
-
-----------------------------------------*/
-#define SCOPEFUN_MAX_VOLTAGE                 +8191
-#define SCOPEFUN_MIN_VOLTAGE                 -8192
-#define SCOPEFUN_VOLTAGE_RANGE               16383
-#define SCOPEFUN_DISPLAY                    10000
-#define SCOPEFUN_DISPLAY_FFT                (1*1024*1024)
-#define SCOPEFUN_FIRMWARE_FX3               16384
-#define SCOPEFUN_FIRMWARE_FPGA              (4*1024*1024)
-#define SCOPEFUN_EEPROM_BYTES               (256*1024)
-#define SCOPEFUN_EEPROM_FIRMWARE_NAME_BYTES (16)
-#define SCOPEFUN_GENERATOR                  0 /* removed */
+//==============================================================================
+// API 常量定义
+//   MAX_VOLTAGE           : ADC最大电压值 (+8191)
+//   MIN_VOLTAGE           : ADC最小电压值 (-8192)
+//   VOLTAGE_RANGE         : ADC电压范围 (16383)
+//   DISPLAY               : 显示采样点数 (10000)
+//   DISPLAY_FFT           : FFT显示采样点数 (1M)
+//   FIRMWARE_FX3          : FX3固件最大大小 (16KB)
+//   FIRMWARE_FPGA         : FPGA固件最大大小 (4MB)
+//   EEPROM_BYTES          : EEPROM容量 (256KB)
+//   EEPROM_FIRMWARE_NAME_BYTES : 固件名称最大长度 (16字节)
+//==============================================================================
+#define SCOPEFUN_MAX_VOLTAGE                 +8191            // ADC最大量化值
+#define SCOPEFUN_MIN_VOLTAGE                 -8192            // ADC最小量化值
+#define SCOPEFUN_VOLTAGE_RANGE               16383            // ADC量化范围
+#define SCOPEFUN_DISPLAY                    10000             // 时域显示点数
+#define SCOPEFUN_DISPLAY_FFT                (1*1024*1024)    // 频域显示点数
+#define SCOPEFUN_FIRMWARE_FX3               16384             // FX3固件大小
+#define SCOPEFUN_FIRMWARE_FPGA              (4*1024*1024)    // FPGA固件大小
+#define SCOPEFUN_EEPROM_BYTES               (256*1024)        // EEPROM容量
+#define SCOPEFUN_EEPROM_FIRMWARE_NAME_BYTES (16)              // 固件名长度
 
 /*----------------------------------------
       ScopeFun API - Errors
@@ -184,39 +230,51 @@ typedef enum _EFunctionType
 } EFunctionType;
 
 
-/*----------------------------------------
-SHardware
-----------------------------------------*/
+//==============================================================================
+// SHardware - 硬件控制寄存器结构体
+// 映射USB数据传输中的128字节硬件配置块，用于控制示波器前端：
+//   controlAddr/data : FPGA/CPLD 控制寄存器地址和数据
+//   vgaina/vgainb    : 通道A/B 的可编程增益放大器(PGA)控制
+//   offseta/offsetb  : 通道A/B 的直流偏置调整
+//   analogswitch     : 模拟开关配置
+//   triggerMode/Source/Slope/Level : 触发起始、源、边沿和电平
+//   xRange           : 时基范围
+//   holdoff          : 触发释抑时间
+//   sampleSize       : 采样点数
+//   average          : 平均次数
+//   preTrigger       : 预触发深度
+//   frameDataSetup   : 帧数据传输配置
+//==============================================================================
 typedef struct
 {
-    ushort controlAddr;
-    ushort controlData;
-    ushort vgaina;
-    ushort vgainb;
-    ushort offseta;
-    ushort offsetb;
-    ushort analogswitch;
-    ushort triggerMode;
-    ushort triggerSource;
-    ushort triggerSlope;
-    short  triggerLevel;
-    ushort triggerHis;
-    ushort reserved1;
-    ushort xRange;
-    ushort holdoffH;
-    ushort holdoffL;
-    ushort sampleSizeH;
-    ushort sampleSizeL;
+    ushort controlAddr;                  // FPGA控制寄存器地址
+    ushort controlData;                  // FPGA控制寄存器数据
+    ushort vgaina;                       // 通道A 增益控制
+    ushort vgainb;                       // 通道B 增益控制
+    ushort offseta;                      // 通道A 偏移
+    ushort offsetb;                      // 通道B 偏移
+    ushort analogswitch;                 // 模拟开关
+    ushort triggerMode;                  // 触发模式
+    ushort triggerSource;                // 触发源
+    ushort triggerSlope;                 // 触发边沿（上升/下降）
+    short  triggerLevel;                 // 触发电平
+    ushort triggerHis;                   // 触发迟滞
+    ushort reserved1;                    // 保留
+    ushort xRange;                       // 时基范围
+    ushort holdoffH;                     // 释抑时间高16位
+    ushort holdoffL;                     // 释抑时间低16位
+    ushort sampleSizeH;                  // 采样点数高16位
+    ushort sampleSizeL;                  // 采样点数低16位
     // Generator and digital fields removed
-    ushort average;
-    ushort preTriggerH;
-    ushort preTriggerL;
-    ushort frameDataSetup;
-    ushort reserved3;
-    ushort reserved4;
-    ushort reserved5;
-    ushort reserved6;
-    ushort reserved7;
+    ushort average;                      // 平均采样次数
+    ushort preTriggerH;                  // 预触发深度高16位
+    ushort preTriggerL;                  // 预触发深度低16位
+    ushort frameDataSetup;               // 帧数据配置
+    ushort reserved3;                    // 保留
+    ushort reserved4;                    // 保留
+    ushort reserved5;                    // 保留
+    ushort reserved6;                    // 保留
+    ushort reserved7;                    // 保留
 } SHardware;
 
 /*----------------------------------------
@@ -232,17 +290,30 @@ SCOPEFUN_ARRAY(SArrayHardware,              byte,   128);
 SCOPEFUN_ARRAY(SArrayPaddingAfter,          byte,   639);
 SCOPEFUN_ARRAY(SArrayCrc,                   byte,     1);
 
+//==============================================================================
+// SFrameHeader - USB数据传输帧头结构
+// 每帧数据以1024字节的帧头开始，包含：
+//   magic       : 魔术字（4字节，用于帧同步验证）
+//   deviceTemp  : 设备温度
+//   etsDelay    : 等效时间采样(ETS)延迟
+//   digitalPatternCompleteCnt : 数字通道模式完成计数
+//   debug       : 调试数据
+//   paddBefore  : 填充字节（对齐到128字节边界）
+//   hardware    : 硬件控制寄存器快照（128字节）
+//   paddAfter   : 填充字节
+//   crc         : CRC校验字节
+//==============================================================================
 typedef struct
 {
-    SArrayMagic                 magic;
-    SArrayDeviceTemp            deviceTemp;
-    SArrayETS                   etsDelay;                    /* restored ETS delay bytes */
-    SArrayDigPatternCompleteCnt digitalPatternCompleteCnt;   /* restored digital pattern complete count */
-    SArrayDebug                 debug;
-    SArrayPaddingBefore         paddBefore;
-    SArrayHardware              hardware;
-    SArrayPaddingAfter          paddAfter;
-    SArrayCrc                   crc;
+    SArrayMagic                 magic;                       // 帧魔术字（0-3字节）
+    SArrayDeviceTemp            deviceTemp;                  // 设备温度（4-7字节）
+    SArrayETS                   etsDelay;                    // ETS等效时间采样延迟
+    SArrayDigPatternCompleteCnt digitalPatternCompleteCnt;   // 数字模式完成计数
+    SArrayDebug                 debug;                       // 调试信息
+    SArrayPaddingBefore         paddBefore;                  // 前置填充（对齐）
+    SArrayHardware              hardware;                    // 硬件配置快照（128字节）
+    SArrayPaddingAfter          paddAfter;                   // 后置填充（对齐）
+    SArrayCrc                   crc;                         // CRC校验
 } SFrameHeader;
 
 
@@ -260,44 +331,51 @@ typedef struct
     SArrayFrameData data;
 } SFrameData;
 
-/*----------------------------------------
-   SEEPROM
-----------------------------------------*/
+//==============================================================================
+// SEeprom - EEPROM数据存储结构
+// 用于存储校准参数、设备证书和固件备份信息
+// 总容量 256KB，通过 I2C 接口读写
+//==============================================================================
 SCOPEFUN_ARRAY(SArrayEEPROM, byte, SCOPEFUN_EEPROM_BYTES);
 typedef struct
 {
-    SArrayEEPROM data;
+    SArrayEEPROM data;                   // EEPROM原始数据 (256KB)
 } SEeprom;
 
-/*----------------------------------------
-   SGUID
-----------------------------------------*/
+//==============================================================================
+// SGUID - 全局唯一标识符
+// 用于设备身份识别，与校准证书关联以确保设备合法性
+//==============================================================================
 typedef struct
 {
-    uint    data1;
-    ushort  data2;
-    ushort  data3;
-    byte    data4[8];
+    uint    data1;                       // GUID第一部分
+    ushort  data2;                       // GUID第二部分
+    ushort  data3;                       // GUID第三部分
+    byte    data4[8];                    // GUID第四部分 (8字节)
 } SGUID;
 
-/*----------------------------------------
-   SFx3
-----------------------------------------*/
+//==============================================================================
+// SFx3 - FX3 USB控制器固件
+// Cypress FX3 是 USB 3.0 外设控制器，负责上位机与FPGA之间的高速数据传输
+// 固件大小限制为 SCOPEFUN_FIRMWARE_FX3 (16KB)
+//==============================================================================
 SCOPEFUN_ARRAY(SArrayFx3, byte, SCOPEFUN_FIRMWARE_FX3);
 typedef struct
 {
-    uint      size;
-    SArrayFx3 data;
+    uint      size;                      // 固件实际字节数
+    SArrayFx3 data;                      // 固件二进制数据
 } SFx3;
 
-/*----------------------------------------
-   SFpga
-----------------------------------------*/
+//==============================================================================
+// SFpga - FPGA配置固件
+// FPGA负责高速采样控制、触发逻辑和数字信号处理
+// 固件大小限制为 SCOPEFUN_FIRMWARE_FPGA (4MB)
+//==============================================================================
 SCOPEFUN_ARRAY(SArrayFpga, byte, SCOPEFUN_FIRMWARE_FPGA);
 typedef struct
 {
-    uint       size;
-    SArrayFpga data;
+    uint       size;                     // 固件实际字节数
+    SArrayFpga data;                     // 固件二进制数据
 } SFpga;
 
 /* Generator config/data types removed */

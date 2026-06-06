@@ -18,30 +18,43 @@
 //    along with this ScopeFun Oscilloscope.  If not, see <http://www.gnu.org/licenses/>.
 //
 ////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// oscsignal.h - 信号数据处理头文件
+// 功能：定义信号捕获、缓冲和历史记录相关的数据结构和常量：
+//   MAXOSCVALUE       : ADC最大量化值 (8191)
+//   NUM_SAMPLES       : 默认时域采样点数 (10000)
+//   NUM_FFT           : FFT最大采样点数 (1,048,576)
+//   CAPTURE_BUFFER    : USB捕获缓冲区大小
+//   SignalMode        : 信号模式枚举（播放/暂停/捕获/清除）
+//   ScopeFunCaptureBuffer : 捕获缓冲区类（环形缓冲/文件保存/历史管理）
+//   OsciloscopeFrame  : 单帧数据结构
+//==============================================================================
 #ifndef __OSC__SIGNAL__
 #define __OSC__SIGNAL__
 
-#define MAXOSCVALUE    8191.f
-#define NUM_SAMPLES    10000
-#define NUM_FFT        1048576
-#define CAPTURE_BUFFER                62464
-#define CAPTURE_BUFFER_HEADER          2048
-#define CAPTURE_BUFFER_PADDING          416
-#define CAPTURE_BUFFER_DATA           60000
+#define MAXOSCVALUE    8191.f                       // ADC最大量化值
+#define NUM_SAMPLES    10000                         // 默认时域采样数
+#define NUM_FFT        1048576                       // FFT最大采样数 (1M)
+#define CAPTURE_BUFFER                62464          // USB捕获缓冲区总大小
+#define CAPTURE_BUFFER_HEADER          2048          // 捕获缓冲区帧头大小
+#define CAPTURE_BUFFER_PADDING          416          // 填充字节
+#define CAPTURE_BUFFER_DATA           60000          // 有效数据大小
 
 class OsciloscopeFrame;
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// SignalMode
-//
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// SignalMode - 信号采集模式枚举
+//   PLAY    : 连续采集运行模式
+//   PAUSE   : 暂停模式（保持当前显示）
+//   CAPTURE : 单次捕获模式
+//   CLEAR   : 清除波形显示
+//==============================================================================
 enum SignalMode
 {
-    SIGNAL_MODE_PLAY,
-    SIGNAL_MODE_PAUSE,
-    SIGNAL_MODE_CAPTURE,
-    SIGNAL_MODE_CLEAR,
+    SIGNAL_MODE_PLAY,                    // 连续运行
+    SIGNAL_MODE_PAUSE,                   // 暂停
+    SIGNAL_MODE_CAPTURE,                 // 单次捕获
+    SIGNAL_MODE_CLEAR,                   // 清除
 };
 
 ////////////////////////////////////////////////////////////////////////////////

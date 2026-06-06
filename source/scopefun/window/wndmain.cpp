@@ -19,12 +19,25 @@
 //    along with this ScopeFun Oscilloscope.  If not, see <http://www.gnu.org/licenses/>.
 //
 ////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// wndmain.cpp - 主窗口数据模型实现
+// 功能：定义主窗口中各 UI 控件背后数据模型的默认值：
+//   WndStorage  - 数据存储配置（类型、大小、数据包模式）
+//   MWProgress  - 进度条状态
+//   MWVertical  - 垂直通道设置（量程、偏置、开关等）
+//   MWFunction  - 数学函数通道设置
+//   MWHorizontal- 水平时基设置（采样率、位置、捕获模式）
+//   MWTrigger   - 触发设置
+//==============================================================================
 #include <scopefun/ScopeFun.h>
 
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// WndStorage
+// WndStorage - 数据存储配置
+// type   : 存储类型（RAM/文件等）
+// size   : 存储容量（MB）
+// packet : 数据包大小策略（自动/固定大小）
 //
 ////////////////////////////////////////////////////////////////////////////////
 WndStorage::WndStorage()
@@ -34,40 +47,45 @@ WndStorage::WndStorage()
 
 void WndStorage::Default()
 {
-    type   = mtRAM;
-    size   = 1024;
-    packet = ptAutomatic;
+    type   = mtRAM;                      // 默认使用RAM存储
+    size   = 1024;                       // 默认容量 1024MB
+    packet = ptAutomatic;                // 自动选择数据包大小
 }
 
 ularge WndStorage::getPacketSize(int version)
 {
     switch(packet)
     {
-        case ptAutomatic:
+        case ptAutomatic:                // 自动模式：根据硬件版本选择
             if(version == 1)
             {
-                return  131072;
+                return  131072;          // v1: 128KB
             }
             if(version == 2)
             {
-                return 1048576;
+                return 1048576;          // v2: 1MB
             }
             break;
-        case pt512:
+        case pt512:                      // 固定 512B
             return 512;
-        case pt16384:
+        case pt16384:                    // 固定 16KB
             return 16384;
-        case pt131072:
+        case pt131072:                   // 固定 128KB
             return 131072;
-        case pt1048576:
+        case pt1048576:                  // 固定 1MB
             return 1048576;
     };
-    return 16384;
+    return 16384;                        // 默认 16KB
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// MWProgress
+// MWProgress - 进度条状态
+// uiActive : 进度是否激活
+// uiValue  : 当前进度值
+// uiRange  : 进度范围（最大值）
+// uiPulse  : 脉冲模式（不确定进度时使用）
+// uiText   : 进度文本信息
 //
 ////////////////////////////////////////////////////////////////////////////////
 MWProgress::MWProgress()
@@ -81,7 +99,16 @@ MWProgress::MWProgress()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// MWVertical
+// MWVertical - 垂直通道设置
+// Capture   : 采集电压量程 (V)
+// Scale     : 显示缩放因子
+// Display   : 显示电压量程 (V/div)
+// YPosition : 垂直偏移位置
+// OscOnOff  : 示波器通道开关
+// FFTOnOff  : FFT频谱开关
+// Invert    : 波形反转
+// Ground    : 通道接地
+// AcDc      : AC/DC耦合选择
 //
 ////////////////////////////////////////////////////////////////////////////////
 MWVertical::MWVertical()
@@ -91,20 +118,24 @@ MWVertical::MWVertical()
 
 void MWVertical::Default()
 {
-    Capture   = 2.f;
-    Scale     = 0.f;
-    Display   = 2.f;
-    YPosition = 0;
-    OscOnOff  = 1;
-    FFTOnOff  = 0;
-    Invert = 0;
-    Ground = 0;
-    AcDc   = 0;
+    Capture   = 2.f;                     // 默认采集量程 ±2V
+    Scale     = 0.f;                     // 无缩放
+    Display   = 2.f;                     // 默认显示量程 2V/div
+    YPosition = 0;                       // 零偏移
+    OscOnOff  = 1;                       // 通道默认开启
+    FFTOnOff  = 0;                       // FFT默认关闭
+    Invert = 0;                          // 不反转
+    Ground = 0;                          // 不接地
+    AcDc   = 0;                          // DC耦合
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// MWFunction
+// MWFunction - 数学函数通道设置
+// Type    : 函数类型（加/减/乘/FFT等）
+// OscOnOff: 函数波形显示开关
+// FFTOnOff: 函数FFT显示开关
+// xyGraph : XY模式开关
 //
 ////////////////////////////////////////////////////////////////////////////////
 MWFunction::MWFunction()
@@ -122,7 +153,17 @@ void MWFunction::Default()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// MWHorizontal
+// MWHorizontal - 水平时基设置
+// Capture   : 采集时间间隔 (秒/采样点)
+// Display   : 显示时间间隔 (秒/div)
+// Position  : 水平触发位置偏移
+// Mode      : 信号模式（运行/暂停/单次等）
+// Control   : 时基控制模式
+// Frame     : 当前帧索引
+// FrameSize : 每帧采样点数
+// FFTSize   : FFT采样点数
+// ETS       : 等效时间采样使能
+// Full      : 全屏模式
 //
 ////////////////////////////////////////////////////////////////////////////////
 MWHorizontal::MWHorizontal()
@@ -132,15 +173,15 @@ MWHorizontal::MWHorizontal()
 
 void MWHorizontal::Default()
 {
-    Capture  = 0.00000001f;
-    Display  = 0.00000001f;
-    Position = 0.f;
-    Mode     = SIGNAL_MODE_PAUSE;
+    Capture  = 0.00000001f;              // 默认 10ns/采样点
+    Display  = 0.00000001f;              // 默认 10ns/div
+    Position = 0.f;                      // 零偏移
+    Mode     = SIGNAL_MODE_PAUSE;        // 默认暂停模式
     Control  = 0;
     Frame = 0;
-    FrameSize = NUM_SAMPLES;
+    FrameSize = NUM_SAMPLES;             // 默认 10000 采样点
     FFTSize   = NUM_SAMPLES;
-    ETS = 0;
+    ETS = 0;                             // ETS默认关闭
     Full = 0;
 }
 

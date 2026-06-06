@@ -73,21 +73,22 @@ Osciloskop::Osciloskop( wxWindow* parent, wxWindowID id, const wxString& title, 
 
 	m_menu5->AppendSeparator();
 
+	// [校准菜单项] 已从界面移除，保留创建代码以方便后期恢复
 	wxMenuItem* m_menuItem12;
 	m_menuItem12 = new wxMenuItem( m_menu5, wxID_ANY, wxString( _("Auto Calibrate") ) , wxEmptyString, wxITEM_NORMAL );
-	m_menu5->Append( m_menuItem12 );
+	// m_menu5->Append( m_menuItem12 );  // 取消注释以恢复
 
-	m_menu5->AppendSeparator();
+	// m_menu5->AppendSeparator();  // 取消注释以恢复
 
 	wxMenuItem* m_menuItemWriteCalibrate;
 	m_menuItemWriteCalibrate = new wxMenuItem( m_menu5, wxID_ANY, wxString( _("Write Calibration") ) , wxEmptyString, wxITEM_NORMAL );
-	m_menu5->Append( m_menuItemWriteCalibrate );
+	// m_menu5->Append( m_menuItemWriteCalibrate );  // 取消注释以恢复
 
 	wxMenuItem* m_menuItemReadCalibrate;
 	m_menuItemReadCalibrate = new wxMenuItem( m_menu5, wxID_ANY, wxString( _("Read Calibration") ) , wxEmptyString, wxITEM_NORMAL );
-	m_menu5->Append( m_menuItemReadCalibrate );
+	// m_menu5->Append( m_menuItemReadCalibrate );  // 取消注释以恢复
 
-	m_menu5->AppendSeparator();
+	// m_menu5->AppendSeparator();  // 取消注释以恢复
 
 	m_menuItemWriteCertificate = new wxMenuItem( m_menu5, wxID_ANY, wxString( _("Write Certificate") ) , wxEmptyString, wxITEM_NORMAL );
 	m_menu5->Append( m_menuItemWriteCertificate );
@@ -113,7 +114,7 @@ Osciloskop::Osciloskop( wxWindow* parent, wxWindowID id, const wxString& title, 
 	m_menu5->Append( m_menuItemFactoryLoadFX3Ram );
 
 	m_menuItemEraseECalibration = new wxMenuItem( m_menu5, wxID_ANY, wxString( _("Erase Calibration") ) , wxEmptyString, wxITEM_NORMAL );
-	m_menu5->Append( m_menuItemEraseECalibration );
+	// m_menu5->Append( m_menuItemEraseECalibration );  // 取消注释以恢复
 
 	m_menubar1->Append( m_menu5, _("EEPROM") );
 
@@ -774,16 +775,17 @@ Osciloskop::Osciloskop( wxWindow* parent, wxWindowID id, const wxString& title, 
 	m_menu3->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItem9OnMenuSelection ), this, m_menuItem9->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemReadEEPROMOnMenuSelection ), this, m_menuItemReadEEPROM->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemWriteEEPROMOnMenuSelection ), this, m_menuItemWriteEEPROM->GetId());
-	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItem12OnMenuSelection ), this, m_menuItem12->GetId());
-	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemWriteCalibrateOnMenuSelection ), this, m_menuItemWriteCalibrate->GetId());
-	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemReadCalibrateOnMenuSelection ), this, m_menuItemReadCalibrate->GetId());
+	// [校准事件绑定] 已从界面移除，保留代码以方便后期恢复
+	// m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItem12OnMenuSelection ), this, m_menuItem12->GetId());
+	// m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemWriteCalibrateOnMenuSelection ), this, m_menuItemWriteCalibrate->GetId());
+	// m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemReadCalibrateOnMenuSelection ), this, m_menuItemReadCalibrate->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemWriteCertificateOnMenuSelection ), this, m_menuItemWriteCertificate->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemReadCertificateOnMenuSelection ), this, m_menuItemReadCertificate->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemLockCertificateOnMenuSelection ), this, m_menuItemLockCertificate->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemResetEEPROMOnMenuSelection ), this, m_menuItemResetEEPROM->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemFactoryWriteEEPROMOnMenuSelection ), this, m_menuItemFactoryWriteEEPROM->GetId());
 	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemFactoryLoadFX3RamOnMenuSelection ), this, m_menuItemFactoryLoadFX3Ram->GetId());
-	m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemEraseECalibrationOnMenuSelection ), this, m_menuItemEraseECalibration->GetId());
+	// m_menu5->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemEraseECalibrationOnMenuSelection ), this, m_menuItemEraseECalibration->GetId());  // 取消注释以恢复
 	m_menu8->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItem15OnMenuSelection ), this, m_menuItem15->GetId());
 	m_menu7->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemDebugOnMenuSelection ), this, m_menuItemDebug->GetId());
 	m_menu7->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( Osciloskop::m_menuItemInfoOnMenuSelection ), this, m_menuItemInfo->GetId());

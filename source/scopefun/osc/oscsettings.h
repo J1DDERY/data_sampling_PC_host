@@ -19,35 +19,51 @@
 //    along with this ScopeFun Oscilloscope.  If not, see <http://www.gnu.org/licenses/>.
 //
 ////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// oscsettings.h - 设备配置管理头文件
+// 功能：定义硬件设备配置和校准参数的数据结构：
+//   OscHardware : 硬件描述类（USB标识、固件路径、校准参数）
+//   - USB供应商ID/产品ID (Cypress: VID=1204, PID=243)
+//   - FX3固件和FPGA固件路径
+//   - 电压校准系数
+//   - 配置文件JSON序列化接口
+//==============================================================================
 #ifndef __OSC__SETTINGS__
 #define __OSC__SETTINGS__
 
-#define CYPRESS_VID 1204
-#define CYPRESS_PID 243
+#define CYPRESS_VID 1204                  // Cypress USB 供应商ID
+#define CYPRESS_PID 243                   // Cypress USB 产品ID
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// OscHardware
-//
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// OscHardware - 硬件描述类
+// 存储与当前连接的示波器硬件相关的所有标识和配置信息：
+//   usbGuid      : USB设备GUID
+//   usbVendor    : USB供应商ID
+//   usbProduct   : USB产品ID
+//   usbSerial    : USB序列号
+//   usbFirmware  : FX3固件文件路径
+//   fpgaFirmware : FPGA固件文件路径
+//   fpgaEtsIndex/Count : ETS等效时间采样参数
+//   digitalVoltageCoeficient : 数字通道电压换算系数
+//==============================================================================
 class OscHardware
 {
 private:
-    int version;
+    int version;                          // 硬件版本号
 public:
     OscHardware(int version);
 public:
-    UsbGuid usbGuid;
-    uint    usbVendor;
-    uint    usbProduct;
-    uint    usbSerial;
-    String  usbFirmware;
+    UsbGuid usbGuid;                      // USB设备GUID
+    uint    usbVendor;                    // USB供应商ID
+    uint    usbProduct;                   // USB产品ID
+    uint    usbSerial;                    // USB序列号
+    String  usbFirmware;                  // FX3固件路径
 public:
-    String fpgaFirmware;
-    uint   fpgaEtsIndex;
-    uint   fpgaEtsCount;
+    String fpgaFirmware;                  // FPGA固件路径
+    uint   fpgaEtsIndex;                  // ETS延迟表索引
+    uint   fpgaEtsCount;                  // ETS延迟表条目数
 public:
-    double digitalVoltageCoeficient;
+    double digitalVoltageCoeficient;      // 数字通道电压系数
 public:
     double generatorFs;
 public:

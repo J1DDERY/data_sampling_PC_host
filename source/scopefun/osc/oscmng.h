@@ -19,28 +19,42 @@
 //    along with this ScopeFun Oscilloscope.  If not, see <http://www.gnu.org/licenses/>.
 //
 ////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// oscmng.h - 示波器核心管理器头文件
+// 功能：定义示波器引擎的核心数据结构、类定义和常量：
+//   - 示波器管理器 (OsciloscopeManager) - 主循环与线程管理
+//   - 数据捕获缓冲 (CaptureBuffer/Frame/Packet) - 环形数据存储
+//   - 线程API (ThreadApi) - 硬件通信线程
+//   - 渲染线程 (OsciloscopeThreadRenderer) - OpenGL渲染管线
+//   - 历史记录 (HistoryRing) - 波形帧历史
+//   - 计时器枚举和配置常量
+//==============================================================================
 #ifndef __TOOL__OSCILOSCOPE__
 #define __TOOL__OSCILOSCOPE__
 
-#define SCOPEFUN_MAX_BUFFERING 2
-#define SCOPEFUN_MAX_HISTORY   16
-#define SCOPEFUN_MAX_UNDO      1024
+#define SCOPEFUN_MAX_BUFFERING 2         // 最大缓冲帧数（双缓冲）
+#define SCOPEFUN_MAX_HISTORY   16        // 最大历史帧数
+#define SCOPEFUN_MAX_UNDO      1024      // 最大撤销次数
 
+//==============================================================================
+// ETimer - 性能计时器枚举
+// 用于不同阶段的耗时统计和性能分析
+//==============================================================================
 enum ETimer
 {
-    TIMER_MAIN_THREAD,
-    TIMER_MAIN,
-    TIMER_RENDER_THREAD,
-    TIMER_RENDER,
-    TIMER_CAPTURE,
-    TIMER_GENERATE,
-    TIMER_MEASURE,
-    TIMER_USERINTERFACE,
-    TIMER_HARDWARE,
-    TIMER_UPDATE0,
-    TIMER_UPDATE1,
-    TIMER_UPDATE2,
-    TIMER_UPDATE3,
+    TIMER_MAIN_THREAD,                   // 主线程总耗时
+    TIMER_MAIN,                          // 主循环耗时
+    TIMER_RENDER_THREAD,                 // 渲染线程总耗时
+    TIMER_RENDER,                        // 渲染耗时
+    TIMER_CAPTURE,                       // 数据捕获耗时
+    TIMER_GENERATE,                      // 信号生成耗时
+    TIMER_MEASURE,                       // 测量计算耗时
+    TIMER_USERINTERFACE,                 // UI更新耗时
+    TIMER_HARDWARE,                      // 硬件通信耗时
+    TIMER_UPDATE0,                       // 更新阶段0
+    TIMER_UPDATE1,                       // 更新阶段1
+    TIMER_UPDATE2,                       // 更新阶段2
+    TIMER_UPDATE3,                       // 更新阶段3
 };
 
 ////////////////////////////////////////////////////////////////////////////////
