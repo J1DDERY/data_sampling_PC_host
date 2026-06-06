@@ -5,6 +5,8 @@
 /ScopeFun-*.exe.sha512
 /build/*
 /Build/*
+/build2/*
+/Build2/*
 /_CPack_Packages/
 /_stage/
 /_stage2/
